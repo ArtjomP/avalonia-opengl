@@ -390,6 +390,8 @@ void main()
 
     private static unsafe void ScreenshotWithReadPixels()
     {
+        _gl.PointSize(1.0f);
+        _gl.DisableVertexAttribArray(0);
         _gl.Flush();
         _gl.Finish();
         _gl.PixelStore(GLEnum.UnpackAlignment, 1);
