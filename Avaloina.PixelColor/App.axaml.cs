@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace avalonia_opengl
+namespace Avaloina.PixelColor
 {
     public partial class App : Application
     {

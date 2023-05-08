@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace avalonia_opengl
+namespace Avaloina.PixelColor
 {
     internal class Program
     {

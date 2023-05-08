@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace avalonia_opengl
+namespace Avaloina.PixelColor
 {
     public partial class MainWindow : Window
     {
