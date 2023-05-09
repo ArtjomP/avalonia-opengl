@@ -9,7 +9,17 @@
     <!-- Set Defaults -->
     <Setter Property="Template">
       <ControlTemplate>
-        <TextBlock Text="Templated Control" />
+		  <Grid ColumnDefinitions="*,Auto">
+			  <controls:OpenGlControl
+				  Grid.Column="0"
+				  x:Name="PART_OpenGl"/>
+			  <StackPanel
+				  Grid.Column="1"
+				  Orientation="Vertical">
+				  <TextBlock
+				  Text="Templated Control" />
+			  </StackPanel>
+		  </Grid>        
       </ControlTemplate>
     </Setter>
   </Style>
