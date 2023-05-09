@@ -1,4 +1,5 @@
-﻿using Silk.NET.Input;
+﻿using Common;
+using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SixLabors.ImageSharp;
@@ -51,26 +52,6 @@ class Program
 
     private static UInt32 _fboForPixels;
 
-    private const String _vertexCode = @"
-#version 330 core
-
-layout (location = 0) in vec3 aPosition;
-
-void main()
-{
-    gl_Position = vec4(aPosition, 1.0);
-}";
-
-    private const String _fragmentCode = @"
-#version 330 core
-
-out vec4 out_color;
-
-void main()
-{
-    out_color = vec4(1.0, 0.5, 0.2, 1.0);
-}";
-
     private static readonly String _vertexShaderGrab = @"
 #version 330 core
 precision mediump float;
@@ -100,7 +81,8 @@ vec4 colorConvert(vec4 color) { return vec4(color.r, color.g, color.b, 1.0); }
 void main()
 {
     vFragColor = colorConvert(texture(texIn, ledPos));
-}";
+}";    
+
 
     private unsafe static void OnLoad()
     {
@@ -192,7 +174,7 @@ void main()
         }
 
         var vertexShader = _gl.CreateShader(ShaderType.VertexShader);
-        _gl.ShaderSource(vertexShader, _vertexCode);
+        _gl.ShaderSource(vertexShader, ConstantStrings.VertexShader);
 
         _gl.CompileShader(vertexShader);
 
@@ -203,7 +185,7 @@ void main()
         }
 
         var fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
-        _gl.ShaderSource(fragmentShader, _fragmentCode);
+        _gl.ShaderSource(fragmentShader, ConstantStrings.FragmentShader);
 
         _gl.CompileShader(fragmentShader);
 
@@ -294,7 +276,7 @@ void main()
         }
 
         var vertexShader = _gl.CreateShader(ShaderType.VertexShader);
-        _gl.ShaderSource(vertexShader, _vertexCode);
+        _gl.ShaderSource(vertexShader, ConstantStrings.VertexShader);
 
         _gl.CompileShader(vertexShader);
 
@@ -305,7 +287,7 @@ void main()
         }
 
         var fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
-        _gl.ShaderSource(fragmentShader, _fragmentCode);
+        _gl.ShaderSource(fragmentShader, ConstantStrings.FragmentShader);
 
         _gl.CompileShader(fragmentShader);
 
