@@ -3,6 +3,6 @@
              x:Class="Avaloina.PixelColor.App">
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
-		<StyleInclude Source="avares://Avaloina.PixelColor/PickPixelColorControl.axaml"/>
+		<StyleInclude Source="avares://Avaloina.PixelColor/Controls/PickPixelColorControl.axaml"/>
     </Application.Styles>
 </Application>

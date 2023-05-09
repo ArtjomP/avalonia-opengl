@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:local="clr-namespace:Avaloina.PixelColor"
+	xmlns:controls="clr-namespace:Avaloina.PixelColor.Controls"
     mc:Ignorable="d"
 	d:DesignWidth="800"
 	d:DesignHeight="450"
@@ -14,7 +14,7 @@
 		<TextBlock 
 			Grid.Row="0"
 			Text="Welcome"/>
-		<local:PickPixelColorControl 
+		<controls:PickPixelColorControl 
 			Grid.Row="1"
 			Background="Black"
 			HorizontalAlignment="Stretch"

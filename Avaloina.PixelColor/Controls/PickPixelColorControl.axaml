@@ -1,6 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:Avaloina.PixelColor">
+        xmlns:controls="using:Avaloina.PixelColor.Controls">
   <Design.PreviewWith>
     <controls:PickPixelColorControl />
   </Design.PreviewWith>
