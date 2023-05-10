@@ -9,12 +9,19 @@
     <!-- Set Defaults -->
     <Setter Property="Template">
       <ControlTemplate>
-		  <Grid ColumnDefinitions="*,Auto">
+		  <Grid
+			  ColumnDefinitions="*,Auto"
+			  RowDefinitions="*">
 			  <controls:OpenGlControl
-				  Grid.Column="0"
-				  x:Name="PART_OpenGl"/>
+				 Grid.Column="0"
+				 Grid.Row="0"
+				 HorizontalAlignment="Stretch"
+				 VerticalAlignment="Stretch"
+				 x:Name="PART_OpenGl"/>
+			 
 			  <StackPanel
 				  Grid.Column="1"
+				  Grid.Row="0"
 				  Orientation="Vertical">
 				  <TextBlock
 				  Text="Templated Control" />

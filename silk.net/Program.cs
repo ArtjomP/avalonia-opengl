@@ -2,11 +2,8 @@
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace silk.net;
 
@@ -130,13 +127,7 @@ void main()
         _gl.BindVertexArray(_vao);
 
         // The quad vertices data.
-        Single[] vertices =
-        {
-            0.85f,  0.85f, 0.0f,
-            0.85f, -0.85f, 0.0f,
-            -0.85f, -0.85f, 0.0f,
-            -0.85f,  0.85f, 0.0f
-        };
+        var vertices = Constants.Vertices;
 
         // Create the VBO.
         _vboForGrab = _gl.GenBuffer();
@@ -153,11 +144,7 @@ void main()
         }
 
         // The quad indices data.
-        UInt32[] indices =
-        {
-            0u, 1u, 3u,
-            1u, 2u, 3u
-        };
+        var indices = Constants.Indices;
 
         // Create the EBO.
         _eboForGrab = _gl.GenBuffer();
@@ -231,19 +218,13 @@ void main()
         _vao = _gl.GenVertexArray();
         _gl.BindVertexArray(_vao);
 
-        // The quad vertices data.
-        Single[] vertices =
-        {
-            0.85f,  0.85f, 0.0f,
-            0.85f, -0.85f, 0.0f,
-            -0.85f, -0.85f, 0.0f,
-            -0.85f,  0.85f, 0.0f
-        };
 
         // Create the VBO.
         _vbo = _gl.GenBuffer();
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
 
+        // The quad vertices data.
+        var vertices = Constants.Vertices;
         // Upload the vertices data to the VBO.
         fixed (Single* buf = vertices)
         {
@@ -255,11 +236,7 @@ void main()
         }
 
         // The quad indices data.
-        UInt32[] indices =
-        {
-            0u, 1u, 3u,
-            1u, 2u, 3u
-        };
+        var indices = Constants.Indices;
 
         // Create the EBO.
         _ebo = _gl.GenBuffer();
@@ -320,7 +297,7 @@ void main()
             size: 3, 
             type: VertexAttribPointerType.Float, 
             normalized: true,
-            stride: 3 * sizeof(float),
+            stride: 3 * sizeof(Single),
             pointer: (void*)0);
 
         _gl.BindVertexArray(0);

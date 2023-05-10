@@ -17,7 +17,7 @@ public class PickPixelColorControl : TemplatedControl
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        _openGlControl?.Render(context);
+        _openGlControl?.InvalidateVisual();
     }
 
     protected override void OnMeasureInvalidated()
