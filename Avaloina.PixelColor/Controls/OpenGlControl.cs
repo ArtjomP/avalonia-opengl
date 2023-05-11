@@ -1,8 +1,9 @@
-﻿using Avalonia.OpenGL;
+﻿using Avalonia.Media;
+using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Common;
 using System;
-
+using System.Collections.Generic;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avaloina.PixelColor.Controls;
@@ -27,6 +28,11 @@ public sealed class OpenGlControl : OpenGlControlBase
     public OpenGlControl()
     {
     }
+
+    public List<TrackPoint> TrackPoints 
+    { 
+        get;
+    } = new List<TrackPoint>();
 
     protected override unsafe void OnOpenGlInit(GlInterface gl, int fb)
     {
@@ -111,12 +117,45 @@ public sealed class OpenGlControl : OpenGlControlBase
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    protected override void OnOpenGlDeinit(GlInterface gl, int fb)
+    private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
+    {
+        var glExtras = _glExtras;
+        if (glExtras is not null)
+        {
+            foreach (var trackPoint in TrackPoints)
+            {
+                var x = (Int32)Math.Round(trackPoint.ReleativeX * width);
+                var y = (Int32)Math.Round(trackPoint.ReleativeY * height);
+                var pixels = new Byte[Constants.RgbaSize];
+                fixed (void* pPixels = pixels)
+                {
+                    glExtras.ReadPixels(
+                        x: x, 
+                        y: y,
+                        width: 1,
+                        height: 1,
+                        format: GL_RGBA,
+                        type: GL_UNSIGNED_BYTE,
+                        data: pPixels);
+                }
+
+                var r = pixels[0];
+                var g = pixels[1];
+                var b = pixels[2];
+                var a = pixels[3];
+                var color = System.Drawing.Color.FromArgb(a, r, g, b);
+                trackPoint.Color = color;
+            }
+        }
+       
+    }
+
+    protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
     {
         base.OnOpenGlDeinit(gl, fb);
     }
 
-    protected override void OnOpenGlRender(GlInterface gl, int fb)
+    protected override void OnOpenGlRender(GlInterface gl, Int32 fb)
     {
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -134,6 +173,8 @@ public sealed class OpenGlControl : OpenGlControlBase
                 count: 6,
                 type: GL_UNSIGNED_INT,
                 indices: IntPtr.Zero);
+
+            GetTrackPointsColors(width, height);
         }
     }
 

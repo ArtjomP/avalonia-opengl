@@ -17,4 +17,6 @@ public static class Constants
             0u, 1u, 3u,
             1u, 2u, 3u
         };
+
+    public const Int32 RgbaSize = 4;
 }

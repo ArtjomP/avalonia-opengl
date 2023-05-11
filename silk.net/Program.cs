@@ -2,6 +2,8 @@
 using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
 
@@ -11,7 +13,7 @@ class Program
 {
     private const Int32 Width = 800;
     private const Int32 Height = 600;
-    private const Int32 RgbaSize = 4;
+    private const Int32 RgbaSize = Constants.RgbaSize;
     private static Int32 _counter = 0;
 
     private static void Main(string[] args)

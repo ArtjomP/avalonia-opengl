@@ -1,33 +1,72 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:Avaloina.PixelColor.Controls">
-  <Design.PreviewWith>
-    <controls:PickPixelColorControl />
-  </Design.PreviewWith>
+	<Design.PreviewWith>
+		<controls:PickPixelColorControl />
+	</Design.PreviewWith>
 
-  <Style Selector="controls|PickPixelColorControl">
-    <!-- Set Defaults -->
-    <Setter Property="Template">
-      <ControlTemplate>
-		  <Grid
-			  ColumnDefinitions="*,Auto"
-			  RowDefinitions="*">
-			  <controls:OpenGlControl
-				 Grid.Column="0"
-				 Grid.Row="0"
-				 HorizontalAlignment="Stretch"
-				 VerticalAlignment="Stretch"
-				 x:Name="PART_OpenGl"/>
-			 
-			  <StackPanel
-				  Grid.Column="1"
-				  Grid.Row="0"
-				  Orientation="Vertical">
-				  <TextBlock
-				  Text="Templated Control" />
-			  </StackPanel>
-		  </Grid>        
-      </ControlTemplate>
-    </Setter>
-  </Style>
+	<Style Selector="controls|PickPixelColorControl">
+		<!-- Set Defaults -->
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Grid
+					ColumnDefinitions="*,240"
+					RowDefinitions="*">
+					<controls:OpenGlControl
+						Grid.Column="0"
+						Grid.Row="0"
+						HorizontalAlignment="Stretch"
+						VerticalAlignment="Stretch"
+						x:Name="PART_OpenGl"/>
+
+					<StackPanel
+						Grid.Column="1"
+						Grid.Row="0"
+						Orientation="Vertical">
+						<TextBlock
+							Text="Color under mouse cursor:" />
+						<ListBox Items="{TemplateBinding TrackPoints}">
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<Grid
+										RowDefinitions="Auto,Auto"
+										ColumnDefinitions="Auto,60,*">
+										<TextBlock
+											Grid.Column="0"
+											Grid.Row="0"
+											Margin="4"
+											Text="Relative X:"/>
+										<TextBlock
+											Grid.Column="1"
+											Grid.Row="0"
+											Margin="4"
+											Text="{Binding RelativeX, StringFormat={}{0:0.0000}}"/>
+										<TextBlock
+											Grid.Column="0"
+											Grid.Row="1"
+											Margin="4"
+											Text="Relative Y:"/>
+										<TextBlock
+											Grid.Column="1"
+											Grid.Row="1"
+											Margin="4"
+											Text="{Binding RelativeY, StringFormat={}{0:0.0000}}"/>
+										<Border
+											Grid.Column="2"
+											Grid.Row="0"
+											Grid.RowSpan="2"
+											Background="{Binding ColorBrush}"
+											CornerRadius="4"
+											Margin="4">
+										</Border>
+									</Grid>
+
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</StackPanel>
+				</Grid>
+			</ControlTemplate>
+		</Setter>
+	</Style>
 </Styles>
