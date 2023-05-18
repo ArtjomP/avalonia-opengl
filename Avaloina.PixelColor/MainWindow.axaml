@@ -11,6 +11,18 @@
     Title="Avaloina.PixelColor">
 	<Grid
 		RowDefinitions="Auto,*">
+		<Grid
+			Grid.Row="0"
+			Grid.Column="0"
+			RowDefinitions="Auto,Auto"
+			ColumnDefinitions="Auto,*,Auto">
+			
+		</Grid>
+		<StackPanel
+			
+			Orientation="Horizontal">
+			
+		</StackPanel>
 		<TextBlock 
 			Grid.Row="0"
 			Text="Welcome"/>
