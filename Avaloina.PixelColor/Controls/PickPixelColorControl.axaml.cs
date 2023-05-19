@@ -8,7 +8,9 @@ using System.Collections.Generic;
 
 namespace Avaloina.PixelColor.Controls;
 
-public class PickPixelColorControl : TemplatedControl
+public class PickPixelColorControl 
+    : TemplatedControl
+    , IScreenShotControl
 {
     private OpenGlControl? _openGlControl;
 
@@ -42,7 +44,6 @@ public class PickPixelColorControl : TemplatedControl
         }
 
         _openGlControl = openGlControl;
-
         PointerMovedEvent.AddClassHandler<PickPixelColorControl>(TrackMoved);
     }
 
@@ -97,5 +98,9 @@ public class PickPixelColorControl : TemplatedControl
     {
         base.OnMeasureInvalidated();
         _openGlControl?.InvalidateMeasure();
+    }
+
+    public void MakeScreenShot(String fullname)
+    {
     }
 }

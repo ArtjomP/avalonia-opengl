@@ -24,10 +24,10 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void MakeScreenShot()
     {
-        var screenShotControl = ScreenShotControl;
-        if (screenShotControl is not null)
+        try
         {
-            try
+            var screenShotControl = ScreenShotControl;
+            if (screenShotControl is not null)
             {
                 var folder = ScreenShotsFolder;
                 Directory.CreateDirectory(folder);
@@ -35,10 +35,10 @@ public sealed class MainWindowViewModel : ReactiveObject
                 var fullname = Path.Combine(folder, filename);
                 screenShotControl.MakeScreenShot(fullname);
             }
-            catch (Exception ex)
-            {
-                Error = ex.Message;
-            }
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
         }
     }
 
