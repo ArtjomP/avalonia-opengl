@@ -152,7 +152,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         }      
     }
 
-    public unsafe void MakeScreenShot(String fullname)
+    private unsafe void DoScreenShot(String fullname)
     {
         var gl = _gl;
         var glExtras = _glExtras;
@@ -168,6 +168,8 @@ public sealed class OpenGlControl : OpenGlControlBase
             gl.Viewport(0, 0, width, height);
             var pixelSize = Constants.RgbaSize;
             var pixels = new Byte[pixelSize * width * height];
+            gl.Finish();
+            glExtras.ReadBuffer(GL_COLOR_ATTACHMENT0);
             fixed (void* pPixels = pixels)
             {
                 glExtras.ReadPixels(
@@ -176,17 +178,20 @@ public sealed class OpenGlControl : OpenGlControlBase
                     width: width,
                     height: height,
                     format: GL_RGBA,
-                    type: GL_UNSIGNED_BYTE,
+                    type: GL_BYTE,
                     data: pPixels);
             }
-
-
 
             Utils.SaveScreenshot(pixels, width, height, pixelSize, fullname);
         }
     }
 
+    private String _screeshotFullname = String.Empty;
 
+    public void MakeScreenShot(String fullname)
+    {
+        _screeshotFullname = fullname;
+    }
 
     protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
     {
@@ -213,6 +218,13 @@ public sealed class OpenGlControl : OpenGlControlBase
                 indices: IntPtr.Zero);
 
             GetTrackPointsColors(width, height);
+
+            var screeshotFullname = _screeshotFullname;
+            _screeshotFullname = String.Empty;
+            if (!String.IsNullOrEmpty(screeshotFullname))
+            {
+                DoScreenShot(screeshotFullname);
+            }
         }
     }
 

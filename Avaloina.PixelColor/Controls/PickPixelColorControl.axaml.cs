@@ -103,5 +103,6 @@ public class PickPixelColorControl
     public void MakeScreenShot(String fullname)
     {
         _openGlControl?.MakeScreenShot(fullname);
+        _openGlControl?.InvalidateVisual();
     }
 }

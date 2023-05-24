@@ -359,6 +359,7 @@ void main()
         var width = Convert.ToUInt32(Width);
         var height = Convert.ToUInt32(Height);
         var pixels = new Byte[RgbaSize * width * height];
+        _gl.ReadBuffer(GLEnum.ColorAttachment0);
         fixed (void* pPixels = pixels)
         {
             //_gl.PixelStore(GLEnum.PackImageHeight, height / 4);
