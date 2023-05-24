@@ -5,4 +5,7 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="SixLabors.ImageSharp" Version="2.1.4" />
+	</ItemGroup>
 </Project>

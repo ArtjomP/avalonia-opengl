@@ -80,7 +80,7 @@ vec4 colorConvert(vec4 color) { return vec4(color.r, color.g, color.b, 1.0); }
 void main()
 {
     vFragColor = colorConvert(texture(texIn, ledPos));
-}";    
+}";
 
 
     private unsafe static void OnLoad()
@@ -139,8 +139,8 @@ void main()
         fixed (Single* buf = vertices)
         {
             _gl.BufferData(
-                target: BufferTargetARB.ArrayBuffer, 
-                size: (UIntPtr)(vertices.Length * sizeof(Single)), 
+                target: BufferTargetARB.ArrayBuffer,
+                size: (UIntPtr)(vertices.Length * sizeof(Single)),
                 data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
@@ -156,9 +156,9 @@ void main()
         fixed (UInt32* buf = indices)
         {
             _gl.BufferData(
-                target: BufferTargetARB.ElementArrayBuffer, 
+                target: BufferTargetARB.ElementArrayBuffer,
                 size: (UIntPtr)(indices.Length * sizeof(UInt32)),
-                data: buf, 
+                data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
 
@@ -203,7 +203,7 @@ void main()
         const UInt32 positionLoc = 0;
         _gl.EnableVertexAttribArray(positionLoc);
         _gl.VertexAttribPointer(
-            index: positionLoc, 
+            index: positionLoc,
             size: 3,
             type: VertexAttribPointerType.Float,
             normalized: false,
@@ -232,7 +232,7 @@ void main()
         {
             _gl.BufferData(
                 target: BufferTargetARB.ArrayBuffer,
-                size: (UIntPtr)(vertices.Length * sizeof(Single)), 
+                size: (UIntPtr)(vertices.Length * sizeof(Single)),
                 data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
@@ -248,7 +248,7 @@ void main()
         fixed (UInt32* buf = indices)
         {
             _gl.BufferData(
-                target: BufferTargetARB.ElementArrayBuffer, 
+                target: BufferTargetARB.ElementArrayBuffer,
                 size: (UIntPtr)(indices.Length * sizeof(UInt32)),
                 data: buf,
                 usage: BufferUsageARB.StaticDraw);
@@ -295,9 +295,9 @@ void main()
         const UInt32 positionLoc = 0;
         _gl.EnableVertexAttribArray(positionLoc);
         _gl.VertexAttribPointer(
-            index: positionLoc, 
-            size: 3, 
-            type: VertexAttribPointerType.Float, 
+            index: positionLoc,
+            size: 3,
+            type: VertexAttribPointerType.Float,
             normalized: true,
             stride: 3 * sizeof(Single),
             pointer: (void*)0);
@@ -306,7 +306,7 @@ void main()
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
         _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
     }
-     
+
     private static Byte[] _pixelsTexture0 = Array.Empty<Byte>();
 
     // These two methods are unused for this tutorial, aside from the logging we added earlier.
@@ -324,13 +324,13 @@ void main()
         _gl.UseProgram(_program);
         _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
 
-    //    _gl.BindVertexArray(_vaoForGrab);
-    //    _gl.UseProgram(_programGrab);
-    //    _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
+        //    _gl.BindVertexArray(_vaoForGrab);
+        //    _gl.UseProgram(_programGrab);
+        //    _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
 
         ++_counter;
         ScreenshotWithReadPixels();
-     //   ScreenshotWithTexture();
+        //   ScreenshotWithTexture();
     }
 
     private static unsafe void ScreenshotWithTexture()
@@ -352,7 +352,7 @@ void main()
     private static unsafe void ScreenshotWithReadPixels()
     {
         _gl.PointSize(1.0f);
-        _gl.DisableVertexAttribArray(0);
+      //  _gl.DisableVertexAttribArray(0);
         _gl.Flush();
         _gl.Finish();
         _gl.PixelStore(GLEnum.UnpackAlignment, 1);
@@ -374,29 +374,17 @@ void main()
         }
     }
 
-    private static void SaveScreenshot(String prefix, Byte[] rgbaData, Int32 width, Int32 height)
+    private static void SaveScreenshot(
+        String prefix,
+        Byte[] rgbaData,
+        Int32 width,
+        Int32 height)
     {
         //height = 1;
-        using var image = new Image<Rgba32>(width, height);
-        {
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
-                {
-                    var index = (y * width) + x * RgbaSize;
-                    Rgba32 pixel = image[x, y];
-                    pixel.R = rgbaData[index];
-                    pixel.G = rgbaData[index + 1];
-                    pixel.B = rgbaData[index + 2];
-                    pixel.A = rgbaData[index + 3];
-                    image[x, y] = pixel;
-                }
-            }
-        }
-
         var filename = "c:\\temp\\";
         filename = Path.Combine(filename, $"silk-{prefix}-{Guid.NewGuid()}.bmp");
-        image.SaveAsBmp(filename);
+
+        Utils.SaveScreenshot(rgbaData, width, height, RgbaSize, filename);
     }
 
     private static void KeyDown(IKeyboard keyboard, Key key, int keyCode)

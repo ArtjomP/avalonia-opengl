@@ -10,6 +10,8 @@ namespace Avaloina.PixelColor.Controls;
 
 public sealed class OpenGlControl : OpenGlControlBase
 {
+    private GlInterface? _gl;
+
     private GlExtrasInterface? _glExtras;
 
     private Int32 _vao;
@@ -37,7 +39,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     protected override unsafe void OnOpenGlInit(GlInterface gl, int fb)
     {
         base.OnOpenGlInit(gl, fb);
-
+        _gl = gl;
         gl.ClearColor(r: 0.3922f, g: 0.5843f, b: 0.9294f, a: 1);
 
         _glExtras = new GlExtrasInterface(gl);
@@ -119,8 +121,9 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
+        var gl = _gl;
         var glExtras = _glExtras;
-        if (glExtras is not null)
+        if (gl is not null && glExtras is not null)
         {
             foreach (var trackPoint in TrackPoints)
             {
@@ -146,9 +149,44 @@ public sealed class OpenGlControl : OpenGlControlBase
                 var color = System.Drawing.Color.FromArgb(a, r, g, b);
                 trackPoint.Color = color;
             }
-        }
-       
+        }      
     }
+
+    public unsafe void MakeScreenShot(String fullname)
+    {
+        var gl = _gl;
+        var glExtras = _glExtras;
+        if (gl is not null && glExtras is not null)
+        {
+            glExtras.ReadBuffer(GL_FRONT);
+            glExtras.PixelStore(GL_PACK_ROW_LENGTH, 0);
+            glExtras.PixelStore(GL_PACK_SKIP_PIXELS, 0);
+            glExtras.PixelStore(GL_PACK_SKIP_ROWS, 0);
+            glExtras.PixelStore(GL_PACK_ALIGNMENT, 1);
+            var width = (Int32)Bounds.Width;
+            var height = (Int32)Bounds.Height;
+            gl.Viewport(0, 0, width, height);
+            var pixelSize = Constants.RgbaSize;
+            var pixels = new Byte[pixelSize * width * height];
+            fixed (void* pPixels = pixels)
+            {
+                glExtras.ReadPixels(
+                    x: 0,
+                    y: 0,
+                    width: width,
+                    height: height,
+                    format: GL_RGBA,
+                    type: GL_UNSIGNED_BYTE,
+                    data: pPixels);
+            }
+
+
+
+            Utils.SaveScreenshot(pixels, width, height, pixelSize, fullname);
+        }
+    }
+
+
 
     protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
     {

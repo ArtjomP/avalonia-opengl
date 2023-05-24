@@ -13,6 +13,7 @@ namespace Avaloina.PixelColor
             InitializeComponent();
             ViewModel = new MainWindowViewModel();
             DataContext = ViewModel;
+            ViewModel.ScreenShotControl = OpenGlControl;
         }
 
         private MainWindowViewModel ViewModel { get; }
