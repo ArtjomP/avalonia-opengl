@@ -1,0 +1,50 @@
+<Window 
+	xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:controls="clr-namespace:Avalonia.PixelColor.Controls"
+	xmlns:vm="clr-namespace:Avalonia.PixelColor.ViewModels;assembly=Avalonia.PixelColor"
+    mc:Ignorable="d"
+	d:DesignWidth="800"
+	d:DesignHeight="450"
+    x:Class="Avalonia.PixelColor.MainWindow"
+    Title="Avalonia.PixelColor"
+	x:DataType="vm:MainWindowViewModel">
+	<Grid
+		RowDefinitions="Auto,*">
+		<Grid
+			Grid.Row="0"
+			Grid.Column="0"
+			RowDefinitions="Auto,Auto"
+			ColumnDefinitions="Auto,*,Auto">
+			
+		</Grid>
+		<Grid	
+			Grid.Row="0"
+			ColumnDefinitions="Auto,*,Auto">
+			<TextBlock
+				Grid.Column="0"
+				Margin="4"
+				VerticalAlignment="Center"
+				Text="Save screenshot path:"/>
+			<TextBox
+				Grid.Column="1"
+				Margin="4"
+				Text="{Binding ScreenShotsFolder, Mode=TwoWay}"/>
+			<Button
+				Grid.Column="2"
+				Margin="4"
+				Click="OnMakeScreenshotClick">
+				Make screenshot
+			</Button>
+		</Grid>
+		
+		<controls:PickPixelColorControl 
+			x:Name="OpenGlControl"
+			Grid.Row="1"
+			Background="Black"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Stretch"/>
+	</Grid>
+</Window>

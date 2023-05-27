@@ -1,11 +1,11 @@
-﻿using Silk.NET.Input;
+﻿using Common;
+using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace silk.net;
 
@@ -13,7 +13,7 @@ class Program
 {
     private const Int32 Width = 800;
     private const Int32 Height = 600;
-    private const Int32 RgbaSize = 4;
+    private const Int32 RgbaSize = Constants.RgbaSize;
     private static Int32 _counter = 0;
 
     private static void Main(string[] args)
@@ -51,26 +51,6 @@ class Program
 
     private static UInt32 _fboForPixels;
 
-    private const String _vertexCode = @"
-#version 330 core
-
-layout (location = 0) in vec3 aPosition;
-
-void main()
-{
-    gl_Position = vec4(aPosition, 1.0);
-}";
-
-    private const String _fragmentCode = @"
-#version 330 core
-
-out vec4 out_color;
-
-void main()
-{
-    out_color = vec4(1.0, 0.5, 0.2, 1.0);
-}";
-
     private static readonly String _vertexShaderGrab = @"
 #version 330 core
 precision mediump float;
@@ -101,6 +81,7 @@ void main()
 {
     vFragColor = colorConvert(texture(texIn, ledPos));
 }";
+
 
     private unsafe static void OnLoad()
     {
@@ -148,13 +129,7 @@ void main()
         _gl.BindVertexArray(_vao);
 
         // The quad vertices data.
-        Single[] vertices =
-        {
-            0.85f,  0.85f, 0.0f,
-            0.85f, -0.85f, 0.0f,
-            -0.85f, -0.85f, 0.0f,
-            -0.85f,  0.85f, 0.0f
-        };
+        var vertices = Constants.Vertices;
 
         // Create the VBO.
         _vboForGrab = _gl.GenBuffer();
@@ -164,18 +139,14 @@ void main()
         fixed (Single* buf = vertices)
         {
             _gl.BufferData(
-                target: BufferTargetARB.ArrayBuffer, 
-                size: (UIntPtr)(vertices.Length * sizeof(Single)), 
+                target: BufferTargetARB.ArrayBuffer,
+                size: (UIntPtr)(vertices.Length * sizeof(Single)),
                 data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
 
         // The quad indices data.
-        UInt32[] indices =
-        {
-            0u, 1u, 3u,
-            1u, 2u, 3u
-        };
+        var indices = Constants.Indices;
 
         // Create the EBO.
         _eboForGrab = _gl.GenBuffer();
@@ -185,14 +156,14 @@ void main()
         fixed (UInt32* buf = indices)
         {
             _gl.BufferData(
-                target: BufferTargetARB.ElementArrayBuffer, 
+                target: BufferTargetARB.ElementArrayBuffer,
                 size: (UIntPtr)(indices.Length * sizeof(UInt32)),
-                data: buf, 
+                data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
 
         var vertexShader = _gl.CreateShader(ShaderType.VertexShader);
-        _gl.ShaderSource(vertexShader, _vertexCode);
+        _gl.ShaderSource(vertexShader, ConstantStrings.VertexShader);
 
         _gl.CompileShader(vertexShader);
 
@@ -203,7 +174,7 @@ void main()
         }
 
         var fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
-        _gl.ShaderSource(fragmentShader, _fragmentCode);
+        _gl.ShaderSource(fragmentShader, ConstantStrings.FragmentShader);
 
         _gl.CompileShader(fragmentShader);
 
@@ -232,7 +203,7 @@ void main()
         const UInt32 positionLoc = 0;
         _gl.EnableVertexAttribArray(positionLoc);
         _gl.VertexAttribPointer(
-            index: positionLoc, 
+            index: positionLoc,
             size: 3,
             type: VertexAttribPointerType.Float,
             normalized: false,
@@ -249,35 +220,25 @@ void main()
         _vao = _gl.GenVertexArray();
         _gl.BindVertexArray(_vao);
 
-        // The quad vertices data.
-        Single[] vertices =
-        {
-            0.85f,  0.85f, 0.0f,
-            0.85f, -0.85f, 0.0f,
-            -0.85f, -0.85f, 0.0f,
-            -0.85f,  0.85f, 0.0f
-        };
 
         // Create the VBO.
         _vbo = _gl.GenBuffer();
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
 
+        // The quad vertices data.
+        var vertices = Constants.Vertices;
         // Upload the vertices data to the VBO.
         fixed (Single* buf = vertices)
         {
             _gl.BufferData(
                 target: BufferTargetARB.ArrayBuffer,
-                size: (UIntPtr)(vertices.Length * sizeof(Single)), 
+                size: (UIntPtr)(vertices.Length * sizeof(Single)),
                 data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
 
         // The quad indices data.
-        UInt32[] indices =
-        {
-            0u, 1u, 3u,
-            1u, 2u, 3u
-        };
+        var indices = Constants.Indices;
 
         // Create the EBO.
         _ebo = _gl.GenBuffer();
@@ -287,14 +248,14 @@ void main()
         fixed (UInt32* buf = indices)
         {
             _gl.BufferData(
-                target: BufferTargetARB.ElementArrayBuffer, 
+                target: BufferTargetARB.ElementArrayBuffer,
                 size: (UIntPtr)(indices.Length * sizeof(UInt32)),
                 data: buf,
                 usage: BufferUsageARB.StaticDraw);
         }
 
         var vertexShader = _gl.CreateShader(ShaderType.VertexShader);
-        _gl.ShaderSource(vertexShader, _vertexCode);
+        _gl.ShaderSource(vertexShader, ConstantStrings.VertexShader);
 
         _gl.CompileShader(vertexShader);
 
@@ -305,7 +266,7 @@ void main()
         }
 
         var fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
-        _gl.ShaderSource(fragmentShader, _fragmentCode);
+        _gl.ShaderSource(fragmentShader, ConstantStrings.FragmentShader);
 
         _gl.CompileShader(fragmentShader);
 
@@ -334,18 +295,18 @@ void main()
         const UInt32 positionLoc = 0;
         _gl.EnableVertexAttribArray(positionLoc);
         _gl.VertexAttribPointer(
-            index: positionLoc, 
-            size: 3, 
-            type: VertexAttribPointerType.Float, 
+            index: positionLoc,
+            size: 3,
+            type: VertexAttribPointerType.Float,
             normalized: true,
-            stride: 3 * sizeof(float),
+            stride: 3 * sizeof(Single),
             pointer: (void*)0);
 
         _gl.BindVertexArray(0);
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
         _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
     }
-     
+
     private static Byte[] _pixelsTexture0 = Array.Empty<Byte>();
 
     // These two methods are unused for this tutorial, aside from the logging we added earlier.
@@ -363,13 +324,13 @@ void main()
         _gl.UseProgram(_program);
         _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
 
-    //    _gl.BindVertexArray(_vaoForGrab);
-    //    _gl.UseProgram(_programGrab);
-    //    _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
+        //    _gl.BindVertexArray(_vaoForGrab);
+        //    _gl.UseProgram(_programGrab);
+        //    _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
 
         ++_counter;
         ScreenshotWithReadPixels();
-     //   ScreenshotWithTexture();
+        //   ScreenshotWithTexture();
     }
 
     private static unsafe void ScreenshotWithTexture()
@@ -390,12 +351,15 @@ void main()
 
     private static unsafe void ScreenshotWithReadPixels()
     {
+        _gl.PointSize(1.0f);
+      //  _gl.DisableVertexAttribArray(0);
         _gl.Flush();
         _gl.Finish();
         _gl.PixelStore(GLEnum.UnpackAlignment, 1);
         var width = Convert.ToUInt32(Width);
         var height = Convert.ToUInt32(Height);
         var pixels = new Byte[RgbaSize * width * height];
+        _gl.ReadBuffer(GLEnum.ColorAttachment0);
         fixed (void* pPixels = pixels)
         {
             //_gl.PixelStore(GLEnum.PackImageHeight, height / 4);
@@ -411,29 +375,17 @@ void main()
         }
     }
 
-    private static void SaveScreenshot(String prefix, Byte[] rgbaData, Int32 width, Int32 height)
+    private static void SaveScreenshot(
+        String prefix,
+        Byte[] rgbaData,
+        Int32 width,
+        Int32 height)
     {
         //height = 1;
-        using var image = new Image<Rgba32>(width, height);
-        {
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
-                {
-                    var index = (y * width) + x * RgbaSize;
-                    Rgba32 pixel = image[x, y];
-                    pixel.R = rgbaData[index];
-                    pixel.G = rgbaData[index + 1];
-                    pixel.B = rgbaData[index + 2];
-                    pixel.A = rgbaData[index + 3];
-                    image[x, y] = pixel;
-                }
-            }
-        }
-
         var filename = "c:\\temp\\";
         filename = Path.Combine(filename, $"silk-{prefix}-{Guid.NewGuid()}.bmp");
-        image.SaveAsBmp(filename);
+
+        Utils.SaveScreenshot(rgbaData, width, height, RgbaSize, filename);
     }
 
     private static void KeyDown(IKeyboard keyboard, Key key, int keyCode)
