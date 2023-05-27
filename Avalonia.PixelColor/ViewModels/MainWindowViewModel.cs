@@ -1,4 +1,4 @@
-﻿using Avaloina.PixelColor.Controls;
+﻿using Avalonia.PixelColor.Controls;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Reactive.Linq;
 using System.Windows.Input;
 
-namespace Avaloina.PixelColor.ViewModels;
+namespace Avalonia.PixelColor.ViewModels;
 
 public sealed class MainWindowViewModel : ReactiveObject
 {

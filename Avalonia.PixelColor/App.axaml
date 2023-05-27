@@ -1,8 +1,8 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Avaloina.PixelColor.App">
+             x:Class="Avalonia.PixelColor.App">
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
-		<StyleInclude Source="avares://Avaloina.PixelColor/Controls/PickPixelColorControl.axaml"/>
+		<StyleInclude Source="avares://Avalonia.PixelColor/Controls/PickPixelColorControl.axaml"/>
     </Application.Styles>
 </Application>

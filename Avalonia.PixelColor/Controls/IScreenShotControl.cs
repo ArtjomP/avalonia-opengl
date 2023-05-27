@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Avaloina.PixelColor.Controls;
+namespace Avalonia.PixelColor.Controls;
 
 public interface IScreenShotControl
 {

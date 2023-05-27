@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "silk.net", "silk.net\silk.net.csproj", "{CDB19C70-0AB8-46B5-81D2-5158288AAD36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avaloina.PixelColor", "Avaloina.PixelColor\Avaloina.PixelColor.csproj", "{1183AB0F-F653-4480-9997-04CB41EF43CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Avalonia.PixelColor", "Avalonia.PixelColor\Avalonia.PixelColor.csproj", "{1183AB0F-F653-4480-9997-04CB41EF43CB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{9D3BC683-7A8E-4E8B-8E4C-460DC4F601F0}"
 EndProject

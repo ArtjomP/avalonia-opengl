@@ -4,7 +4,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 
-namespace Avaloina.PixelColor;
+namespace Avalonia.PixelColor;
 
 public class TrackPointViewModel : ReactiveObject
 {
