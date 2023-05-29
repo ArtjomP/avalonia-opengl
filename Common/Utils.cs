@@ -13,19 +13,18 @@ public static class Utils
         String filename)
     {
         using var image = new Image<Rgba32>(width, height);
-        var index = 0;
+
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                var index2 = y * width * pixelSize + x * pixelSize;
+                var index = y * width * pixelSize + x * pixelSize;
                 Rgba32 pixel = image[x, y];
                 pixel.R = rgbaData[index];
                 pixel.G = rgbaData[index + 1];
                 pixel.B = rgbaData[index + 2];
                 pixel.A = rgbaData[index + 3];
                 image[x, y] = pixel;
-                index += pixelSize;
             }
         }
 

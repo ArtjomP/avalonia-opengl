@@ -4,18 +4,20 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 
-namespace Avalonia.PixelColor;
-
-public class TrackPointViewModel : ReactiveObject
+namespace Avalonia.PixelColor
 {
-    [Reactive]
-    public SolidColorBrush ColorBrush { get; set; } = new SolidColorBrush();
 
-    [Reactive]
-    public Double RelativeX { get; set; }
+    public class TrackPointViewModel : ReactiveObject
+    {
+        [Reactive]
+        public SolidColorBrush ColorBrush { get; set; } = new SolidColorBrush();
 
-    [Reactive]
-    public Double RelativeY { get; set; }
+        [Reactive]
+        public Double RelativeX { get; set; }
 
-    public TrackPoint Point { get; set; } = new TrackPoint();
+        [Reactive]
+        public Double RelativeY { get; set; }
+
+        public TrackPoint Point { get; set; } = new TrackPoint();
+    }
 }

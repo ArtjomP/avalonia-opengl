@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
@@ -8,10 +7,13 @@ using System.Collections.Generic;
 
 namespace Avalonia.PixelColor.Controls;
 
-public class PickPixelColorControl 
+
+public class PickPixelColorControl
     : TemplatedControl
     , IScreenShotControl
 {
+    public Double ScaleFactor { get; set; } = 1;
+
     private OpenGlControl? _openGlControl;
 
     public static readonly DirectProperty<PickPixelColorControl, IEnumerable<TrackPointViewModel>> TrackPointsProperty =
@@ -21,9 +23,9 @@ public class PickPixelColorControl
             (o, v) => o.TrackPoints = v);
 
     private IEnumerable<TrackPointViewModel> _trackPoints = new List<TrackPointViewModel>()
-    {
-        new TrackPointViewModel(),
-    };
+{
+    new TrackPointViewModel(),
+};
 
     public IEnumerable<TrackPointViewModel> TrackPoints
     {
@@ -88,21 +90,31 @@ public class PickPixelColorControl
         }
     }
 
+    private void RenderOpenGl()
+    {
+        var openGlControl = _openGlControl;
+        if (openGlControl is not null)
+        {
+            openGlControl.ScaleFactor = ScaleFactor;
+            openGlControl.InvalidateVisual();
+        }
+    }
+
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        _openGlControl?.InvalidateVisual();
+        RenderOpenGl();
     }
 
     protected override void OnMeasureInvalidated()
     {
         base.OnMeasureInvalidated();
-        _openGlControl?.InvalidateMeasure();
+        RenderOpenGl();
     }
 
     public void MakeScreenShot(String fullname)
     {
         _openGlControl?.MakeScreenShot(fullname);
-        _openGlControl?.InvalidateVisual();
+        RenderOpenGl();
     }
 }
