@@ -57,8 +57,8 @@ public class PickPixelColorControl
         if (openGlControl is not null)
         {
             var position = args.GetCurrentPoint(openGlControl);
-            var width = Bounds.Width;
-            var height = Bounds.Height;
+            var width = openGlControl.Bounds.Width;
+            var height = openGlControl.Bounds.Height;
             if (position is not null)
             {
                 var x = position.Position.X;
@@ -73,8 +73,7 @@ public class PickPixelColorControl
                     trackPoint.Point.ReleativeY = relativeY;
                 }
 
-                openGlControl?.InvalidateVisual();
-
+                RenderOpenGl();
                 foreach (var trackPoint in TrackPoints)
                 {
                     var color = trackPoint.Point.Color;

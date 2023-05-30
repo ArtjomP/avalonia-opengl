@@ -153,28 +153,19 @@ public sealed class OpenGlControl : OpenGlControlBase
         }
     }
 
-    private unsafe void DoScreenShot(String fullname)
+    private unsafe void DoScreenShot(
+        String fullname,
+        Int32 width,
+        Int32 height,
+        Double scaleFactor)
     {
         var gl = _gl;
         var glExtras = _glExtras;
         if (gl is not null && glExtras is not null)
         {
-    
-            gl.Flush();
-            glExtras.ReadBuffer(GL_FRONT);
-            glExtras.PixelStore(GL_PACK_ROW_LENGTH, 0);
-            glExtras.PixelStore(GL_PACK_SKIP_PIXELS, 0);
-            glExtras.PixelStore(GL_PACK_SKIP_ROWS, 0);
-            glExtras.PixelStore(GL_PACK_ALIGNMENT, 1);
-            var width = (Int32)Bounds.Width;
-            var height = (Int32)Bounds.Height;
-            var scaleFactor = ScaleFactor;
-            var finalWidth = (Int32)(width * scaleFactor);
-            var finalHeight = (Int32)(height * scaleFactor);
-            gl.Viewport(0, 0, finalWidth, finalHeight);
             var pixelSize = Constants.RgbaSize;
             var newPixelSize = (Int32)(pixelSize * scaleFactor);
-            var pixelsCount = (Int32)newPixelSize * finalHeight * finalWidth;
+            var pixelsCount = (Int32)newPixelSize * width * height;
             var pixels = new Byte[pixelsCount];
             gl.Finish();
             glExtras.ReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -183,14 +174,14 @@ public sealed class OpenGlControl : OpenGlControlBase
                 glExtras.ReadPixels(
                     x: 0,
                     y: 0,
-                    width: finalWidth,
-                    height: finalHeight,
+                    width: width,
+                    height: height,
                     format: GL_RGBA,
                     type: GL_UNSIGNED_BYTE,
                     data: pPixels);
             }
 
-            Utils.SaveScreenshot(pixels, finalWidth, finalHeight, pixelSize, fullname);
+            Utils.SaveScreenshot(pixels, width, height, pixelSize, fullname);
         }
     }
 
@@ -234,7 +225,7 @@ public sealed class OpenGlControl : OpenGlControlBase
             _screeshotFullname = String.Empty;
             if (!String.IsNullOrEmpty(screeshotFullname))
             {
-                DoScreenShot(screeshotFullname);
+                DoScreenShot(screeshotFullname, finalWidth, finalHeight, scaleFactor);
             }
         }
     }
