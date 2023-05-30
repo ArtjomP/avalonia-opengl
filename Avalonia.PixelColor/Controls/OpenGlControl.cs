@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Avalonia.OpenGL;
+﻿using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Common;
 using System;
@@ -31,8 +30,10 @@ public sealed class OpenGlControl : OpenGlControlBase
     {
     }
 
-    public List<TrackPoint> TrackPoints 
-    { 
+    public Double ScaleFactor { get; set; } = 1;
+
+    public List<TrackPoint> TrackPoints
+    {
         get;
     } = new List<TrackPoint>();
 
@@ -108,7 +109,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         gl.EnableVertexAttribArray(positionLoc);
         gl.VertexAttribPointer(
             index: positionLoc,
-            size: 3, 
+            size: 3,
             type: GL_FLOAT,
             normalized: 1,
             stride: 3 * sizeof(Single),
@@ -133,7 +134,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                 fixed (void* pPixels = pixels)
                 {
                     glExtras.ReadPixels(
-                        x: x, 
+                        x: x,
                         y: y,
                         width: 1,
                         height: 1,
@@ -149,25 +150,23 @@ public sealed class OpenGlControl : OpenGlControlBase
                 var color = System.Drawing.Color.FromArgb(a, r, g, b);
                 trackPoint.Color = color;
             }
-        }      
+        }
     }
 
-    private unsafe void DoScreenShot(String fullname)
+    private unsafe void DoScreenShot(
+        String fullname,
+        Int32 width,
+        Int32 height,
+        Double scaleFactor)
     {
         var gl = _gl;
         var glExtras = _glExtras;
         if (gl is not null && glExtras is not null)
         {
-            glExtras.ReadBuffer(GL_FRONT);
-            glExtras.PixelStore(GL_PACK_ROW_LENGTH, 0);
-            glExtras.PixelStore(GL_PACK_SKIP_PIXELS, 0);
-            glExtras.PixelStore(GL_PACK_SKIP_ROWS, 0);
-            glExtras.PixelStore(GL_PACK_ALIGNMENT, 1);
-            var width = (Int32)Bounds.Width;
-            var height = (Int32)Bounds.Height;
-            gl.Viewport(0, 0, width, height);
             var pixelSize = Constants.RgbaSize;
-            var pixels = new Byte[pixelSize * width * height];
+            var newPixelSize = (Int32)(pixelSize * scaleFactor);
+            var pixelsCount = (Int32)newPixelSize * width * height;
+            var pixels = new Byte[pixelsCount];
             gl.Finish();
             glExtras.ReadBuffer(GL_COLOR_ATTACHMENT0);
             fixed (void* pPixels = pixels)
@@ -178,7 +177,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                     width: width,
                     height: height,
                     format: GL_RGBA,
-                    type: GL_BYTE,
+                    type: GL_UNSIGNED_BYTE,
                     data: pPixels);
             }
 
@@ -204,11 +203,15 @@ public sealed class OpenGlControl : OpenGlControlBase
 
         var width = (Int32)Bounds.Width;
         var height = (Int32)Bounds.Height;
-        gl.Viewport(0, 0, width, height);
+
+        var scaleFactor = ScaleFactor;
+        var finalWidth = (Int32)(width * scaleFactor);
+        var finalHeight = (Int32)(height * scaleFactor);
+        gl.Viewport(0, 0, finalWidth, finalHeight);
 
         var glExtras = _glExtras;
         if (glExtras is not null)
-        { 
+        {
             glExtras.BindVertexArray(_vao);
             gl.UseProgram(_program);
             gl.DrawElements(
@@ -217,13 +220,12 @@ public sealed class OpenGlControl : OpenGlControlBase
                 type: GL_UNSIGNED_INT,
                 indices: IntPtr.Zero);
 
-            GetTrackPointsColors(width, height);
-
+            GetTrackPointsColors(finalWidth, finalHeight);
             var screeshotFullname = _screeshotFullname;
             _screeshotFullname = String.Empty;
             if (!String.IsNullOrEmpty(screeshotFullname))
             {
-                DoScreenShot(screeshotFullname);
+                DoScreenShot(screeshotFullname, finalWidth, finalHeight, scaleFactor);
             }
         }
     }
