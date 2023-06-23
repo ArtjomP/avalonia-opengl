@@ -1,12 +1,13 @@
 ﻿#nullable enable
 
+using Avalonia;
 using Avalonia.OpenGL;
 using Common;
 using System;
 using System.Collections.Generic;
 using static Avalonia.OpenGL.GlConsts;
 
-namespace Avalonia.PixelColor.Utils.OpenGl;
+namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
 internal sealed class LinesScene : IOpenGlScene
 {
@@ -119,7 +120,7 @@ vec2 isf_fragCoord = floor(isf_FragNormCoord * RENDERSIZE);
 
     private Int32 _ebo;
 
-    private Int32 _program;    
+    private Int32 _program;
 
     public unsafe void Initialize(GlInterface gl)
     {
@@ -209,15 +210,24 @@ vec2 isf_fragCoord = floor(isf_FragNormCoord * RENDERSIZE);
         gl.UseProgram(0);
     }
 
-    public void Render(GlInterface gl, Int32 width, Int32 height)
+    public void Render(GlInterface gl, int width, int height)
     {
         gl.Viewport(0, 0, width, height);
-
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
             glExtras.BindVertexArray(_vao);
             gl.UseProgram(_program);
+            var spacing = gl.GetUniformLocationString(_program, "spacing");
+            var lineWidth = gl.GetUniformLocationString(_program, "line_width");
+            var angle = gl.GetUniformLocationString(_program, "angle");
+            var shift = gl.GetUniformLocationString(_program, "shift");
+            var color1 = gl.GetUniformLocationString(_program, "color1");
+            var color2 = gl.GetUniformLocationString(_program, "color2");
+            gl.Uniform1f(spacing, 0.3f);
+            gl.Uniform1f(lineWidth, 0.01f);
+            gl.Uniform1f(angle, 0.24f);
+            gl.Uniform1f(shift, 0.4f);
             gl.DrawElements(
                 mode: GL_TRIANGLES,
                 count: 6,
