@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.PixelColor.Utils.OpenGl;
 using System;
 using System.Collections.Generic;
 
@@ -23,14 +24,43 @@ public class PickPixelColorControl
             (o, v) => o.TrackPoints = v);
 
     private IEnumerable<TrackPointViewModel> _trackPoints = new List<TrackPointViewModel>()
-{
-    new TrackPointViewModel(),
-};
+    {
+        new TrackPointViewModel(),
+    };    
 
     public IEnumerable<TrackPointViewModel> TrackPoints
     {
         get { return _trackPoints; }
         set { SetAndRaise(TrackPointsProperty, ref _trackPoints, value); }
+    }
+
+    public static readonly DirectProperty<PickPixelColorControl, OpenGlSceneDescription?> SceneDescriptionProperty =
+       AvaloniaProperty.RegisterDirect<PickPixelColorControl, OpenGlSceneDescription?>(
+           nameof(SceneDescription),
+           o => o.SceneDescription,
+           (o, v) => o.SceneDescription = v);
+
+    private OpenGlSceneDescription? _sceneDescription = null;
+
+    public OpenGlSceneDescription? SceneDescription
+    {
+        get => _sceneDescription;
+        private set => SetAndRaise(SceneDescriptionProperty, ref _sceneDescription, value);
+    }
+
+    public static readonly DirectProperty<PickPixelColorControl, OpenGlScenesEnum> SceneProperty =
+        AvaloniaProperty.RegisterDirect<PickPixelColorControl, OpenGlScenesEnum>(
+            nameof(Scene),
+            o => o.Scene,
+            (o, v) => o.Scene = v,
+            unsetValue: OpenGlScenesEnum.Rectangle);
+
+    private OpenGlScenesEnum _scene = OpenGlScenesEnum.Rectangle;
+
+    public OpenGlScenesEnum Scene
+    {
+        get => _scene;
+        private set => SetAndRaise(SceneProperty, ref _scene, value);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -47,6 +77,36 @@ public class PickPixelColorControl
 
         _openGlControl = openGlControl;
         PointerMovedEvent.AddClassHandler<PickPixelColorControl>(TrackMoved);
+    }
+
+    protected override void OnPropertyChanged<T>(
+        AvaloniaPropertyChangedEventArgs<T> change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == SceneProperty)
+        {
+            var scene = change
+                .NewValue
+                .GetValueOrDefault<OpenGlScenesEnum>();
+            ChangeScene(scene);
+        }
+    }
+
+    private void ChangeScene(OpenGlScenesEnum scene)
+    {
+        var openGlControl = _openGlControl;
+        if (openGlControl is not null)
+        {
+            var sceneParameters = openGlControl.ChangeScene(scene);
+            var sceneDescription = new OpenGlSceneDescription()
+            {
+                Scene = scene,
+                Parameters = sceneParameters
+            };
+            SceneDescription = sceneDescription;
+            RenderOpenGl();
+        }
     }
 
     private void TrackMoved(

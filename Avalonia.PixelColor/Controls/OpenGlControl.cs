@@ -1,5 +1,8 @@
-﻿using Avalonia.OpenGL;
+﻿using Avalonia.Logging;
+using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
+using Avalonia.PixelColor.Utils.OpenGl;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Common;
 using System;
 using System.Collections.Generic;
@@ -13,14 +16,6 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     private GlExtrasInterface? _glExtras;
 
-    private Int32 _vao;
-
-    private Int32 _vbo;
-
-    private Int32 _ebo;
-
-    private Int32 _program;
-
     static OpenGlControl()
     {
 
@@ -28,6 +23,47 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     public OpenGlControl()
     {
+        Scene = new RectangleScene();
+    }
+
+    public IOpenGlScene Scene { get; private set; }
+
+    private IOpenGlScene? _nextScene;
+
+    public IEnumerable<OpenGlSceneParameter> ChangeScene(OpenGlScenesEnum scene)
+    {
+        var parameters = Scene.Parameters;
+        if (scene != Scene.Scene)
+        {
+            IOpenGlScene nextScene = scene switch
+            {
+                OpenGlScenesEnum.Rectangle => new RectangleScene(),
+                OpenGlScenesEnum.Lines => new LinesScene(GlVersion),
+                OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoi(GlVersion),
+                _ => new RectangleScene(),
+            };
+            _nextScene = nextScene;
+            parameters = nextScene.Parameters;
+        }
+
+        return parameters;
+    }
+
+    private void SelectScene()
+    {
+        var nextScene = _nextScene;
+        if (nextScene is not null)
+        {
+            var gl = _gl;
+            if (gl is not null)
+            {
+                var previousScene = Scene;
+                previousScene?.DeInitialize(gl);
+
+                nextScene.Initialize(gl);
+                Scene = nextScene;
+            }
+        }
     }
 
     public Double ScaleFactor { get; set; } = 1;
@@ -35,90 +71,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     public List<TrackPoint> TrackPoints
     {
         get;
-    } = new List<TrackPoint>();
-
-    protected override unsafe void OnOpenGlInit(GlInterface gl, int fb)
-    {
-        base.OnOpenGlInit(gl, fb);
-        _gl = gl;
-        gl.ClearColor(r: 0.3922f, g: 0.5843f, b: 0.9294f, a: 1);
-
-        _glExtras = new GlExtrasInterface(gl);
-        _vao = _glExtras.GenVertexArray();
-        _glExtras.BindVertexArray(_vao);
-
-        _vbo = gl.GenBuffer();
-        gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
-
-        var vertices = Constants.Vertices;
-        fixed (Single* buf = vertices)
-        {
-            gl.BufferData(
-                target: GL_ARRAY_BUFFER,
-                size: (IntPtr)(vertices.Length * sizeof(Single)),
-                data: (IntPtr)buf,
-                usage: GL_STATIC_DRAW);
-        }
-
-        var indices = Constants.Indices;
-
-        _ebo = gl.GenBuffer();
-        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-
-        fixed (UInt32* buf = indices)
-        {
-            gl.BufferData(
-                target: GL_ELEMENT_ARRAY_BUFFER,
-                size: (IntPtr)(indices.Length * sizeof(UInt32)),
-                data: (IntPtr)buf,
-                usage: GL_STATIC_DRAW);
-        }
-
-        var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
-        var error = gl.CompileShaderAndGetError(
-            vertexShader,
-            ConstantStrings.VertexShader);
-        if (!String.IsNullOrEmpty(error))
-        {
-            throw new Exception(error);
-        }
-
-        var fragmentShader = gl.CreateShader(GL_FRAGMENT_SHADER);
-        error = gl.CompileShaderAndGetError(
-            fragmentShader,
-            ConstantStrings.FragmentShader);
-        if (!String.IsNullOrEmpty(error))
-        {
-            throw new Exception(error);
-        }
-
-        _program = gl.CreateProgram();
-        gl.AttachShader(_program, vertexShader);
-        gl.AttachShader(_program, fragmentShader);
-
-        error = gl.LinkProgramAndGetError(_program);
-        if (!String.IsNullOrEmpty(error))
-        {
-            throw new Exception(error);
-        }
-
-        gl.DeleteShader(vertexShader);
-        gl.DeleteShader(fragmentShader);
-
-        const Int32 positionLoc = 0;
-        gl.EnableVertexAttribArray(positionLoc);
-        gl.VertexAttribPointer(
-            index: positionLoc,
-            size: 3,
-            type: GL_FLOAT,
-            normalized: 1,
-            stride: 3 * sizeof(Single),
-            pointer: IntPtr.Zero);
-
-        _glExtras.BindVertexArray(0);
-        gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
+    } = new List<TrackPoint>();    
 
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
@@ -154,7 +107,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     }
 
     private unsafe void DoScreenShot(
-        String fullname,
+        String fullName,
         Int32 width,
         Int32 height,
         Double scaleFactor)
@@ -181,98 +134,66 @@ public sealed class OpenGlControl : OpenGlControlBase
                     data: pPixels);
             }
 
-            Utils.SaveScreenshot(pixels, width, height, pixelSize, fullname);
+            Common.Utils.SaveScreenshot(
+                rgbaData: pixels, 
+                width: width,
+                height: height,
+                pixelSize: pixelSize,
+                filename: fullName);
         }
     }
 
-    private String _screeshotFullname = String.Empty;
+    private String _screenShotFullName = String.Empty;
 
-    public void MakeScreenShot(String fullname)
+    public void MakeScreenShot(String fullName)
     {
-        _screeshotFullname = fullname;
+        _screenShotFullName = fullName;
+    }
+
+    protected override unsafe void OnOpenGlInit(GlInterface gl, Int32 fb)
+    {
+        _gl = gl;
+        _glExtras ??= new GlExtrasInterface(gl);
+        base.OnOpenGlInit(gl, fb);
+        Scene.Initialize(gl);
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
     {
+        _gl = gl;
+        _glExtras ??= new GlExtrasInterface(gl);
         base.OnOpenGlDeinit(gl, fb);
+        Scene.DeInitialize(gl);
+        gl.UseProgram(0);
     }
 
     protected override void OnOpenGlRender(GlInterface gl, Int32 fb)
     {
+        _gl = gl;
+        _glExtras ??= new GlExtrasInterface(gl);
+        SelectScene();
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         var width = (Int32)Bounds.Width;
         var height = (Int32)Bounds.Height;
-
         var scaleFactor = ScaleFactor;
         var finalWidth = (Int32)(width * scaleFactor);
         var finalHeight = (Int32)(height * scaleFactor);
         gl.Viewport(0, 0, finalWidth, finalHeight);
-
+        Scene.Render(gl, finalWidth, finalHeight);
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
-            glExtras.BindVertexArray(_vao);
-            gl.UseProgram(_program);
-            gl.DrawElements(
-                mode: GL_TRIANGLES,
-                count: 6,
-                type: GL_UNSIGNED_INT,
-                indices: IntPtr.Zero);
-
             GetTrackPointsColors(finalWidth, finalHeight);
-            var screeshotFullname = _screeshotFullname;
-            _screeshotFullname = String.Empty;
-            if (!String.IsNullOrEmpty(screeshotFullname))
+            var screenShotFullName = _screenShotFullName;
+            _screenShotFullName = String.Empty;
+            if (!String.IsNullOrEmpty(screenShotFullName))
             {
-                DoScreenShot(screeshotFullname, finalWidth, finalHeight, scaleFactor);
+                DoScreenShot(
+                    fullName: screenShotFullName,
+                    width: finalWidth, 
+                    height: finalHeight, 
+                    scaleFactor: scaleFactor);
             }
         }
-    }
-
-    private class GlExtrasInterface : GlInterfaceBase<GlInterface.GlContextInfo>
-    {
-        public GlExtrasInterface(GlInterface gl)
-            : base(gl.GetProcAddress, gl.ContextInfo)
-        {
-        }
-
-        public unsafe delegate void GlGetTexImage(Int32 target, Int32 level, Int32 format, Int32 type, void* pixels);
-        [GlMinVersionEntryPoint("glGetTexImage", 3, 0)]
-        public GlGetTexImage GetTexImage { get; }
-
-        public unsafe delegate void GlPixelStore(Int32 parameterName, Int32 parameterValue);
-        [GlMinVersionEntryPoint("glPixelStorei", 3, 0)]
-        public GlPixelStore PixelStore { get; }
-
-        public unsafe delegate void GlReadBuffer(Int32 mode);
-        [GlMinVersionEntryPoint("glReadBuffer", 3, 0)]
-        public GlReadBuffer ReadBuffer { get; }
-
-        public unsafe delegate void GlReadPixels(Int32 x, Int32 y, Int32 width, Int32 height, Int32 format, Int32 type, void* data);
-        [GlMinVersionEntryPoint("glReadPixels", 3, 0)]
-        public GlReadPixels ReadPixels { get; }
-
-        public delegate void GlDeleteVertexArrays(Int32 count, Int32[] buffers);
-        [GlMinVersionEntryPoint("glDeleteVertexArrays", 3, 0)]
-        [GlExtensionEntryPoint("glDeleteVertexArraysOES", "GL_OES_vertex_array_object")]
-        public GlDeleteVertexArrays DeleteVertexArrays { get; }
-
-        public delegate void GlBindVertexArray(Int32 array);
-        [GlMinVersionEntryPoint("glBindVertexArray", 3, 0)]
-        [GlExtensionEntryPoint("glBindVertexArrayOES", "GL_OES_vertex_array_object")]
-        public GlBindVertexArray BindVertexArray { get; }
-        public delegate void GlGenVertexArrays(Int32 n, Int32[] rv);
-
-        [GlMinVersionEntryPoint("glGenVertexArrays", 3, 0)]
-        [GlExtensionEntryPoint("glGenVertexArraysOES", "GL_OES_vertex_array_object")]
-        public GlGenVertexArrays GenVertexArrays { get; }
-
-        public Int32 GenVertexArray()
-        {
-            var rv = new Int32[1];
-            GenVertexArrays(1, rv);
-            return rv[0];
-        }
-    }
+    }    
 }
