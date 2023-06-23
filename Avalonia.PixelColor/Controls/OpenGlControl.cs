@@ -37,7 +37,8 @@ public sealed class OpenGlControl : OpenGlControlBase
             IOpenGlScene nextScene = scene switch
             {
                 OpenGlScenesEnum.Rectangle => new RectangleScene(),
-                _ => throw new NotSupportedException(),
+                OpenGlScenesEnum.Lines => new LinesScene(),
+                _ => new RectangleScene(),
             };
             _nextScene = nextScene;
             parameters = nextScene.Parameters;

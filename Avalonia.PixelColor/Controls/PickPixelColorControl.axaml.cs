@@ -98,7 +98,6 @@ public class PickPixelColorControl
         var openGlControl = _openGlControl;
         if (openGlControl is not null)
         {
-
             var sceneParameters = openGlControl.ChangeScene(scene);
             var sceneDescription = new OpenGlSceneDescription()
             {
