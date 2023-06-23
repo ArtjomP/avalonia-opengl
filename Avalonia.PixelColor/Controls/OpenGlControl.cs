@@ -37,7 +37,7 @@ public sealed class OpenGlControl : OpenGlControlBase
             IOpenGlScene nextScene = scene switch
             {
                 OpenGlScenesEnum.Rectangle => new RectangleScene(),
-                OpenGlScenesEnum.Lines => new LinesScene(),
+                OpenGlScenesEnum.Lines => new LinesScene(GlVersion),
                 _ => new RectangleScene(),
             };
             _nextScene = nextScene;
@@ -45,6 +45,23 @@ public sealed class OpenGlControl : OpenGlControlBase
         }
 
         return parameters;
+    }
+
+    private void SelectScene()
+    {
+        var nextScene = _nextScene;
+        if (nextScene is not null)
+        {
+            var gl = _gl;
+            if (gl is not null)
+            {
+                var previousScene = Scene;
+                previousScene?.DeInitialize(gl);
+
+                nextScene.Initialize(gl);
+                Scene = nextScene;
+            }
+        }
     }
 
     public Double ScaleFactor { get; set; } = 1;
@@ -152,6 +169,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     {
         _gl = gl;
         _glExtras ??= new GlExtrasInterface(gl);
+        SelectScene();
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         var width = (Int32)Bounds.Width;
         var height = (Int32)Bounds.Height;

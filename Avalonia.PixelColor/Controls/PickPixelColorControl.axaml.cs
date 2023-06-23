@@ -105,6 +105,7 @@ public class PickPixelColorControl
                 Parameters = sceneParameters
             };
             SceneDescription = sceneDescription;
+            RenderOpenGl();
         }
     }
 
