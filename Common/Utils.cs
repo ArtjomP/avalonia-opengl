@@ -13,7 +13,6 @@ public static class Utils
         String filename)
     {
         using var image = new Image<Rgba32>(width, height);
-
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)

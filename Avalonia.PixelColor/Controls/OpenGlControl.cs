@@ -154,7 +154,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     }
 
     private unsafe void DoScreenShot(
-        String fullname,
+        String fullName,
         Int32 width,
         Int32 height,
         Double scaleFactor)
@@ -181,15 +181,20 @@ public sealed class OpenGlControl : OpenGlControlBase
                     data: pPixels);
             }
 
-            Utils.SaveScreenshot(pixels, width, height, pixelSize, fullname);
+            Common.Utils.SaveScreenshot(
+                rgbaData: pixels, 
+                width: width,
+                height: height,
+                pixelSize: pixelSize,
+                filename: fullName);
         }
     }
 
-    private String _screeshotFullname = String.Empty;
+    private String _screenShotFullName = String.Empty;
 
-    public void MakeScreenShot(String fullname)
+    public void MakeScreenShot(String fullName)
     {
-        _screeshotFullname = fullname;
+        _screenShotFullName = fullName;
     }
 
     protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
@@ -221,8 +226,8 @@ public sealed class OpenGlControl : OpenGlControlBase
                 indices: IntPtr.Zero);
 
             GetTrackPointsColors(finalWidth, finalHeight);
-            var screeshotFullname = _screeshotFullname;
-            _screeshotFullname = String.Empty;
+            var screeshotFullname = _screenShotFullName;
+            _screenShotFullName = String.Empty;
             if (!String.IsNullOrEmpty(screeshotFullname))
             {
                 DoScreenShot(screeshotFullname, finalWidth, finalHeight, scaleFactor);
