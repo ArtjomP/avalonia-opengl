@@ -1,4 +1,5 @@
-﻿using Avalonia.OpenGL;
+﻿using Avalonia.Logging;
+using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Common;
@@ -14,14 +15,6 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     private GlExtrasInterface? _glExtras;
 
-    private Int32 _vao;
-
-    private Int32 _vbo;
-
-    private Int32 _ebo;
-
-    private Int32 _program;
-
     static OpenGlControl()
     {
 
@@ -36,8 +29,21 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     private IOpenGlScene? _nextScene;
 
-    public void ChangeScene(OpenGlScenesEnum scene)
-    { 
+    public IEnumerable<OpenGlSceneParameter> ChangeScene(OpenGlScenesEnum scene)
+    {
+        var parameters = Scene.Parameters;
+        if (scene != Scene.Scene)
+        {
+            IOpenGlScene nextScene = scene switch
+            {
+                OpenGlScenesEnum.Rectangle => new RectangleScene(),
+                _ => throw new NotSupportedException(),
+            };
+            _nextScene = nextScene;
+            parameters = nextScene.Parameters;
+        }
+
+        return parameters;
     }
 
     public Double ScaleFactor { get; set; } = 1;
