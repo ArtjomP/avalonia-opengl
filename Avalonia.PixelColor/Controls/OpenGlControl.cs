@@ -39,6 +39,7 @@ public sealed class OpenGlControl : OpenGlControlBase
             {
                 OpenGlScenesEnum.Rectangle => new RectangleScene(),
                 OpenGlScenesEnum.Lines => new LinesScene(GlVersion),
+                OpenGlScenesEnum.Lines2 => new Lines2Scene(GlVersion),
                 OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoi(GlVersion),
                 _ => new RectangleScene(),
             };
