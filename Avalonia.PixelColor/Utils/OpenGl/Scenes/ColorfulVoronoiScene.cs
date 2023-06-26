@@ -22,7 +22,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; }
 
-    public OpenGlScenesEnum Scene => OpenGlScenesEnum.Rectangle;
+    public OpenGlScenesEnum Scene => OpenGlScenesEnum.ColorfulVoronoi;
 
     private GlInterface? _gl;
 

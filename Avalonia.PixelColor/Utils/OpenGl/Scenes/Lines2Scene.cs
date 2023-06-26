@@ -19,7 +19,7 @@ internal sealed class Lines2Scene : IOpenGlScene
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; }
 
-    public OpenGlScenesEnum Scene => OpenGlScenesEnum.Rectangle;
+    public OpenGlScenesEnum Scene => OpenGlScenesEnum.Lines2;
 
     private GlInterface? _gl;
 
