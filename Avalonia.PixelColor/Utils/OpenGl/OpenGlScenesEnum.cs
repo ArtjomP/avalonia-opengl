@@ -6,5 +6,6 @@ public enum OpenGlScenesEnum
 {
     Rectangle,
     Lines,
+    Lines2,
     ColorfulVoronoi
 }
