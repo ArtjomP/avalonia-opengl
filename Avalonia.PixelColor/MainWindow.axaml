@@ -44,7 +44,8 @@
 				Background="Black"
 				HorizontalAlignment="Stretch"
 				VerticalAlignment="Stretch"
-				Scene="{Binding SelectedScene, Mode=OneWay}"/>
+				Scene="{Binding SelectedScene, Mode=OneWay}"
+				SceneDescription="{Binding SelectedSceneDescription, Mode=OneWayToSource}"/>
 			<StackPanel
 				Grid.Row="0"
 				Grid.Column="1"

@@ -58,6 +58,13 @@ public sealed class MainWindowViewModel : ReactiveObject
     }
 
     [Reactive]
+    public OpenGlSceneDescription SelectedSceneDescription
+    {
+        get;
+        set;
+    }
+
+    [Reactive]
     public IScreenShotControl? ScreenShotControl { get; set; }
 
     [Reactive]
