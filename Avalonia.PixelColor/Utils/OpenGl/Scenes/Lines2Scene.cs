@@ -1,10 +1,8 @@
 ﻿#nullable enable
 
 using Avalonia.OpenGL;
-using Common;
 using System;
 using System.Collections.Generic;
-using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
@@ -13,7 +11,10 @@ internal sealed class Lines2Scene : IOpenGlScene
     public Lines2Scene(GlVersion glVersion)
     {
         GlVersion = glVersion;
-        Parameters = Array.Empty<OpenGlSceneParameter>();
+        Parameters = new OpenGlSceneParameter[]
+        {
+            new OpenGlSceneParameter("Test", 12),
+        };
     }
     private GlVersion GlVersion { get; }
 
