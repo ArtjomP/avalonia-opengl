@@ -1,5 +1,4 @@
-﻿using Avalonia.Logging;
-using Avalonia.OpenGL;
+﻿using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;

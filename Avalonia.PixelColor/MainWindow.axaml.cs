@@ -13,7 +13,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         ViewModel = new MainWindowViewModel();
         DataContext = ViewModel;
-        var scaleFactor = this.PlatformImpl.DesktopScaling;
+        PlatformImpl.ScalingChanged += o => OpenGlControl.ScaleFactor = o;
+        var scaleFactor = PlatformImpl.DesktopScaling;
         OpenGlControl.ScaleFactor = scaleFactor;
         ViewModel.ScreenShotControl = OpenGlControl;
     }
