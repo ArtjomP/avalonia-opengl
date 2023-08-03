@@ -5,7 +5,7 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;
 
-public class Line
+public class Line : IDisposable
 {
     private Int32 _shaderProgram;
 
@@ -26,6 +26,7 @@ public class Line
     private GlInterface _gl;
 
     private GlExtrasInterface _glExtras;
+    private bool disposedValue;
 
     public unsafe Line(
         GlVersion glVersion,
@@ -150,5 +151,31 @@ void main()
 
         _glExtras.BindVertexArray(_vao);
         _gl.DrawArrays(GL_LINES, 0, (IntPtr)2);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {                
+            }
+
+            _glExtras.DeleteVertexArrays(1, new Int32[] { _vao });
+            _gl.DeleteBuffers(1, new Int32[] { _vbo });
+            _gl.DeleteProgram(_shaderProgram);
+            disposedValue = true;
+        }
+    }
+
+    ~Line()
+    {
+        Dispose(disposing: false);
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

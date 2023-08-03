@@ -17,5 +17,4 @@ public static class GlExtensions
         var uniform3fDelegate = (delegate* unmanaged[Stdcall]<Int32, Int32, Single*, void>)procAddress;
         uniform3fDelegate(location, count, value);
     }
-
 }
