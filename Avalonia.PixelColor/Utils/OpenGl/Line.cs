@@ -39,28 +39,21 @@ public class Line : IDisposable
         _endPoint = endPoint;
         _lineColor = new Single[] { 1, 1, 1 };
         _mvp = new Matrix4x4(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-        var vertexShaderSource = OpenGlUtils.GetShader(
-            glVersion: glVersion,
-            fragment: false,
-            shader:
-@"#version 330 core\
+        var vertexShaderSource =
+@"#version 330 core
 layout (location = 0) in vec3 aPos;
 uniform mat4 MVP;
 void main()
 {
    gl_Position = MVP * vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}");
-        var fragmentShaderSource = OpenGlUtils.GetShader(
-            glVersion: glVersion,
-            fragment: true,
-            shader:
-@"#version 330 core
+}";
+        var fragmentShaderSource = @"#version 330 core
 out vec4 FragColor;
 uniform vec3 color;
 void main()
 {
     FragColor = vec4(color, 1.0f);
-}");
+}";
         var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
         var error = gl.CompileShaderAndGetError(
            vertexShader,
@@ -133,6 +126,12 @@ void main()
     public Int32 SetColor(Vector3 color)
     {
         _lineColor = new Single[] { color.X, color.Y, color.Z };
+        return 1;
+    }
+
+    public Int32 SetColor(Single red, Single green, Single blue, Single alpha)
+    {
+        _lineColor = new Single[] { red, green, blue, alpha };
         return 1;
     }
 
