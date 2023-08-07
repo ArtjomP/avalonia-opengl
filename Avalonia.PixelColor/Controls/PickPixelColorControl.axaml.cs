@@ -53,9 +53,9 @@ public class PickPixelColorControl
             nameof(Scene),
             o => o.Scene,
             (o, v) => o.Scene = v,
-            unsetValue: OpenGlScenesEnum.Rectangle);
+            unsetValue: OpenGlScenesEnum.Lines4);
 
-    private OpenGlScenesEnum _scene = OpenGlScenesEnum.Rectangle;
+    private OpenGlScenesEnum _scene = OpenGlScenesEnum.Lines4;
 
     public OpenGlScenesEnum Scene
     {
@@ -67,15 +67,17 @@ public class PickPixelColorControl
     {
         base.OnApplyTemplate(e);
         var openGlControl = e.NameScope.Find<OpenGlControl>("PART_OpenGl");
+        _openGlControl = openGlControl;
         if (openGlControl is not null)
         {
             foreach (var trackPoint in TrackPoints)
             {
                 openGlControl.TrackPoints.Add(trackPoint.Point);
             }
+
+            ChangeScene(Scene);
         }
 
-        _openGlControl = openGlControl;
         PointerMovedEvent.AddClassHandler<PickPixelColorControl>(TrackMoved);
     }
 

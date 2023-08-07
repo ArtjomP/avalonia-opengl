@@ -7,5 +7,7 @@ public enum OpenGlScenesEnum
     Rectangle,
     Lines,
     Lines2,
+    Lines3,
+    Lines4,
     ColorfulVoronoi
 }

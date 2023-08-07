@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using Avalonia;
 using Avalonia.OpenGL;
 using Common;
 using System;

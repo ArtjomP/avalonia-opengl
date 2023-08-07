@@ -22,7 +22,7 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     public OpenGlControl()
     {
-        Scene = new RectangleScene();
+        Scene = new Lines4Scene(GlVersion);
     }
 
     public IOpenGlScene Scene { get; private set; }
@@ -39,6 +39,8 @@ public sealed class OpenGlControl : OpenGlControlBase
                 OpenGlScenesEnum.Rectangle => new RectangleScene(),
                 OpenGlScenesEnum.Lines => new LinesScene(GlVersion),
                 OpenGlScenesEnum.Lines2 => new Lines2Scene(GlVersion),
+                OpenGlScenesEnum.Lines3 => new Lines3Scene(GlVersion),
+                OpenGlScenesEnum.Lines4 => new Lines4Scene(GlVersion),
                 OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoi(GlVersion),
                 _ => new RectangleScene(),
             };
@@ -180,6 +182,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         var finalHeight = (Int32)(height * scaleFactor);
         gl.Viewport(0, 0, finalWidth, finalHeight);
         Scene.Render(gl, finalWidth, finalHeight);
+        gl.Flush();
         var glExtras = _glExtras;
         if (glExtras is not null)
         {

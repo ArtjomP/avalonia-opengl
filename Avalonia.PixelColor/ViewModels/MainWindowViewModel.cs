@@ -17,7 +17,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     public MainWindowViewModel()
     {
         Scenes = (OpenGlScenesEnum[])Enum.GetValues(typeof(OpenGlScenesEnum));
-        SelectedScene = Scenes.First();
+        SelectedScene = OpenGlScenesEnum.Lines4;
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,
@@ -58,7 +58,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     }
 
     [Reactive]
-    public OpenGlSceneDescription SelectedSceneDescription
+    public OpenGlSceneDescription? SelectedSceneDescription
     {
         get;
         set;
