@@ -47,7 +47,8 @@ void main()
 {
    gl_Position = MVP * vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }";
-        var fragmentShaderSource = @"#version 330 core
+        var fragmentShaderSource =
+@"#version 330 core
 out vec4 FragColor;
 uniform vec3 color;
 void main()

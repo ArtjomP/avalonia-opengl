@@ -22,7 +22,7 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     public OpenGlControl()
     {
-        Scene = new RectangleScene();
+        Scene = new Lines4Scene(GlVersion);
     }
 
     public IOpenGlScene Scene { get; private set; }
@@ -182,6 +182,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         var finalHeight = (Int32)(height * scaleFactor);
         gl.Viewport(0, 0, finalWidth, finalHeight);
         Scene.Render(gl, finalWidth, finalHeight);
+        gl.Flush();
         var glExtras = _glExtras;
         if (glExtras is not null)
         {

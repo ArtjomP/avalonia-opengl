@@ -9,7 +9,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
 internal sealed class Lines4Scene : IOpenGlScene
 {
-    private OpenGlSceneParameter _lineWidth;
+    private readonly OpenGlSceneParameter _lineWidth;
 
     public Lines4Scene(GlVersion glVersion)
     {
@@ -54,11 +54,11 @@ internal sealed class Lines4Scene : IOpenGlScene
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
-            gl.LineWidth(_lineWidth.Value);
             gl.Begin(GL_LINES);
+            gl.LineWidth(_lineWidth.Value);
             gl.Color3f(0f, 1f, 0f);
-            gl.Vertex2f(0.1f, 0.1f);
-            gl.Vertex2f(0.9f, 0.9f);
+            gl.Vertex2f(1f, 1f);
+            gl.Vertex2f(-0.9f, -0.9f);
             gl.End();
         }
     }
