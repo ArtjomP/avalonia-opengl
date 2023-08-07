@@ -1,11 +1,13 @@
 ﻿#nullable enable
 
 using CommunityToolkit.Diagnostics;
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;
 
-public sealed class OpenGlSceneParameter
+public sealed class OpenGlSceneParameter : ReactiveObject
 {
     public OpenGlSceneParameter(String name)
         : this(name, 0)
@@ -24,6 +26,7 @@ public sealed class OpenGlSceneParameter
         get;
     }
 
+    [Reactive]
     public Byte Value
     {
         get;

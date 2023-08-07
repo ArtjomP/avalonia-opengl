@@ -46,7 +46,7 @@ public static class GlExtensions
 
     public static unsafe void Vertex2f(this GlInterface glInterface, Single x, Single y)
     {
-        const string EntryPoint = "glBegin";
+        const string EntryPoint = "glVertex2f";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -55,5 +55,31 @@ public static class GlExtensions
 
         var functionDelegate = (delegate* unmanaged[Stdcall]<Single, Single, void>)procAddress;
         functionDelegate(x, y);
+    }
+
+    public static unsafe void LineWidth(this GlInterface glInterface, Single width)
+    {
+        const string EntryPoint = "glLineWidth";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Single, void>)procAddress;
+        functionDelegate(width);
+    }
+
+    public static unsafe void Color3f(this GlInterface glInterface, Single red, Single green, Single blue)
+    {
+        const string EntryPoint = "glLineWidth";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Single, Single, Single, void>)procAddress;
+        functionDelegate(red, green, blue);
     }
 }
