@@ -36,16 +36,16 @@ internal sealed class Lines3Scene : IOpenGlScene
         _glExtras ??= new GlExtrasInterface(gl);
         if (gl is not null)
         {
-            var startPoint = new Vector3(0, 0, 0);
-            var endPoint = new Vector3(1, 0, 0);
+            var startPoint = new Vector3(-0.5f, -0.5f, 0);
+            var endPoint = new Vector3(0.5f, 0.5f, 0);
             var lines = new Line[]
             {
                 new Line(GlVersion, gl, startPoint, endPoint)
             };
             foreach (var line in lines)
             {
-                line.SetColor(red: 0.5f, green: 0.5f, blue: 0.5f, alpha: 0.5f);
-                line.SetMvp(new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+                line.SetColor(red: 1f, green: 0f, blue: 0f, alpha: 1f);
+                line.SetMvp(Matrix4x4.Identity);
             }
 
             _lines = lines;

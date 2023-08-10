@@ -26,7 +26,8 @@ public class Line : IDisposable
     private GlInterface _gl;
 
     private GlExtrasInterface _glExtras;
-    private bool disposedValue;
+
+    private Boolean _disposedValue;
 
     public unsafe Line(
         GlVersion glVersion,
@@ -37,24 +38,25 @@ public class Line : IDisposable
         _gl = gl;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        _lineColor = new Single[] { 1, 1, 1 };
-        _mvp = new Matrix4x4(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+        _lineColor = new Single[] { 0, 1, 0.5f };
+        _mvp = Matrix4x4.Identity;
         var vertexShaderSource =
-@"#version 330 core
-layout (location = 0) in vec3 aPos;
-uniform mat4 MVP;
-void main()
-{
-   gl_Position = MVP * vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}";
+            @"#version 330 core
+            layout (location = 0) in vec3 aPos;
+            uniform mat4 MVP;
+            void main()
+            {
+               gl_Position = MVP * vec4(aPos, 1.0);
+            }";
+
         var fragmentShaderSource =
-@"#version 330 core
-out vec4 FragColor;
-uniform vec3 color;
-void main()
-{
-    FragColor = vec4(color, 1.0f);
-}";
+            @"#version 330 core
+            out vec4 FragColor;
+            uniform vec3 color;
+            void main()
+            {
+                FragColor = vec4(color, 1.0f);
+            }";
         var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
         var error = gl.CompileShaderAndGetError(
            vertexShader,
@@ -72,6 +74,7 @@ void main()
         {
             throw new Exception(error);
         }
+
 
         _shaderProgram = gl.CreateProgram();
         gl.AttachShader(_shaderProgram, vertexShader);
@@ -149,13 +152,14 @@ void main()
             _gl.Uniform3fv(location, 1, lineColorPtr);
         }
 
+        _gl.LineWidth(3);
         _glExtras.BindVertexArray(_vao);
         _gl.DrawArrays(GL_LINES, 0, (IntPtr)2);
     }
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {                
@@ -164,7 +168,7 @@ void main()
             _glExtras.DeleteVertexArrays(1, new Int32[] { _vao });
             _gl.DeleteBuffers(1, new Int32[] { _vbo });
             _gl.DeleteProgram(_shaderProgram);
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 
