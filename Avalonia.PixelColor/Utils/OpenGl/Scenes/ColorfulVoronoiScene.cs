@@ -28,28 +28,26 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
     private GlExtrasInterface? _glExtras;
 
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
-@"
-precision highp float;
+        @"
+        precision highp float;
 
-uniform vec2 resolution;
-uniform sampler2D texture;
+        uniform vec2 resolution;
+        uniform sampler2D texture;
 
-void main() {
+        void main() {
+         vec2 uv = gl_FragCoord.xy / resolution.xy;
+         gl_FragColor = texture2D( texture, uv );
 
-	vec2 uv = gl_FragCoord.xy / resolution.xy;
-	gl_FragColor = texture2D( texture, uv );
-
-}");
+        }");
 
     private String VertexShaderSource => OpenGlUtils.GetShader(GlVersion, false,
         @"
-attribute vec3 position;
+        attribute vec3 position;
 
-void main() {
+        void main() {
+         gl_Position = vec4( position, 1.0 );
 
-	gl_Position = vec4( position, 1.0 );
-
-}");
+        }");
 
     private Int32 _vao;
 
@@ -97,7 +95,7 @@ void main() {
         var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
         var error = gl.CompileShaderAndGetError(
             vertexShader,
-            ConstantStrings.VertexShader);
+            VertexShaderSource);
         if (!String.IsNullOrEmpty(error))
         {
             throw new Exception(error);

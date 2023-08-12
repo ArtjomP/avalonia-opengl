@@ -111,7 +111,7 @@ public static class GlExtensions
 
     public static unsafe void PushMatrix(this GlInterface glInterface)
     {
-        const String EntryPoint = "glPushMatrix";
+        const string EntryPoint = "glPushMatrix";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -121,6 +121,20 @@ public static class GlExtensions
         var functionDelegate = (delegate* unmanaged[Stdcall]<void>)procAddress;
         functionDelegate();
     }
+
+    public static unsafe void SwapBuffers(this GlInterface glInterface, IntPtr hDC)
+    {
+        const String EntryPoint = "wglSwapBuffers";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<IntPtr, void>)procAddress;
+        functionDelegate(hDC);
+    }
+
 
     public static unsafe void MatrixMode(this GlInterface glInterface, Int32 mode)
     {

@@ -3,6 +3,7 @@
 using Avalonia.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;

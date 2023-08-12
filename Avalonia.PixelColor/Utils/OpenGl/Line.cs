@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using Avalonia.OpenGL;
+using Common;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;
@@ -21,13 +22,12 @@ public class Line : IDisposable
 
     private Matrix4x4 _mvp;
 
-    private Single[] _lineColor;
+    private float[] _lineColor;
 
     private GlInterface _gl;
 
     private GlExtrasInterface _glExtras;
-
-    private Boolean _disposedValue;
+    private bool disposedValue;
 
     public unsafe Line(
         GlVersion glVersion,
@@ -38,7 +38,7 @@ public class Line : IDisposable
         _gl = gl;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        _lineColor = new Single[] { 0, 1, 0.5f };
+        _lineColor = new float[] { 0, 1, 0.5f };
         _mvp = Matrix4x4.Identity;
         var vertexShaderSource =
             @"#version 330 core
@@ -129,13 +129,13 @@ public class Line : IDisposable
 
     public Int32 SetColor(Vector3 color)
     {
-        _lineColor = new Single[] { color.X, color.Y, color.Z };
+        _lineColor = new float[] { color.X, color.Y, color.Z };
         return 1;
     }
 
-    public Int32 SetColor(Single red, Single green, Single blue, Single alpha)
+    public Int32 SetColor(float red, float green, float blue, float alpha)
     {
-        _lineColor = new Single[] { red, green, blue, alpha };
+        _lineColor = new float[] { red, green, blue, alpha };
         return 1;
     }
 
@@ -151,7 +151,6 @@ public class Line : IDisposable
         {
             _gl.Uniform3fv(location, 1, lineColorPtr);
         }
-
         _gl.LineWidth(3);
         _glExtras.BindVertexArray(_vao);
         _gl.DrawArrays(GL_LINES, 0, (IntPtr)2);
@@ -159,7 +158,7 @@ public class Line : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposedValue)
+        if (!disposedValue)
         {
             if (disposing)
             {                
@@ -168,7 +167,7 @@ public class Line : IDisposable
             _glExtras.DeleteVertexArrays(1, new Int32[] { _vao });
             _gl.DeleteBuffers(1, new Int32[] { _vbo });
             _gl.DeleteProgram(_shaderProgram);
-            _disposedValue = true;
+            disposedValue = true;
         }
     }
 
