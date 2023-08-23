@@ -111,7 +111,7 @@ public static class GlExtensions
 
     public static unsafe void PushMatrix(this GlInterface glInterface)
     {
-        const string EntryPoint = "glPushMatrix";
+        const String EntryPoint = "glPushMatrix";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
