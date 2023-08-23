@@ -7,7 +7,7 @@ public static class GlExtensions
 {
     public static unsafe void Uniform3fv(this GlInterface glInterface, Int32 location, Int32 count, Single* value)
     {
-        const string EntryPoint = "glUniform3fv";
+        const String EntryPoint = "glUniform3fv";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -20,7 +20,7 @@ public static class GlExtensions
 
     public static unsafe void Begin(this GlInterface glInterface, Int32 mode)
     {
-        const string EntryPoint = "glBegin";
+        const String EntryPoint = "glBegin";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -33,7 +33,7 @@ public static class GlExtensions
 
     public static unsafe void End(this GlInterface glInterface)
     {
-        const string EntryPoint = "glEnd";
+        const String EntryPoint = "glEnd";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -46,7 +46,7 @@ public static class GlExtensions
 
     public static unsafe void Vertex2f(this GlInterface glInterface, Single x, Single y)
     {
-        const string EntryPoint = "glVertex2f";
+        const String EntryPoint = "glVertex2f";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -59,7 +59,7 @@ public static class GlExtensions
 
     public static unsafe void LineWidth(this GlInterface glInterface, Single width)
     {
-        const string EntryPoint = "glLineWidth";
+        const String EntryPoint = "glLineWidth";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -72,7 +72,7 @@ public static class GlExtensions
 
     public static unsafe void Color3f(this GlInterface glInterface, Single red, Single green, Single blue)
     {
-        const string EntryPoint = "glLineWidth";
+        const String EntryPoint = "glColor3f";
         var procAddress = glInterface.GetProcAddress(EntryPoint);
         if (procAddress == IntPtr.Zero)
         {
@@ -81,5 +81,84 @@ public static class GlExtensions
 
         var functionDelegate = (delegate* unmanaged[Stdcall]<Single, Single, Single, void>)procAddress;
         functionDelegate(red, green, blue);
+    }
+
+    public static unsafe void Color3d(this GlInterface glInterface, Double red, Double green, Double blue)
+    {
+        const String EntryPoint = "glColor3d";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Double, Double, Double, void>)procAddress;
+        functionDelegate(red, green, blue);
+    }
+
+    public static unsafe void LoadIdentity(this GlInterface glInterface)
+    {
+        const String EntryPoint = "glLoadIdentity";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<void>)procAddress;
+        functionDelegate();
+    }
+
+    public static unsafe void PushMatrix(this GlInterface glInterface)
+    {
+        const String EntryPoint = "glPushMatrix";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<void>)procAddress;
+        functionDelegate();
+    }
+
+    public static unsafe void SwapBuffers(this GlInterface glInterface, IntPtr hDC)
+    {
+        const String EntryPoint = "wglSwapBuffers";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<IntPtr, void>)procAddress;
+        functionDelegate(hDC);
+    }
+
+
+    public static unsafe void MatrixMode(this GlInterface glInterface, Int32 mode)
+    {
+        const String EntryPoint = "glMatrixMode";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, void>)procAddress;
+        functionDelegate(mode);
+    }
+
+    public static unsafe void Ortho(this GlInterface glInterface, Int32 x, Int32 w, Int32 h, Int32 y, Single n, Single f)
+    {
+        const String EntryPoint = "glOrtho";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, Int32, Int32, Int32, Single, Single, void>)procAddress;
+        functionDelegate(x, w, h, y, n, f);
     }
 }

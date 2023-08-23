@@ -26,4 +26,5 @@ public partial class MainWindow : Window
         var executor = new CommandExecutor();
         executor.Execute(ViewModel.MakeScreenShotCommand);
     }
+
 }

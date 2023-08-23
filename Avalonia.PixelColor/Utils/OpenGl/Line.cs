@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using Avalonia.OpenGL;
+using Common;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;
@@ -21,7 +22,7 @@ public class Line : IDisposable
 
     private Matrix4x4 _mvp;
 
-    private Single[] _lineColor;
+    private float[] _lineColor;
 
     private GlInterface _gl;
 
@@ -37,24 +38,25 @@ public class Line : IDisposable
         _gl = gl;
         _startPoint = startPoint;
         _endPoint = endPoint;
-        _lineColor = new Single[] { 1, 1, 1 };
-        _mvp = new Matrix4x4(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+        _lineColor = new float[] { 0, 1, 0.5f };
+        _mvp = Matrix4x4.Identity;
         var vertexShaderSource =
-@"#version 330 core
-layout (location = 0) in vec3 aPos;
-uniform mat4 MVP;
-void main()
-{
-   gl_Position = MVP * vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}";
+            @"#version 330 core
+            layout (location = 0) in vec3 aPos;
+            uniform mat4 MVP;
+            void main()
+            {
+               gl_Position = MVP * vec4(aPos, 1.0);
+            }";
+
         var fragmentShaderSource =
-@"#version 330 core
-out vec4 FragColor;
-uniform vec3 color;
-void main()
-{
-    FragColor = vec4(color, 1.0f);
-}";
+            @"#version 330 core
+            out vec4 FragColor;
+            uniform vec3 color;
+            void main()
+            {
+                FragColor = vec4(color, 1.0f);
+            }";
         var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
         var error = gl.CompileShaderAndGetError(
            vertexShader,
@@ -72,6 +74,7 @@ void main()
         {
             throw new Exception(error);
         }
+
 
         _shaderProgram = gl.CreateProgram();
         gl.AttachShader(_shaderProgram, vertexShader);
@@ -126,13 +129,13 @@ void main()
 
     public Int32 SetColor(Vector3 color)
     {
-        _lineColor = new Single[] { color.X, color.Y, color.Z };
+        _lineColor = new float[] { color.X, color.Y, color.Z };
         return 1;
     }
 
-    public Int32 SetColor(Single red, Single green, Single blue, Single alpha)
+    public Int32 SetColor(float red, float green, float blue, float alpha)
     {
-        _lineColor = new Single[] { red, green, blue, alpha };
+        _lineColor = new float[] { red, green, blue, alpha };
         return 1;
     }
 
@@ -148,7 +151,7 @@ void main()
         {
             _gl.Uniform3fv(location, 1, lineColorPtr);
         }
-
+        _gl.LineWidth(3);
         _glExtras.BindVertexArray(_vao);
         _gl.DrawArrays(GL_LINES, 0, (IntPtr)2);
     }

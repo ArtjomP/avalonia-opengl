@@ -53,7 +53,7 @@ public static class OpenGlUtils
     {
         var openGlShaderVersion = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
             ? 150
-            : 120;
+            : 130;
         var shaderVersionToUse =
             glVersion.Type is GlProfileType.OpenGL
             ? openGlShaderVersion
