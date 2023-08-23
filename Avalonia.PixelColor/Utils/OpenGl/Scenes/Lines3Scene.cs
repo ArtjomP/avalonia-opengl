@@ -20,7 +20,10 @@ internal sealed class Lines3Scene : IOpenGlScene
 
     private GlVersion GlVersion { get; }
 
-    public IEnumerable<OpenGlSceneParameter> Parameters { get; }
+    public IEnumerable<OpenGlSceneParameter> Parameters
+    { 
+        get; 
+    }
 
     public OpenGlScenesEnum Scene => OpenGlScenesEnum.Lines3;
 

@@ -65,7 +65,7 @@
                     Grid.Column="0"
                     Grid.ColumnSpan="3"
                     BorderThickness="0"
-                    Items="{Binding SelectedSceneDescription.Parameters, Mode=OneWay}">
+                    Items="{Binding SelectedSceneParameters, Mode=OneWay}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border

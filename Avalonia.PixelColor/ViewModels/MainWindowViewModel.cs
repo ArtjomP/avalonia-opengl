@@ -24,6 +24,17 @@ public sealed class MainWindowViewModel : ReactiveObject
                 o => o.ScreenShotControl)
             .Select(o => !String.IsNullOrEmpty(o.Item1) && o.Item2 is not null);
         MakeScreenShotCommand = ReactiveCommand.Create(MakeScreenShot);
+        this.WhenAnyValue(o => o.SelectedSceneDescription)
+            .Subscribe(SetSelectedSceneParameters);
+    }
+
+    private void SetSelectedSceneParameters(OpenGlSceneDescription? sceneDescription)
+    {
+        SelectedSceneParameters = null;
+        if (sceneDescription is not null)
+        {
+            SelectedSceneParameters = sceneDescription.Parameters;
+        }
     }
 
     public ICommand MakeScreenShotCommand { get; }
@@ -60,6 +71,13 @@ public sealed class MainWindowViewModel : ReactiveObject
     [Reactive]
     public OpenGlSceneDescription? SelectedSceneDescription
     {
+        get;
+        set;
+    }
+
+    [Reactive]
+    public IEnumerable<OpenGlSceneParameter>? SelectedSceneParameters 
+    {     
         get;
         set;
     }

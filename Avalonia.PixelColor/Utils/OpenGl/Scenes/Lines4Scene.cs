@@ -3,7 +3,6 @@
 using Avalonia.OpenGL;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
@@ -63,7 +62,7 @@ internal sealed class Lines4Scene : IOpenGlScene
             gl.ClearColor(r: 0.3f, g: 0.3f, b: 0.3f, a: 1f);
 
             gl.Color3f(1f, 1f, 1f);
-            gl.LineWidth(2f);
+            gl.LineWidth(_lineWidth.Value);
             gl.Begin(GL_LINES);
             gl.Vertex2f(-10f, -10f);
             gl.Vertex2f(10f, 10f);
