@@ -2,6 +2,7 @@
 using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 using Common;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                 OpenGlScenesEnum.Lines3 => new Lines3Scene(GlVersion),
                 OpenGlScenesEnum.Lines4 => new Lines4Scene(GlVersion),
                 OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoi(GlVersion),
+                OpenGlScenesEnum.LinesSilk => new LinesSilkScene(),
                 _ => new RectangleScene(),
             };
             _nextScene = nextScene;
