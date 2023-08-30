@@ -3,6 +3,7 @@ using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
+using Avalonia.Threading;
 using Common;
 using System;
 using System.Collections.Generic;
@@ -200,5 +201,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                     scaleFactor: scaleFactor);
             }
         }
+
+        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
     }    
 }
