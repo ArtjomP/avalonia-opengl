@@ -4,7 +4,6 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.Threading;
-using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
@@ -56,9 +55,9 @@ public class PickPixelColorControl
             nameof(Scene),
             o => o.Scene,
             (o, v) => o.Scene = v,
-            unsetValue: OpenGlScenesEnum.Lines4);
+            unsetValue: OpenGlScenesEnum.LinesSilk);
 
-    private OpenGlScenesEnum _scene = OpenGlScenesEnum.Lines4;
+    private OpenGlScenesEnum _scene = OpenGlScenesEnum.LinesSilk;
 
     public OpenGlScenesEnum Scene
     {
@@ -87,8 +86,10 @@ public class PickPixelColorControl
 
         _updateTrackingDisposable =
             Observable
-                .Interval(TimeSpan.FromMilliseconds(100))
-                .Subscribe(_ => Dispatcher.UIThread.Post(TrackPosition, DispatcherPriority.Background));
+                .Interval(TimeSpan.FromMilliseconds(17))
+                .Subscribe(_ => Dispatcher.UIThread.Post(
+                    RenderOpenGlAndGetPositionColorsBack,
+                    DispatcherPriority.Background));
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -101,7 +102,6 @@ public class PickPixelColorControl
         AvaloniaPropertyChangedEventArgs<T> change)
     {
         base.OnPropertyChanged(change);
-
         if (change.Property == SceneProperty)
         {
             var scene = change

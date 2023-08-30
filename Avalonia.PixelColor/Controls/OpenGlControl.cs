@@ -3,7 +3,6 @@ using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
-using Avalonia.Threading;
 using Common;
 using System;
 using System.Collections.Generic;

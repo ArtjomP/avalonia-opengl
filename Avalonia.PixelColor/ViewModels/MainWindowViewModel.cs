@@ -17,7 +17,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     public MainWindowViewModel()
     {
         Scenes = (OpenGlScenesEnum[])Enum.GetValues(typeof(OpenGlScenesEnum));
-        SelectedScene = OpenGlScenesEnum.Lines4;
+        SelectedScene = OpenGlScenesEnum.LinesSilk;
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,

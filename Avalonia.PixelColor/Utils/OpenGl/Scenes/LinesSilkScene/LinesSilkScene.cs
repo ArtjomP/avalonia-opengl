@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.PixelColor.Utils.OpenGl.Silk;
 using CommunityToolkit.Diagnostics;
@@ -8,13 +7,23 @@ using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Numerics;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 
 public sealed class LinesSilkScene : IOpenGlScene
 {
+    private readonly OpenGlSceneParameter _lineWidth;
+
+    public LinesSilkScene()
+    {
+        _lineWidth = new OpenGlSceneParameter("Line width", 2);
+        Parameters = new OpenGlSceneParameter[]
+        {
+            _lineWidth,
+        };
+    }
+
     private GL? _gl;
     private BufferObject<Single>? _vbo;
     private VertexArrayObject<Single, UInt32>? _vao;
@@ -29,8 +38,7 @@ public sealed class LinesSilkScene : IOpenGlScene
              1.0f,  1.0f, 0.0f
         };
 
-    public IEnumerable<OpenGlSceneParameter> Parameters
-        => Enumerable.Empty<OpenGlSceneParameter>();
+    public IEnumerable<OpenGlSceneParameter> Parameters { get; }
 
     public OpenGlScenesEnum Scene => OpenGlScenesEnum.LinesSilk;
 
@@ -83,7 +91,9 @@ public sealed class LinesSilkScene : IOpenGlScene
             shader.SetUniform("RENDERSIZE", new Vector2((Single)width, (Single)height));
             shader.SetUniform("shift", (Single)DateTime.Now.Millisecond % 1000 / 1000f);
             shader.SetUniform("angle", 0.5f);
-            shader.SetUniform("line_width", (Single)Math.Cos(DateTime.Now.Millisecond / 1000f) * 0.5f);
+            var lineWidthCoefficient = (Single)_lineWidth.Value / Byte.MaxValue;
+            var lineWidth = (Single)Math.Cos(DateTime.Now.Millisecond / 1000f) * lineWidthCoefficient;
+            shader.SetUniform("line_width", lineWidth);
             shader.SetUniform("spacing", 0.5f);
             shader.SetUniform("color1", new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
             shader.SetUniform("color2", new Vector4(0.3f, 0.0f, 0.3f, 1.0f));
