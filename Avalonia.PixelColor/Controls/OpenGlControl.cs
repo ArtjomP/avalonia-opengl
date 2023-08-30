@@ -201,7 +201,5 @@ public sealed class OpenGlControl : OpenGlControlBase
                     scaleFactor: scaleFactor);
             }
         }
-
-        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
     }    
 }
