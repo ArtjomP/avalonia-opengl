@@ -3,8 +3,10 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.PixelColor.Utils.OpenGl;
+using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 
 namespace Avalonia.PixelColor.Controls;
 
@@ -53,15 +55,17 @@ public class PickPixelColorControl
             nameof(Scene),
             o => o.Scene,
             (o, v) => o.Scene = v,
-            unsetValue: OpenGlScenesEnum.Lines4);
+            unsetValue: OpenGlScenesEnum.LinesSilk);
 
-    private OpenGlScenesEnum _scene = OpenGlScenesEnum.Lines4;
+    private OpenGlScenesEnum _scene = OpenGlScenesEnum.LinesSilk;
 
     public OpenGlScenesEnum Scene
     {
         get => _scene;
         private set => SetAndRaise(SceneProperty, ref _scene, value);
     }
+
+    private IDisposable? _updateTrackingDisposable;
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
@@ -79,13 +83,25 @@ public class PickPixelColorControl
         }
 
         PointerMovedEvent.AddClassHandler<PickPixelColorControl>(TrackMoved);
+
+        _updateTrackingDisposable =
+            Observable
+                .Interval(TimeSpan.FromMilliseconds(17))
+                .Subscribe(_ => Dispatcher.UIThread.Post(
+                    RenderOpenGlAndGetPositionColorsBack,
+                    DispatcherPriority.Background));
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        _updateTrackingDisposable?.Dispose();
     }
 
     protected override void OnPropertyChanged<T>(
         AvaloniaPropertyChangedEventArgs<T> change)
     {
         base.OnPropertyChanged(change);
-
         if (change.Property == SceneProperty)
         {
             var scene = change
@@ -111,6 +127,8 @@ public class PickPixelColorControl
         }
     }
 
+    private PointerPoint? _lastPointerPosition;
+
     private void TrackMoved(
        Object? sender,
        PointerEventArgs args)
@@ -119,6 +137,22 @@ public class PickPixelColorControl
         if (openGlControl is not null)
         {
             var position = args.GetCurrentPoint(openGlControl);
+            _lastPointerPosition = position;
+            TrackPosition();
+        }
+    }
+
+    private void TrackPosition()
+    {
+        var position = _lastPointerPosition;
+        var openGlControl = _openGlControl;
+        TrackPosition(openGlControl, position);       
+    }
+
+    private void TrackPosition(OpenGlControl? openGlControl, PointerPoint? position)
+    {
+        if (openGlControl is not null && position is not null)
+        {
             var width = openGlControl.Bounds.Width;
             var height = openGlControl.Bounds.Height;
             if (position is not null)
@@ -135,19 +169,24 @@ public class PickPixelColorControl
                     trackPoint.Point.ReleativeY = relativeY;
                 }
 
-                RenderOpenGl();
-                foreach (var trackPoint in TrackPoints)
-                {
-                    var color = trackPoint.Point.Color;
-                    var mediaColor = Color.FromArgb(
-                        a: color.A,
-                        r: color.R,
-                        g: color.G,
-                        b: color.B);
-                    var brush = new SolidColorBrush(mediaColor);
-                    trackPoint.ColorBrush = brush;
-                }
+                RenderOpenGlAndGetPositionColorsBack();
             }
+        }
+    }
+
+    private void RenderOpenGlAndGetPositionColorsBack()
+    {
+        RenderOpenGl();
+        foreach (var trackPoint in TrackPoints)
+        {
+            var color = trackPoint.Point.Color;
+            var mediaColor = Color.FromArgb(
+                a: color.A,
+                r: color.R,
+                g: color.G,
+                b: color.B);
+            var brush = new SolidColorBrush(mediaColor);
+            trackPoint.ColorBrush = brush;
         }
     }
 

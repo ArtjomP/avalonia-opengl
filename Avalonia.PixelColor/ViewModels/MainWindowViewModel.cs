@@ -4,6 +4,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -17,7 +18,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     public MainWindowViewModel()
     {
         Scenes = (OpenGlScenesEnum[])Enum.GetValues(typeof(OpenGlScenesEnum));
-        SelectedScene = OpenGlScenesEnum.Lines4;
+        SelectedScene = OpenGlScenesEnum.Lines3;
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,
@@ -30,10 +31,13 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void SetSelectedSceneParameters(OpenGlSceneDescription? sceneDescription)
     {
-        SelectedSceneParameters = null;
+        SelectedSceneParameters.Clear();
         if (sceneDescription is not null)
         {
-            SelectedSceneParameters = sceneDescription.Parameters;
+            foreach (var parameter in sceneDescription.Parameters)
+            {
+                SelectedSceneParameters.Add(parameter);
+            }
         }
     }
 
@@ -76,11 +80,11 @@ public sealed class MainWindowViewModel : ReactiveObject
     }
 
     [Reactive]
-    public IEnumerable<OpenGlSceneParameter>? SelectedSceneParameters 
+    public ObservableCollection<OpenGlSceneParameter> SelectedSceneParameters 
     {     
         get;
         set;
-    }
+    } = new ObservableCollection<OpenGlSceneParameter>();
 
     [Reactive]
     public IScreenShotControl? ScreenShotControl { get; set; }

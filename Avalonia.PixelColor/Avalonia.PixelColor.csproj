@@ -12,6 +12,16 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove=".gitignore" />
+		<None Remove="Utils\OpenGl\Scenes\LinesSilkScene\lines.frag" />
+		<None Remove="Utils\OpenGl\Scenes\LinesSilkScene\lines.vert" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="Utils\OpenGl\Scenes\LinesSilkScene\lines.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Utils\OpenGl\Scenes\LinesSilkScene\lines.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -19,12 +29,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="0.10.21" />
-		<PackageReference Include="Avalonia.Desktop" Version="0.10.21" />
+		<PackageReference Include="Avalonia" Version="0.10.22" />
+		<PackageReference Include="Avalonia.Desktop" Version="0.10.22" />
 		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.21" />
+		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.22" />
 		<PackageReference Include="pt.CommandExecutor.ReactiveUI" Version="1.0.4984" />
-		<PackageReference Include="ReactiveUI.Fody" Version="19.2.1" />
+		<PackageReference Include="ReactiveUI.Fody" Version="19.4.1" />
+		<PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
 		<PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
 	</ItemGroup>
 
