@@ -58,7 +58,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             _b2,
         };
 
-        gradientWidth = (float)_gradientWidth.Value / Byte.MaxValue;
+        gradientWidth = (Single)_gradientWidth.Value / Byte.MaxValue;
     }
 
     private GL? _gl;
@@ -133,7 +133,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             var lineWidth = (Single)_lineWidth.Value / Byte.MaxValue;
             shader.SetUniform("line_width", lineWidth);
 
-            updateGradientWidth();
+            UpdateGradientWidth();
             shader.SetUniform("gradient_width", gradientWidth);
 
             var spacing = (Single)_spacing.Value / Byte.MaxValue;
@@ -154,24 +154,29 @@ public sealed class LinesSilkScene : IOpenGlScene
             count: 4);
     }
 
-    private void updateGradientWidth()
+    private void UpdateGradientWidth()
     {
         var pulseFrequency = (Single)_pulseFrequency.Value / 100f;
         var gradientWidthBaseValue = (Single)_gradientWidth.Value / Byte.MaxValue;
-
         if (pulseFrequency == 0)
         {
             gradientWidth = gradientWidthBaseValue;
-            return;
         }
+        else
+        {
+            gradientWidth = CurrentPulseDirection == PulseDirection.Forward
+                        ? gradientWidth += gradientWidthBaseValue / 100f * pulseFrequency
+                        : gradientWidth -= gradientWidthBaseValue / 100f * pulseFrequency;
+            if (gradientWidth > gradientWidthBaseValue)
+            {
+                CurrentPulseDirection = PulseDirection.Backward;
+            }
 
-        gradientWidth = CurrentPulseDirection == PulseDirection.Forward ?
-            gradientWidth += gradientWidthBaseValue / 100f * pulseFrequency :
-            gradientWidth -= gradientWidthBaseValue / 100f * pulseFrequency;
-        if (gradientWidth > gradientWidthBaseValue)
-            CurrentPulseDirection = PulseDirection.Backward;
-        if (gradientWidth <= 0)
-            CurrentPulseDirection = PulseDirection.Forward;
+            if (gradientWidth <= 0)
+            {
+                CurrentPulseDirection = PulseDirection.Forward;
+            }
+        }        
     }
 
     private enum PulseDirection
