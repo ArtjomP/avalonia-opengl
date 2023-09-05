@@ -40,9 +40,9 @@ public sealed class LinesSilkScene : IOpenGlScene
         _r2 = new OpenGlSceneParameter("R2", Byte.MinValue);
         _g2 = new OpenGlSceneParameter("G2", Byte.MinValue);
         _b2 = new OpenGlSceneParameter("B2", Byte.MinValue);
-        _angle = new OpenGlSceneParameter("Angle", 128);
+        _angle = new OpenGlSceneParameter("Angle", 90, 0, 360);
         _speed = new OpenGlSceneParameter("Speed", 0);
-        _spacing = new OpenGlSceneParameter("Spacing", 180, 90, Byte.MaxValue);
+        _spacing = new OpenGlSceneParameter("Spacing", 180, 140, Byte.MaxValue);
         Parameters = new OpenGlSceneParameter[]
         {
             _lineWidth,
@@ -131,9 +131,9 @@ public sealed class LinesSilkScene : IOpenGlScene
             shader.Use();
             shader.SetUniform("RENDERSIZE", new Vector2((Single)width, (Single)height));
             var speed = (Single)_speed.Value / Byte.MaxValue;
-            shift += speed / 100.0f;
+            shift += speed / 10.0f;
             shader.SetUniform("shift", shift);
-            var angle = (Single)_angle.Value / Byte.MaxValue;
+            var angle = (Single)_angle.Value / 180;
             shader.SetUniform("angle", angle);
 
             var lineWidth = (Single)_lineWidth.Value / Byte.MaxValue;
