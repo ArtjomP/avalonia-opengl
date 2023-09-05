@@ -4,7 +4,8 @@
 
 uniform float spacing;
 uniform float line_width;
-uniform float gradient_width;
+uniform float left_gradient_width;
+uniform float rigth_gradient_width;
 uniform float angle;
 uniform float shift;
 uniform vec4 color1;
@@ -25,8 +26,9 @@ float pattern() {
 	float spaced = RENDERSIZE.y * spacing;
 	vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * max(1.0 / spaced, 0.001);
 	float d = point.y;
-	float w = 2.0 * gradient_width + line_width;
-	return ( mod(d + shift * spacing + w * 0.5, spacing) );
+	float w = left_gradient_width + rigth_gradient_width + line_width;
+	float center = (left_gradient_width + line_width / 2.0) / w;
+	return ( mod(d + shift * spacing + w * center, spacing) );
 }
 
 
@@ -37,17 +39,22 @@ void main() {
 	//	m = (y1-y0)/(x1-x0) = tan(angle)
 	
 	vec4 out_color = color2;
-	float w = 2.0 * gradient_width + line_width;
+	float w = left_gradient_width + rigth_gradient_width + line_width;
 
 	float pat = pattern();
 
-	if ((pat > 0.0)&&(pat <= w))	{
-		float percent = (1.0 - abs(w - 2.0 * pat) / w);
+	if ((left_gradient_width > 0)&&(pat > 0.0)&&(pat <= left_gradient_width))	{
+		float percent = (1.0 - abs(left_gradient_width - 1.0 * pat) / left_gradient_width);
 		percent = clamp(percent,0.0,1.0);
 		out_color = mix(color2,color1,percent);  
 	}
-	if ((pat > gradient_width)&&(pat <= gradient_width + line_width))	{
+	if ((pat > left_gradient_width)&&(pat <= left_gradient_width + line_width))	{
 		out_color = color1; 
+	}
+	if ((rigth_gradient_width > 0)&&(pat > left_gradient_width + line_width)&&(pat <= w))	{
+		float percent = (1.0 - abs(rigth_gradient_width - 1.0 * (w - pat)) / rigth_gradient_width);
+		percent = clamp(percent,0.0,1.0);
+		out_color = mix(color2,color1,percent);  
 	}
 	
 	gl_FragColor = out_color;
