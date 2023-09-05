@@ -6,7 +6,6 @@ using CommunityToolkit.Diagnostics;
 using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 
@@ -161,7 +160,7 @@ public sealed class LinesSilkScene : IOpenGlScene
         if (pulseFrequency == 0)
         {
             gradientWidth = gradientWidthBaseValue;
-        }
+        }   
         else
         {
             gradientWidth = CurrentPulseDirection == PulseDirection.Forward
