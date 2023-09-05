@@ -17,10 +17,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Include="Utils\OpenGl\Scenes\LinesSilkScene\lines.frag">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="Utils\OpenGl\Scenes\LinesSilkScene\lines.vert">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
 
