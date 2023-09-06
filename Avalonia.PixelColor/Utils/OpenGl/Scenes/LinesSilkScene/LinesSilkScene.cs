@@ -40,7 +40,7 @@ public sealed class LinesSilkScene : IOpenGlScene
         _r2 = new OpenGlSceneParameter("R2", Byte.MinValue);
         _g2 = new OpenGlSceneParameter("G2", Byte.MinValue);
         _b2 = new OpenGlSceneParameter("B2", Byte.MinValue);
-        _angle = new OpenGlSceneParameter("Angle", 90, 0, 360);
+        _angle = new OpenGlSceneParameter("Angle", 64);
         _speed = new OpenGlSceneParameter("Speed", 0);
         _spacing = new OpenGlSceneParameter("Spacing", 180, 140, Byte.MaxValue);
         Parameters = new OpenGlSceneParameter[]
@@ -119,6 +119,8 @@ public sealed class LinesSilkScene : IOpenGlScene
             @"Utils\OpenGl\Scenes\LinesSilkScene\lines.frag");
     }
 
+    private const Int32 MaxAngle = 360;
+
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
         var silkGl = _gl ?? GL.GetApi(gl.GetProcAddress);
@@ -133,7 +135,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             var speed = (Single)_speed.Value / Byte.MaxValue;
             shift += speed / 10.0f;
             shader.SetUniform("shift", shift);
-            var angle = (Single)_angle.Value / 180;
+            var angle = (Single)_angle.Value / (Single)(_angle.Maximum * 0.5);
             shader.SetUniform("angle", angle);
 
             var lineWidth = (Single)_lineWidth.Value / Byte.MaxValue;
@@ -141,7 +143,7 @@ public sealed class LinesSilkScene : IOpenGlScene
 
             updateGradientWidth();
             shader.SetUniform("left_gradient_width", leftGradientWidth);
-            shader.SetUniform("rigth_gradient_width", rightGradientWidth);
+            shader.SetUniform("right_gradient_width", rightGradientWidth);
 
             var spacing = (Single)_spacing.Value / Byte.MaxValue;
             shader.SetUniform("spacing", spacing);

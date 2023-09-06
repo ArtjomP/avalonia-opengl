@@ -5,7 +5,7 @@
 uniform float spacing;
 uniform float line_width;
 uniform float left_gradient_width;
-uniform float rigth_gradient_width;
+uniform float right_gradient_width;
 uniform float angle;
 uniform float shift;
 uniform vec4 color1;
@@ -26,20 +26,15 @@ float pattern() {
 	float spaced = RENDERSIZE.y * spacing;
 	vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * max(1.0 / spaced, 0.001);
 	float d = point.y;
-	float w = left_gradient_width + rigth_gradient_width + line_width;
+	float w = left_gradient_width + right_gradient_width + line_width;
 	float center = (left_gradient_width + line_width / 2.0) / w;
 	return ( mod(d + shift * spacing + w * center, spacing) );
 }
 
 
 void main() {
-	//	determine if we are on a line
-	//	math goes something like, figure out distance to the closest line, then draw color2 if we're within range
-	//	y = m*x + b
-	//	m = (y1-y0)/(x1-x0) = tan(angle)
-	
 	vec4 out_color = color2;
-	float w = left_gradient_width + rigth_gradient_width + line_width;
+	float w = left_gradient_width + right_gradient_width + line_width;
 
 	float pat = pattern();
 
@@ -51,8 +46,8 @@ void main() {
 	if ((pat > left_gradient_width)&&(pat <= left_gradient_width + line_width))	{
 		out_color = color1; 
 	}
-	if ((rigth_gradient_width > 0)&&(pat > left_gradient_width + line_width)&&(pat <= w))	{
-		float percent = (1.0 - abs(rigth_gradient_width - 1.0 * (w - pat)) / rigth_gradient_width);
+	if ((right_gradient_width > 0)&&(pat > left_gradient_width + line_width)&&(pat <= w))	{
+		float percent = (1.0 - abs(right_gradient_width - 1.0 * (w - pat)) / right_gradient_width);
 		percent = clamp(percent,0.0,1.0);
 		out_color = mix(color2,color1,percent);  
 	}
