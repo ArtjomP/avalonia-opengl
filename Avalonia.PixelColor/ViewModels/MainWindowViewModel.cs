@@ -12,13 +12,12 @@ using System.Windows.Input;
 
 namespace Avalonia.PixelColor.ViewModels;
 
-
 public sealed class MainWindowViewModel : ReactiveObject
 {
     public MainWindowViewModel()
     {
         Scenes = (OpenGlScenesEnum[])Enum.GetValues(typeof(OpenGlScenesEnum));
-        SelectedScene = OpenGlScenesEnum.Lines3;
+        SelectedScene = OpenGlScenesEnum.Lines;
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,
