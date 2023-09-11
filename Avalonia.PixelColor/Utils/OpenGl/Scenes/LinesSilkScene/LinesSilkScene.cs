@@ -6,7 +6,6 @@ using CommunityToolkit.Diagnostics;
 using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 
@@ -15,8 +14,8 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 public sealed class LinesSilkScene : IOpenGlScene
 {
     private readonly OpenGlSceneParameter _lineWidth;
-    private readonly OpenGlSceneParameter _leftGradientWidth;
-    private readonly OpenGlSceneParameter _rightGradientWidth;
+    private readonly OpenGlSceneParameter _leftGradientWidthParameter;
+    private readonly OpenGlSceneParameter _rightGradientWidthParameter;
     private readonly OpenGlSceneParameter _pulseFrequency;
     private readonly OpenGlSceneParameter _r1;
     private readonly OpenGlSceneParameter _g1;
@@ -31,8 +30,8 @@ public sealed class LinesSilkScene : IOpenGlScene
     public LinesSilkScene()
     {
         _lineWidth = new OpenGlSceneParameter("Line width", 10, 0, 40);
-        _leftGradientWidth = new OpenGlSceneParameter("Left gradient width", 30, 0, 50);
-        _rightGradientWidth = new OpenGlSceneParameter("Right gradient width", 30, 0, 50);
+        _leftGradientWidthParameter = new OpenGlSceneParameter("Left gradient width", 30, 0, 50);
+        _rightGradientWidthParameter = new OpenGlSceneParameter("Right gradient width", 30, 0, 50);
         _pulseFrequency = new OpenGlSceneParameter("Pulse frequency", Byte.MaxValue);
         _r1 = new OpenGlSceneParameter("R1", Byte.MaxValue);
         _g1 = new OpenGlSceneParameter("G1", Byte.MaxValue);
@@ -46,8 +45,8 @@ public sealed class LinesSilkScene : IOpenGlScene
         Parameters = new OpenGlSceneParameter[]
         {
             _lineWidth,
-            _leftGradientWidth,
-            _rightGradientWidth,
+            _leftGradientWidthParameter,
+            _rightGradientWidthParameter,
             _pulseFrequency,
             _angle,
             _speed,
@@ -60,8 +59,8 @@ public sealed class LinesSilkScene : IOpenGlScene
             _b2,
         };
 
-        leftGradientWidth = (float)_leftGradientWidth.Value / Byte.MaxValue;
-        rightGradientWidth = (float)_rightGradientWidth.Value / Byte.MaxValue;
+        _leftGradientWidth = (Single)_leftGradientWidthParameter.Value / Byte.MaxValue;
+        _rightGradientWidth = (Single)_rightGradientWidthParameter.Value / Byte.MaxValue;
     }
 
     private GL? _gl;
@@ -69,11 +68,11 @@ public sealed class LinesSilkScene : IOpenGlScene
     private VertexArrayObject<Single, UInt32>? _vao;
     private Silk.Shader? _shader;
 
-    private float leftGradientWidth;
-    private float rightGradientWidth;
-    private PulseDirection CurrentPulseDirection = PulseDirection.Backward;
+    private Single _leftGradientWidth;
+    private Single _rightGradientWidth;
+    private PulseDirection _currentPulseDirection = PulseDirection.Backward;
 
-    private float shift = 0;
+    private Single shift = 0;
 
     private static readonly Single[] _vertices =
     {
@@ -100,11 +99,11 @@ public sealed class LinesSilkScene : IOpenGlScene
         Guard.IsNotNull(gl);
 
         _gl = GL.GetApi(gl.GetProcAddress);
-        _vbo = new BufferObject<float>(
+        _vbo = new BufferObject<Single>(
             gl: _gl,
             data: _vertices,
             bufferType: BufferTargetARB.ArrayBuffer);
-        _vao = new VertexArrayObject<float, uint>(
+        _vao = new VertexArrayObject<Single, UInt32>(
             gl: _gl,
             vbo: _vbo);
         _vao.VertexAttributePointer(
@@ -141,9 +140,9 @@ public sealed class LinesSilkScene : IOpenGlScene
             var lineWidth = (Single)_lineWidth.Value / Byte.MaxValue;
             shader.SetUniform("line_width", lineWidth);
 
-            updateGradientWidth();
-            shader.SetUniform("left_gradient_width", leftGradientWidth);
-            shader.SetUniform("right_gradient_width", rightGradientWidth);
+            UpdateGradientWidth();
+            shader.SetUniform("left_gradient_width", _leftGradientWidth);
+            shader.SetUniform("right_gradient_width", _rightGradientWidth);
 
             var spacing = (Single)_spacing.Value / Byte.MaxValue;
             shader.SetUniform("spacing", spacing);
@@ -155,7 +154,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             var b2 = (Single)_b2.Value / Byte.MaxValue;
             shader.SetUniform("color1", new Vector4(r1, g1, b1, 1.0f));
             shader.SetUniform("color2", new Vector4(r2, g2, b2, 1.0f));
-        }       
+        }
 
         silkGl.DrawArrays(
             mode: PrimitiveType.TriangleStrip,
@@ -163,50 +162,67 @@ public sealed class LinesSilkScene : IOpenGlScene
             count: 4);
     }
 
-    private void updateGradientWidth()
+    private void UpdateGradientWidth()
     {
         var pulseFrequency = (Single)_pulseFrequency.Value / 100f;
-        var leftGradientWidthBaseValue = (Single)_leftGradientWidth.Value / Byte.MaxValue;
-        var rightGradientWidthBaseValue = (Single)_rightGradientWidth.Value / Byte.MaxValue;
+        var leftGradientWidthBaseValue = (Single)_leftGradientWidthParameter.Value / Byte.MaxValue;
+        var rightGradientWidthBaseValue = (Single)_rightGradientWidthParameter.Value / Byte.MaxValue;
 
         if (pulseFrequency == 0)
         {
-            leftGradientWidth = leftGradientWidthBaseValue;
-            rightGradientWidth = rightGradientWidthBaseValue;
-            return;
-        }
-        if (leftGradientWidthBaseValue > 0)
-        {
-            leftGradientWidth = CurrentPulseDirection == PulseDirection.Forward ?
-                leftGradientWidth += leftGradientWidthBaseValue / 100f * pulseFrequency :
-                leftGradientWidth -= leftGradientWidthBaseValue / 100f * pulseFrequency;
-            if (leftGradientWidth > leftGradientWidthBaseValue)
-                leftGradientWidth = leftGradientWidthBaseValue;
-            if (leftGradientWidth < 0)
-                leftGradientWidth = 0;
+            _leftGradientWidth = leftGradientWidthBaseValue;
+            _rightGradientWidth = rightGradientWidthBaseValue;
         }
         else
-            leftGradientWidth = 0;
-        if(rightGradientWidthBaseValue > 0)
         {
-            rightGradientWidth = CurrentPulseDirection == PulseDirection.Forward ?
-                rightGradientWidth += rightGradientWidthBaseValue / 100f * pulseFrequency :
-                rightGradientWidth -= rightGradientWidthBaseValue / 100f * pulseFrequency;
-            if (rightGradientWidth > rightGradientWidthBaseValue)
-                rightGradientWidth = rightGradientWidthBaseValue;
-            if (rightGradientWidth < 0)
-                rightGradientWidth = 0;
+            if (leftGradientWidthBaseValue > 0)
+            {
+                var offset = leftGradientWidthBaseValue / 100f * pulseFrequency;
+                var direction = _currentPulseDirection == PulseDirection.Forward
+                    ? 1
+                    : -1;
+                var leftGradientWidth = _leftGradientWidth + offset * direction;
+                _leftGradientWidth = Math.Clamp(
+                    value: leftGradientWidth,
+                    min: 0,
+                    max: leftGradientWidthBaseValue);
+            }
+            else
+            {
+                _leftGradientWidth = 0;
+            }
+
+            if (rightGradientWidthBaseValue > 0)
+            {
+                var offset = rightGradientWidthBaseValue / 100f * pulseFrequency;
+                var direction = _currentPulseDirection == PulseDirection.Forward
+                    ? 1
+                    : -1;
+                var rightGradientWidth = _rightGradientWidth + offset * direction;
+                _rightGradientWidth = Math.Clamp(
+                    value: rightGradientWidth,
+                    min: 0,
+                    max: rightGradientWidthBaseValue);
+            }
+            else
+            {
+                _rightGradientWidth = 0;
+            }
+
+            var baseValue = Math.Max(leftGradientWidthBaseValue, rightGradientWidthBaseValue);
+            var value = leftGradientWidthBaseValue > rightGradientWidthBaseValue 
+                ? _leftGradientWidth 
+                : _rightGradientWidth;
+            if (value >= baseValue)
+            {
+                _currentPulseDirection = PulseDirection.Backward;
+            }
+
+            if (value <= 0)
+            {
+                _currentPulseDirection = PulseDirection.Forward;
+            }
         }
-        else
-            rightGradientWidth = 0;
-
-        var baseValue = Math.Max(leftGradientWidthBaseValue, rightGradientWidthBaseValue);
-        var value = leftGradientWidthBaseValue > rightGradientWidthBaseValue ? leftGradientWidth : rightGradientWidth;
-
-        if (value >= baseValue)
-            CurrentPulseDirection = PulseDirection.Backward;
-        if (value <= 0)
-            CurrentPulseDirection = PulseDirection.Forward;
     }
 
     private enum PulseDirection
