@@ -2,6 +2,7 @@
 
 using Avalonia.OpenGL;
 using Common;
+using CommunityToolkit.Diagnostics;
 using System;
 using System.Collections.Generic;
 using static Avalonia.OpenGL.GlConsts;
@@ -41,11 +42,10 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
 
     private Single _timeValue = 0f;
 
-    private Single _innerGradientWidth;
-
-    private Single _outerGradientWidth;
-
-    private PulseDirection _currentPulseDirection = PulseDirection.Backward;
+    private GradientParameters _gradientParameters = new(
+        direction: Direction.Backward,
+        leftGradientWidth: 0,
+        rightGradientWidth: 0);
 
     private GlVersion GlVersion { get; }
 
@@ -249,9 +249,11 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
 
             UpdateGradientWidth();
             var innerGradientWidth = gl.GetUniformLocationString(_program, "inner_gradient_width");
-            gl.Uniform1f(innerGradientWidth, this._innerGradientWidth);
+            var innerGradientWidthValue = _gradientParameters.leftGradientWidth;
+            gl.Uniform1f(innerGradientWidth, innerGradientWidthValue);
             var outerGradientWidth = gl.GetUniformLocationString(_program, "outer_gradient_width");
-            gl.Uniform1f(outerGradientWidth, this._outerGradientWidth);
+            var outerGradientWidthValue = _gradientParameters.rightGradientWidth;
+            gl.Uniform1f(outerGradientWidth, outerGradientWidthValue);
 
             var time = gl.GetUniformLocationString(_program, "time");
             gl.Uniform1f(time, _timeValue);
@@ -272,72 +274,99 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
 
     private void UpdateGradientWidth()
     {
-        var pulseFrequency = (Single)_gradientPulseFrequency.Value;
-        var innerGradientWidthBaseValue = (Single)_innerGradientWidthParameter.Value / 100f;
-        var outerGradientWidthBaseValue = (Single)_outerGradientWidthParameter.Value / 100f;
+        _gradientParameters = Update(
+            gradientParameters: _gradientParameters,
+            pulse: _gradientPulseFrequency,
+            leftWidth: _innerGradientWidthParameter,
+            rightWidth: _outerGradientWidthParameter);
+    }
+
+    private static GradientParameters Update(
+        GradientParameters gradientParameters,
+        OpenGlSceneParameter pulse,
+        OpenGlSceneParameter leftWidth,
+        OpenGlSceneParameter rightWidth)
+    {
+        Guard.IsNotNull(gradientParameters);
+        Guard.IsNotNull(pulse);
+        Guard.IsNotNull(leftWidth);
+        Guard.IsNotNull(rightWidth);
+        var pulseFrequency = (Single)pulse.Value;
+        var leftGradientWidthBaseValue = (Single)leftWidth.Value / 100f;
+        var rightGradientWidthBaseValue = (Single)rightWidth.Value / 100f;
+        var resultLeftWidth = gradientParameters.leftGradientWidth;
+        var resultRightWidth = gradientParameters.rightGradientWidth;
+        var direction = gradientParameters.direction;
         if (pulseFrequency == 0)
         {
-            _innerGradientWidth = innerGradientWidthBaseValue;
-            _outerGradientWidth = outerGradientWidthBaseValue;
+            resultLeftWidth = leftGradientWidthBaseValue;
+            resultRightWidth = rightGradientWidthBaseValue;
         }
         else
         {
-            if (innerGradientWidthBaseValue > 0)
+            if (leftGradientWidthBaseValue > 0)
             {
-                var offset = innerGradientWidthBaseValue / 100f * pulseFrequency;
-                var direction = _currentPulseDirection == PulseDirection.Forward
-                    ? +1
-                    : -1;
-                var innerGradientWidth = _innerGradientWidth + offset * direction;
-                _innerGradientWidth = Math.Clamp(
-                    value: innerGradientWidth,
-                    min: 0,
-                    max: innerGradientWidthBaseValue);
+                resultLeftWidth = CalculateWidth(
+                    pulseFrequency: pulseFrequency,
+                    baseWidth: leftGradientWidthBaseValue, 
+                    targetWidth: resultLeftWidth,
+                    direction: direction);
             }
             else
             {
-                _innerGradientWidth = 0;
+                resultLeftWidth = 0;
             }
 
-            if (outerGradientWidthBaseValue > 0)
+            if (rightGradientWidthBaseValue > 0)
             {
-                var offset = outerGradientWidthBaseValue / 100f * pulseFrequency;
-                var direction = _currentPulseDirection == PulseDirection.Forward
-                    ? +1
-                    : -1;
-                _outerGradientWidth += offset * direction;
-                if (_outerGradientWidth > outerGradientWidthBaseValue)
-                {
-                    _outerGradientWidth = outerGradientWidthBaseValue;
-                }
-
-                if (_outerGradientWidth < 0)
-                {
-                    _outerGradientWidth = 0;
-                }
+                resultRightWidth = CalculateWidth(
+                    pulseFrequency: pulseFrequency,
+                    baseWidth: rightGradientWidthBaseValue,
+                    targetWidth: resultRightWidth,
+                    direction: direction);
             }
             else
             {
-                _outerGradientWidth = 0;
+                resultRightWidth = 0;
             }
 
-            var baseValue = Math.Max(innerGradientWidthBaseValue, outerGradientWidthBaseValue);
-            var value = innerGradientWidthBaseValue > outerGradientWidthBaseValue
-                ? _innerGradientWidth
-                : _outerGradientWidth;
+            var baseValue = Math.Max(leftGradientWidthBaseValue, rightGradientWidthBaseValue);
+            var value = leftGradientWidthBaseValue > rightGradientWidthBaseValue
+                ? resultLeftWidth
+                : resultRightWidth;
             if (value >= baseValue)
             {
-                _currentPulseDirection = PulseDirection.Backward;
+                direction = Direction.Backward;
             }
+
             if (value <= 0)
             {
-                _currentPulseDirection = PulseDirection.Forward;
+                direction = Direction.Forward;
             }
         }
+
+        var result = new GradientParameters(
+            direction: direction,
+            leftGradientWidth: resultLeftWidth,
+            rightGradientWidth: resultRightWidth);
+        return result;
     }
 
-    private enum PulseDirection
+    private static Single CalculateWidth(
+        Single pulseFrequency, 
+        Single baseWidth, 
+        Single targetWidth, 
+        Direction direction)
     {
-        Forward, Backward
+        var offset = baseWidth / 100f * pulseFrequency;
+        var directionCoeff = direction is Direction.Forward
+            ? +1
+            : -1;
+        targetWidth = targetWidth + offset * directionCoeff;
+        targetWidth = Math.Clamp(
+            value: targetWidth,
+            min: 0,
+            max: baseWidth);
+        return targetWidth;
     }
 }

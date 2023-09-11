@@ -70,7 +70,7 @@ public sealed class LinesSilkScene : IOpenGlScene
 
     private Single _leftGradientWidth;
     private Single _rightGradientWidth;
-    private PulseDirection _currentPulseDirection = PulseDirection.Backward;
+    private Direction _currentPulseDirection = Direction.Backward;
 
     private Single shift = 0;
 
@@ -178,7 +178,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             if (leftGradientWidthBaseValue > 0)
             {
                 var offset = leftGradientWidthBaseValue / 100f * pulseFrequency;
-                var direction = _currentPulseDirection == PulseDirection.Forward
+                var direction = _currentPulseDirection == Direction.Forward
                     ? 1
                     : -1;
                 var leftGradientWidth = _leftGradientWidth + offset * direction;
@@ -195,7 +195,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             if (rightGradientWidthBaseValue > 0)
             {
                 var offset = rightGradientWidthBaseValue / 100f * pulseFrequency;
-                var direction = _currentPulseDirection == PulseDirection.Forward
+                var direction = _currentPulseDirection == Direction.Forward
                     ? 1
                     : -1;
                 var rightGradientWidth = _rightGradientWidth + offset * direction;
@@ -215,18 +215,13 @@ public sealed class LinesSilkScene : IOpenGlScene
                 : _rightGradientWidth;
             if (value >= baseValue)
             {
-                _currentPulseDirection = PulseDirection.Backward;
+                _currentPulseDirection = Direction.Backward;
             }
 
             if (value <= 0)
             {
-                _currentPulseDirection = PulseDirection.Forward;
+                _currentPulseDirection = Direction.Forward;
             }
         }
-    }
-
-    private enum PulseDirection
-    {
-        Forward, Backward
     }
 }
