@@ -58,9 +58,6 @@ public sealed class LinesSilkScene : IOpenGlScene
             _g2,
             _b2,
         };
-
-        _leftGradientWidth = (Single)_leftGradientWidthParameter.Value / Byte.MaxValue;
-        _rightGradientWidth = (Single)_rightGradientWidthParameter.Value / Byte.MaxValue;
     }
 
     private GL? _gl;
@@ -68,9 +65,10 @@ public sealed class LinesSilkScene : IOpenGlScene
     private VertexArrayObject<Single, UInt32>? _vao;
     private Silk.Shader? _shader;
 
-    private Single _leftGradientWidth;
-    private Single _rightGradientWidth;
-    private Direction _currentPulseDirection = Direction.Backward;
+    private GradientParameters _gradientParameters = new GradientParameters(
+        direction: Direction.Backward, 
+        leftGradientWidth: 0,
+        rightGradientWidth: 0);
 
     private Single shift = 0;
 
@@ -141,8 +139,8 @@ public sealed class LinesSilkScene : IOpenGlScene
             shader.SetUniform("line_width", lineWidth);
 
             UpdateGradientWidth();
-            shader.SetUniform("left_gradient_width", _leftGradientWidth);
-            shader.SetUniform("right_gradient_width", _rightGradientWidth);
+            shader.SetUniform("left_gradient_width", _gradientParameters.leftGradientWidth);
+            shader.SetUniform("right_gradient_width", _gradientParameters.rightGradientWidth);
 
             var spacing = (Single)_spacing.Value / Byte.MaxValue;
             shader.SetUniform("spacing", spacing);
@@ -164,64 +162,10 @@ public sealed class LinesSilkScene : IOpenGlScene
 
     private void UpdateGradientWidth()
     {
-        var pulseFrequency = (Single)_pulseFrequency.Value / 100f;
-        var leftGradientWidthBaseValue = (Single)_leftGradientWidthParameter.Value / Byte.MaxValue;
-        var rightGradientWidthBaseValue = (Single)_rightGradientWidthParameter.Value / Byte.MaxValue;
-
-        if (pulseFrequency == 0)
-        {
-            _leftGradientWidth = leftGradientWidthBaseValue;
-            _rightGradientWidth = rightGradientWidthBaseValue;
-        }
-        else
-        {
-            if (leftGradientWidthBaseValue > 0)
-            {
-                var offset = leftGradientWidthBaseValue / 100f * pulseFrequency;
-                var direction = _currentPulseDirection == Direction.Forward
-                    ? 1
-                    : -1;
-                var leftGradientWidth = _leftGradientWidth + offset * direction;
-                _leftGradientWidth = Math.Clamp(
-                    value: leftGradientWidth,
-                    min: 0,
-                    max: leftGradientWidthBaseValue);
-            }
-            else
-            {
-                _leftGradientWidth = 0;
-            }
-
-            if (rightGradientWidthBaseValue > 0)
-            {
-                var offset = rightGradientWidthBaseValue / 100f * pulseFrequency;
-                var direction = _currentPulseDirection == Direction.Forward
-                    ? 1
-                    : -1;
-                var rightGradientWidth = _rightGradientWidth + offset * direction;
-                _rightGradientWidth = Math.Clamp(
-                    value: rightGradientWidth,
-                    min: 0,
-                    max: rightGradientWidthBaseValue);
-            }
-            else
-            {
-                _rightGradientWidth = 0;
-            }
-
-            var baseValue = Math.Max(leftGradientWidthBaseValue, rightGradientWidthBaseValue);
-            var value = leftGradientWidthBaseValue > rightGradientWidthBaseValue 
-                ? _leftGradientWidth 
-                : _rightGradientWidth;
-            if (value >= baseValue)
-            {
-                _currentPulseDirection = Direction.Backward;
-            }
-
-            if (value <= 0)
-            {
-                _currentPulseDirection = Direction.Forward;
-            }
-        }
+        _gradientParameters = OpenGlUtils.UpdateGradientWidth(
+            gradientParameters: _gradientParameters,
+            pulse: _pulseFrequency,
+            leftWidth: _leftGradientWidthParameter,
+            rightWidth: _rightGradientWidthParameter);
     }
 }
