@@ -32,7 +32,7 @@ public sealed class LinesSilkScene : IOpenGlScene
         _lineWidth = new OpenGlSceneParameter("Line width", 10, 0, 40);
         _leftGradientWidthParameter = new OpenGlSceneParameter("Left gradient width", 30, 0, 50);
         _rightGradientWidthParameter = new OpenGlSceneParameter("Right gradient width", 30, 0, 50);
-        _pulseFrequency = new OpenGlSceneParameter("Pulse frequency", Byte.MaxValue);
+        _pulseFrequency = new OpenGlSceneParameter("Pulse frequency", 10);
         _r1 = new OpenGlSceneParameter("R1", Byte.MaxValue);
         _g1 = new OpenGlSceneParameter("G1", Byte.MaxValue);
         _b1 = new OpenGlSceneParameter("B1", Byte.MaxValue);
@@ -61,8 +61,11 @@ public sealed class LinesSilkScene : IOpenGlScene
     }
 
     private GL? _gl;
+
     private BufferObject<Single>? _vbo;
+
     private VertexArrayObject<Single, UInt32>? _vao;
+
     private Silk.Shader? _shader;
 
     private GradientParameters _gradientParameters = new GradientParameters(
@@ -79,7 +82,7 @@ public sealed class LinesSilkScene : IOpenGlScene
              1.0f, -1.0f, 0.0f,
             -1.0f,  1.0f, 0.0f,
              1.0f,  1.0f, 0.0f
-        };
+    };
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; }
 
@@ -115,8 +118,6 @@ public sealed class LinesSilkScene : IOpenGlScene
             @"Utils\OpenGl\Scenes\LinesSilkScene\lines.vert",
             @"Utils\OpenGl\Scenes\LinesSilkScene\lines.frag");
     }
-
-    private const Int32 MaxAngle = 360;
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
