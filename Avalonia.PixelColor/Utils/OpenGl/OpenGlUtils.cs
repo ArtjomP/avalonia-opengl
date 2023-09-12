@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System;
 
 using static Avalonia.OpenGL.GlConsts;
+using CommunityToolkit.Diagnostics;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;
 
@@ -125,5 +126,94 @@ public static class OpenGlUtils
                 pic.SetPixel(x, y, c);
             }
         }
+    }
+
+    public static GradientParameters UpdateGradientWidth(
+       GradientParameters gradientParameters,
+       OpenGlSceneParameter pulse,
+       OpenGlSceneParameter leftWidth,
+       OpenGlSceneParameter rightWidth)
+    {
+        Guard.IsNotNull(gradientParameters);
+        Guard.IsNotNull(pulse);
+        Guard.IsNotNull(leftWidth);
+        Guard.IsNotNull(rightWidth);
+        var pulseFrequency = (Single)pulse.Value;
+        var leftGradientWidthBaseValue = (Single)leftWidth.Value / 100f;
+        var rightGradientWidthBaseValue = (Single)rightWidth.Value / 100f;
+        var resultLeftWidth = gradientParameters.leftGradientWidth;
+        var resultRightWidth = gradientParameters.rightGradientWidth;
+        var direction = gradientParameters.direction;
+        if (pulseFrequency == 0)
+        {
+            resultLeftWidth = leftGradientWidthBaseValue;
+            resultRightWidth = rightGradientWidthBaseValue;
+        }
+        else
+        {
+            if (leftGradientWidthBaseValue > 0)
+            {
+                resultLeftWidth = CalculateWidth(
+                    pulseFrequency: pulseFrequency,
+                    baseWidth: leftGradientWidthBaseValue,
+                    targetWidth: resultLeftWidth,
+                    direction: direction);
+            }
+            else
+            {
+                resultLeftWidth = 0;
+            }
+
+            if (rightGradientWidthBaseValue > 0)
+            {
+                resultRightWidth = CalculateWidth(
+                    pulseFrequency: pulseFrequency,
+                    baseWidth: rightGradientWidthBaseValue,
+                    targetWidth: resultRightWidth,
+                    direction: direction);
+            }
+            else
+            {
+                resultRightWidth = 0;
+            }
+
+            var baseValue = Math.Max(leftGradientWidthBaseValue, rightGradientWidthBaseValue);
+            var value = leftGradientWidthBaseValue > rightGradientWidthBaseValue
+                ? resultLeftWidth
+                : resultRightWidth;
+            if (value >= baseValue)
+            {
+                direction = Direction.Backward;
+            }
+
+            if (value <= 0)
+            {
+                direction = Direction.Forward;
+            }
+        }
+
+        var result = new GradientParameters(
+            direction: direction,
+            leftGradientWidth: resultLeftWidth,
+            rightGradientWidth: resultRightWidth);
+        return result;
+    }
+
+    private static Single CalculateWidth(
+        Single pulseFrequency,
+        Single baseWidth,
+        Single targetWidth,
+        Direction direction)
+    {
+        var offset = baseWidth / 100f * pulseFrequency;
+        var directionCoeff = direction is Direction.Forward
+            ? +1
+            : -1;
+        targetWidth = targetWidth + offset * directionCoeff;
+        targetWidth = Math.Clamp(
+            value: targetWidth,
+            min: 0,
+            max: baseWidth);
+        return targetWidth;
     }
 }

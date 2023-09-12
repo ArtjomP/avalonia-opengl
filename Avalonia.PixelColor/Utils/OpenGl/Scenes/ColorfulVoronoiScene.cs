@@ -2,10 +2,9 @@
 
 using Avalonia.OpenGL;
 using Common;
+using CommunityToolkit.Diagnostics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Numerics;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
@@ -15,24 +14,38 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
 {
     private readonly OpenGlSceneParameter _speed;
     private readonly OpenGlSceneParameter _lineWidth;
-    private readonly OpenGlSceneParameter _innerGradientWidth;
-    private readonly OpenGlSceneParameter _outerGradientWidth;
+    private readonly OpenGlSceneParameter _innerGradientWidthParameter;
+    private readonly OpenGlSceneParameter _outerGradientWidthParameter;
+    private readonly OpenGlSceneParameter _timePulseRange;
+    private readonly OpenGlSceneParameter _gradientPulseFrequency;
+
     public ColorfulVoronoi(GlVersion glVersion)
     {
-        _speed = new OpenGlSceneParameter("Speed", 10, 0, 50);
-        _lineWidth = new OpenGlSceneParameter("Line width", 10, 0, 40);
-        _innerGradientWidth = new OpenGlSceneParameter("Inner gradient width", 10, 0, 40);
-        _outerGradientWidth = new OpenGlSceneParameter("Outer gradient width", 10, 0, 40);
+        _speed = new OpenGlSceneParameter("Speed", 55, 0, 100);
+        _lineWidth = new OpenGlSceneParameter("Line width", 20, 0, 40);
+        _innerGradientWidthParameter = new OpenGlSceneParameter("Inner gradient width", 20, 0, 40);
+        _outerGradientWidthParameter = new OpenGlSceneParameter("Outer gradient width", 20, 0, 40);
+        _timePulseRange = new OpenGlSceneParameter("Time pulse range", 5, 0, 10);
+        _gradientPulseFrequency = new OpenGlSceneParameter("Gradient pulse frequency", 5, 0, 10);
         GlVersion = glVersion;
 
         Parameters = new OpenGlSceneParameter[]
         {
             _speed,
             _lineWidth,
-            _innerGradientWidth,
-            _outerGradientWidth
+            _innerGradientWidthParameter,
+            _outerGradientWidthParameter,
+            _timePulseRange,
+            _gradientPulseFrequency
         };
     }
+
+    private Single _timeValue = 0f;
+
+    private GradientParameters _gradientParameters = new(
+        direction: Direction.Backward,
+        leftGradientWidth: 0,
+        rightGradientWidth: 0);
 
     private GlVersion GlVersion { get; }
 
@@ -93,7 +106,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
                 if(s < 0 && p >= lw - inner_gradient_width && p <= lw) 
                     finalColor += col * p * 0.9;
             }
-
+           
             fragColor = vec4(finalColor, 1.0);
         }
 
@@ -215,7 +228,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
         gl.UseProgram(0);
     }
 
-    float timeValue = 0f;
+    private Random _random = new Random();
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
@@ -232,20 +245,24 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
             gl.Uniform1f(h, height);
 
             var lineWidth = gl.GetUniformLocationString(_program, "line_width");
-            gl.Uniform1f(lineWidth, (float)_lineWidth.Value / 100f);
+            gl.Uniform1f(lineWidth, (Single)_lineWidth.Value / 100f);
 
-            Debug.WriteLine((float)_lineWidth.Value / 200f);
-
+            UpdateGradientWidth();
             var innerGradientWidth = gl.GetUniformLocationString(_program, "inner_gradient_width");
-            gl.Uniform1f(innerGradientWidth, (float)_innerGradientWidth.Value / 100f);
+            var innerGradientWidthValue = _gradientParameters.leftGradientWidth;
+            gl.Uniform1f(innerGradientWidth, innerGradientWidthValue);
             var outerGradientWidth = gl.GetUniformLocationString(_program, "outer_gradient_width");
-            gl.Uniform1f(outerGradientWidth, (float)_outerGradientWidth.Value / 100f);
+            var outerGradientWidthValue = _gradientParameters.rightGradientWidth;
+            gl.Uniform1f(outerGradientWidth, outerGradientWidthValue);
 
             var time = gl.GetUniformLocationString(_program, "time");
-            gl.Uniform1f(time, timeValue);
+            gl.Uniform1f(time, _timeValue);
 
-            var speed = (float)_speed.Value / 1000f;
-            timeValue += speed;
+            var speed = _speed.Value / 1000f;
+            var offset = _timePulseRange.Value == 0
+                ? 0
+                : _random.Next(-_timePulseRange.Value, _timePulseRange.Value + 1) / 100f;
+            _timeValue += speed + offset;
 
             gl.DrawElements(
                 mode: GL_TRIANGLES,
@@ -253,5 +270,14 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
                 type: GL_UNSIGNED_INT,
                 indices: IntPtr.Zero);
         }
+    }
+
+    private void UpdateGradientWidth()
+    {
+        _gradientParameters = OpenGlUtils.UpdateGradientWidth(
+            gradientParameters: _gradientParameters,
+            pulse: _gradientPulseFrequency,
+            leftWidth: _innerGradientWidthParameter,
+            rightWidth: _outerGradientWidthParameter);
     }
 }
