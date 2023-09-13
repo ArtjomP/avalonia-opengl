@@ -20,14 +20,15 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
 
     public ColorfulVoronoiScene(GlVersion glVersion)
     {
-        _speed = new OpenGlSceneParameter("Speed", 55);
-        _lineWidth = new OpenGlSceneParameter("Line width", 20);
-        _innerGradientWidthParameter = new OpenGlSceneParameter("Inner gradient width", 20);
-        _outerGradientWidthParameter = new OpenGlSceneParameter("Outer gradient width", 20);
-        _timePulseRange = new OpenGlSceneParameter("Time pulse range", 5);
-        _gradientPulseFrequency = new OpenGlSceneParameter("Gradient pulse frequency", 5);
         GlVersion = glVersion;
 
+        _speed = new OpenGlSceneParameter("Speed", 55);
+        _lineWidth = new OpenGlSceneParameter("LineWidth", 20);
+        _innerGradientWidthParameter = new OpenGlSceneParameter("InnerGradientWidth", 20);
+        _outerGradientWidthParameter = new OpenGlSceneParameter("OuterGradientWidth", 20);
+        _timePulseRange = new OpenGlSceneParameter("TimePulseRange", 5);
+        _gradientPulseFrequency = new OpenGlSceneParameter("GradientPulseFrequency", 5);
+        
         Parameters = new OpenGlSceneParameter[]
         {
             _speed,
