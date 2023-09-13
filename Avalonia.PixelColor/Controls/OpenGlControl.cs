@@ -188,7 +188,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
-            GetTrackPointsColors(finalWidth, finalHeight);
+        //    GetTrackPointsColors(finalWidth, finalHeight);
             var screenShotFullName = _screenShotFullName;
             _screenShotFullName = String.Empty;
             if (!String.IsNullOrEmpty(screenShotFullName))
