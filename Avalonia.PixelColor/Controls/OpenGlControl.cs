@@ -87,7 +87,7 @@ public sealed class OpenGlControl : OpenGlControlBase
             {
                 var x = (Int32)Math.Round(trackPoint.ReleativeX * width);
                 var y = (Int32)Math.Round(trackPoint.ReleativeY * height);
-                var pixels = new Byte[Constants.RgbaSize];
+                var pixels = new Byte[OpenGlConstants.RgbaSize];
                 fixed (void* pPixels = pixels)
                 {
                     glExtras.ReadPixels(
@@ -120,7 +120,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         var glExtras = _glExtras;
         if (gl is not null && glExtras is not null)
         {
-            var pixelSize = Constants.RgbaSize;
+            var pixelSize = OpenGlConstants.RgbaSize;
             var newPixelSize = (Int32)(pixelSize * scaleFactor);
             var pixelsCount = (Int32)newPixelSize * width * height;
             var pixels = new Byte[pixelsCount];

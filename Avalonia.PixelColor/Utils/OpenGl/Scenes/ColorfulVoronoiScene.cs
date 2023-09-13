@@ -163,7 +163,7 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
                 usage: GL_STATIC_DRAW);
         }
 
-        var indices = Constants.Indices;
+        var indices = OpenGlConstants.Indices;
         _ebo = gl.GenBuffer();
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
