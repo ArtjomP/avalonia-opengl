@@ -245,7 +245,7 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
             gl.Uniform1f(h, height);
 
             var lineWidth = gl.GetUniformLocationString(_program, "line_width");
-            gl.Uniform1f(lineWidth, (Single)_lineWidth.Value / 100f);
+            gl.Uniform1f(lineWidth, _lineWidth.Value / 100f);
 
             UpdateGradientWidth();
             var innerGradientWidth = gl.GetUniformLocationString(_program, "inner_gradient_width");
