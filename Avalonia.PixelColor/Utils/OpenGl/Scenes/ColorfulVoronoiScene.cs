@@ -231,8 +231,7 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
     private Random _random = new Random();
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
-    {
-        gl.Viewport(0, 0, width, height);
+    {        
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
