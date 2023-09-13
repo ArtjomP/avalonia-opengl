@@ -29,9 +29,9 @@ public sealed class LinesSilkScene : IOpenGlScene
 
     public LinesSilkScene()
     {
-        _lineWidth = new OpenGlSceneParameter("Line width", 10, 0, 40);
-        _leftGradientWidthParameter = new OpenGlSceneParameter("Left gradient width", 30, 0, 50);
-        _rightGradientWidthParameter = new OpenGlSceneParameter("Right gradient width", 30, 0, 50);
+        _lineWidth = new OpenGlSceneParameter("Line width", 10);
+        _leftGradientWidthParameter = new OpenGlSceneParameter("Left gradient width", 30);
+        _rightGradientWidthParameter = new OpenGlSceneParameter("Right gradient width", 30);
         _pulseFrequency = new OpenGlSceneParameter("Pulse frequency", 10);
         _r1 = new OpenGlSceneParameter("R1", Byte.MaxValue);
         _g1 = new OpenGlSceneParameter("G1", Byte.MaxValue);
@@ -41,7 +41,7 @@ public sealed class LinesSilkScene : IOpenGlScene
         _b2 = new OpenGlSceneParameter("B2", Byte.MinValue);
         _angle = new OpenGlSceneParameter("Angle", 64);
         _speed = new OpenGlSceneParameter("Speed", 0);
-        _spacing = new OpenGlSceneParameter("Spacing", 180, 140, Byte.MaxValue);
+        _spacing = new OpenGlSceneParameter("Spacing", 180);
         Parameters = new OpenGlSceneParameter[]
         {
             _lineWidth,
@@ -133,7 +133,7 @@ public sealed class LinesSilkScene : IOpenGlScene
             var speed = (Single)_speed.Value / Byte.MaxValue;
             shift += speed / 10.0f;
             shader.SetUniform("shift", shift);
-            var angle = (Single)_angle.Value / (Single)(_angle.Maximum * 0.5);
+            var angle = (Single)_angle.Value / (Single)(Byte.MaxValue * 0.5);
             shader.SetUniform("angle", angle);
 
             var lineWidth = (Single)_lineWidth.Value / Byte.MaxValue;

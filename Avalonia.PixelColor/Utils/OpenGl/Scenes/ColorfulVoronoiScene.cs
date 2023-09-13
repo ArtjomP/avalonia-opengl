@@ -2,7 +2,6 @@
 
 using Avalonia.OpenGL;
 using Common;
-using CommunityToolkit.Diagnostics;
 using System;
 using System.Collections.Generic;
 using static Avalonia.OpenGL.GlConsts;
@@ -10,7 +9,7 @@ using static Avalonia.OpenGL.GlConsts;
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
 //https://glslsandbox.com/e#103855.0
-internal sealed class ColorfulVoronoi : IOpenGlScene
+internal sealed class ColorfulVoronoiScene : IOpenGlScene
 {
     private readonly OpenGlSceneParameter _speed;
     private readonly OpenGlSceneParameter _lineWidth;
@@ -19,14 +18,14 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
     private readonly OpenGlSceneParameter _timePulseRange;
     private readonly OpenGlSceneParameter _gradientPulseFrequency;
 
-    public ColorfulVoronoi(GlVersion glVersion)
+    public ColorfulVoronoiScene(GlVersion glVersion)
     {
-        _speed = new OpenGlSceneParameter("Speed", 55, 0, 100);
-        _lineWidth = new OpenGlSceneParameter("Line width", 20, 0, 40);
-        _innerGradientWidthParameter = new OpenGlSceneParameter("Inner gradient width", 20, 0, 40);
-        _outerGradientWidthParameter = new OpenGlSceneParameter("Outer gradient width", 20, 0, 40);
-        _timePulseRange = new OpenGlSceneParameter("Time pulse range", 5, 0, 10);
-        _gradientPulseFrequency = new OpenGlSceneParameter("Gradient pulse frequency", 5, 0, 10);
+        _speed = new OpenGlSceneParameter("Speed", 55);
+        _lineWidth = new OpenGlSceneParameter("Line width", 20);
+        _innerGradientWidthParameter = new OpenGlSceneParameter("Inner gradient width", 20);
+        _outerGradientWidthParameter = new OpenGlSceneParameter("Outer gradient width", 20);
+        _timePulseRange = new OpenGlSceneParameter("Time pulse range", 5);
+        _gradientPulseFrequency = new OpenGlSceneParameter("Gradient pulse frequency", 5);
         GlVersion = glVersion;
 
         Parameters = new OpenGlSceneParameter[]

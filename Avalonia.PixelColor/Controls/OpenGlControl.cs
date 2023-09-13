@@ -42,7 +42,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                 OpenGlScenesEnum.Lines2 => new Lines2Scene(GlVersion),
                 OpenGlScenesEnum.Lines3 => new Lines3Scene(GlVersion),
                 OpenGlScenesEnum.Lines4 => new Lines4Scene(GlVersion),
-                OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoi(GlVersion),
+                OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoiScene(GlVersion),
                 OpenGlScenesEnum.LinesSilk => new LinesSilkScene(),
                 _ => new RectangleScene(),
             };
