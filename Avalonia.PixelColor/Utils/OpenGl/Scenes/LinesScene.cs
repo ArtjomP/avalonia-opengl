@@ -74,7 +74,7 @@ internal sealed class LinesScene : IOpenGlScene
         percent = clamp(percent,0.0,1.0);
         out_color = mix(color2,color1,percent);
         }
-        gl_FragColor = out_color;
+        //gl_FragColor = out_color;
         }");
 
     private String VertexShaderSource => OpenGlUtils.GetShader(GlVersion, false,

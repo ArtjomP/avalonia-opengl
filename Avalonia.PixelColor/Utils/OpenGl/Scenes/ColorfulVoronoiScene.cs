@@ -113,7 +113,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
         void main() {
 	        vec4 fragment_color;
 	        mainImage(fragment_color, gl_FragCoord.xy);
-	        gl_FragColor = fragment_color;
+	     //   gl_FragColor = fragment_color;
         }
         ");
 
