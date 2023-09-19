@@ -80,6 +80,11 @@ public static class OpenGlUtils
                 shader = shader.Replace("varying", "out");
             }
         }
+        else
+        {
+            shader = shader
+                .Replace("out vec4 gl_FragColor;", "//out vec4 gl_FragColor;");
+        }
 
         data += shader;
 
