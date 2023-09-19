@@ -59,6 +59,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
 
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
         @"
+        
         precision highp float;
 
         uniform float time;
@@ -68,6 +69,8 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
         uniform float inner_gradient_width;
         uniform float outer_gradient_width;
 
+        out vec4 gl_FragColor;
+
         //https://iquilezles.org/articles/palettes/
         vec3 palette( float t ) {
             vec3 a = vec3(0.5, 0.5, 0.5);
@@ -75,8 +78,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
             vec3 c = vec3(1.0, 1.0, 1.0);
             vec3 d = vec3(0.263,0.416,0.557);
 
-            return a + b*cos( 6.28318*(c*t+d) );
-            //return vec3(0.0, 1.0, 0.0);
+            return a + b * cos(6.28318 * (c * t + d));
         }
 
         void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
@@ -113,17 +115,15 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
         void main() {
 	        vec4 fragment_color;
 	        mainImage(fragment_color, gl_FragCoord.xy);
-	     //   gl_FragColor = fragment_color;
+	        gl_FragColor = fragment_color;
         }
         ");
 
     private String VertexShaderSource => OpenGlUtils.GetShader(GlVersion, false,
-        @"
-		attribute vec3 position;
+        @"attribute vec3 position;
 		void main() {
 			gl_Position = vec4( position, 1.0 );
-		}		
-        ");
+		}");
 
     private Int32 _vao;
 
@@ -134,13 +134,13 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
     private Int32 _program;
 
     private static readonly Single[] _vertices =
-{
+    {
             //X    Y      Z 
         1.0f,  1.0f, 0.0f,
         1.0f, -1.0f, 0.0f,
         -1.0f, -1.0f, 0.0f,
         -1.0f,  1.0f, 0.0f
-        };
+    };
 
     public unsafe void Initialize(GlInterface gl)
     {
