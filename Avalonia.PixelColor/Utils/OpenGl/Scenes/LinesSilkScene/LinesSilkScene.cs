@@ -115,8 +115,8 @@ public sealed class LinesSilkScene : IOpenGlScene
             offSet: 0);
         _shader = new Silk.Shader(
             _gl,
-            @"Utils\OpenGl\Scenes\LinesSilkScene\lines.vert",
-            @"Utils\OpenGl\Scenes\LinesSilkScene\lines.frag");
+            @"Utils/OpenGl/Scenes/LinesSilkScene/lines.vert",
+            @"Utils/OpenGl/Scenes/LinesSilkScene/lines.frag");
     }
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
