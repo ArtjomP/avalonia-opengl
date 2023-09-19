@@ -67,7 +67,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
         uniform float inner_gradient_width;
         uniform float outer_gradient_width;
 
-      //  out vec4 gl_FragColor;
+        out vec4 gl_FragColor;
 
         //https://iquilezles.org/articles/palettes/
         vec3 palette( float t ) {
