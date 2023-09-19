@@ -14,7 +14,7 @@ uniform vec4 color2;
 in vec4 isf_Position;
 in vec2 isf_FragNormCoord;
 uniform vec2 RENDERSIZE;
-#define gl_FragColor isf_FragColor
+define gl_FragColor isf_FragColor
 out vec4 gl_FragColor;
 
 const float pi = 3.14159265359;
