@@ -2,7 +2,6 @@
 
 using Avalonia.OpenGL;
 using Common;
-using CommunityToolkit.Diagnostics;
 using System;
 using System.Collections.Generic;
 using static Avalonia.OpenGL.GlConsts;
@@ -58,8 +57,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
     private GlExtrasInterface? _glExtras;
 
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
-        @"
-        
+        @"     
         precision highp float;
 
         uniform float time;
@@ -69,7 +67,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
         uniform float inner_gradient_width;
         uniform float outer_gradient_width;
 
-        out vec4 gl_FragColor;
+      //  out vec4 gl_FragColor;
 
         //https://iquilezles.org/articles/palettes/
         vec3 palette( float t ) {

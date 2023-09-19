@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using Silk.NET.OpenGL;
-#nullable enable
 using System;
 using System.IO;
 using System.Numerics;
