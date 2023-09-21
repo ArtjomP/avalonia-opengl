@@ -2,7 +2,7 @@
 
 namespace Common;
 
-public static class Constants
+public static class OpenGlConstants
 {
     public static readonly Single[] Vertices =
     {

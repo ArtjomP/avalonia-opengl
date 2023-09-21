@@ -9,7 +9,7 @@ using static Avalonia.OpenGL.GlConsts;
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
 //https://glslsandbox.com/e#103855.0
-internal sealed class ColorfulVoronoi : IOpenGlScene
+internal sealed class ColorfulVoronoiScene : IOpenGlScene
 {
     private readonly OpenGlSceneParameter _speed;
     private readonly OpenGlSceneParameter _lineWidth;
@@ -18,16 +18,17 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
     private readonly OpenGlSceneParameter _timePulseRange;
     private readonly OpenGlSceneParameter _gradientPulseFrequency;
 
-    public ColorfulVoronoi(GlVersion glVersion)
+    public ColorfulVoronoiScene(GlVersion glVersion)
     {
-        _speed = new OpenGlSceneParameter("Speed", 55, 0, 100);
-        _lineWidth = new OpenGlSceneParameter("Line width", 20, 0, 40);
-        _innerGradientWidthParameter = new OpenGlSceneParameter("Inner gradient width", 20, 0, 40);
-        _outerGradientWidthParameter = new OpenGlSceneParameter("Outer gradient width", 20, 0, 40);
-        _timePulseRange = new OpenGlSceneParameter("Time pulse range", 5, 0, 10);
-        _gradientPulseFrequency = new OpenGlSceneParameter("Gradient pulse frequency", 5, 0, 10);
         GlVersion = glVersion;
 
+        _speed = new OpenGlSceneParameter("Speed", 55);
+        _lineWidth = new OpenGlSceneParameter("LineWidth", 20);
+        _innerGradientWidthParameter = new OpenGlSceneParameter("InnerGradientWidth", 20);
+        _outerGradientWidthParameter = new OpenGlSceneParameter("OuterGradientWidth", 20);
+        _timePulseRange = new OpenGlSceneParameter("TimePulseRange", 5);
+        _gradientPulseFrequency = new OpenGlSceneParameter("GradientPulseFrequency", 5);
+        
         Parameters = new OpenGlSceneParameter[]
         {
             _speed,
@@ -162,7 +163,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
                 usage: GL_STATIC_DRAW);
         }
 
-        var indices = Constants.Indices;
+        var indices = OpenGlConstants.Indices;
         _ebo = gl.GenBuffer();
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
 
@@ -229,8 +230,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
     private Random _random = new Random();
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
-    {
-        gl.Viewport(0, 0, width, height);
+    {        
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
@@ -243,7 +243,7 @@ internal sealed class ColorfulVoronoi : IOpenGlScene
             gl.Uniform1f(h, height);
 
             var lineWidth = gl.GetUniformLocationString(_program, "line_width");
-            gl.Uniform1f(lineWidth, (Single)_lineWidth.Value / 100f);
+            gl.Uniform1f(lineWidth, _lineWidth.Value / 100f);
 
             UpdateGradientWidth();
             var innerGradientWidth = gl.GetUniformLocationString(_program, "inner_gradient_width");

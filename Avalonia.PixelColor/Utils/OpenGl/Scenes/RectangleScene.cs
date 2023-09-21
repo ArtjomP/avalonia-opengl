@@ -38,7 +38,7 @@ internal sealed class RectangleScene : IOpenGlScene
         _vbo = gl.GenBuffer();
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
 
-        var vertices = Constants.Vertices;
+        var vertices = OpenGlConstants.Vertices;
         fixed (Single* buf = vertices)
         {
             gl.BufferData(
@@ -48,7 +48,7 @@ internal sealed class RectangleScene : IOpenGlScene
                 usage: GL_STATIC_DRAW);
         }
 
-        var indices = Constants.Indices;
+        var indices = OpenGlConstants.Indices;
 
         _ebo = gl.GenBuffer();
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);

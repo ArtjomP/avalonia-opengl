@@ -2,7 +2,6 @@
 
 using Avalonia.OpenGL;
 using System.Collections.Generic;
-using System;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
