@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using Avalonia.OpenGL;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 using Common;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,15 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
     internal sealed class ISFScene : IOpenGlScene
     {
         private GlInterface? _gl;
+
         private GlExtrasInterface? _glExtras;
+
         private Int32 _vao;
+
         private Int32 _vbo;
+
         private Int32 _ebo;
+
         private Int32 _program;
 
         private static readonly Single[] _vertices =
@@ -39,6 +45,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
         private Single _timeValue = 0f;
 
         private String _fragmentShaderSource;
+
         private String _vertexShaderSource;
 
         public ISFScene(GlVersion glVersion)
@@ -141,6 +148,10 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
             gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
 
+        private ISFParameters? _isfParameters;
+
+        private IsfSceneParameterOfSingle[] _isfScenePrameters = Array.Empty<IsfSceneParameterOfSingle>();
+
         [MemberNotNull(nameof(_parameters))]
         public unsafe void SetUp(
             String vertexShaderSource,
@@ -148,18 +159,23 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
         {
             ISFFragmentShaderSource = fragmentShaderSource;
             ISFVertexShaderSource = vertexShaderSource;
-            var parameters = ISFShaderParser.GetISFParameters(ISFFragmentShaderSource);
-            _parameters = new OpenGlSceneParameter[parameters.INPUTS.Length];
+            var isfParameters = ISFShaderParser.GetISFParameters(ISFFragmentShaderSource);
+            _parameters = new OpenGlSceneParameter[isfParameters.INPUTS.Length];
             var i = 0;
-            foreach (var input in parameters.INPUTS)
+            var isfSceneParameters = new List<IsfSceneParameterOfSingle>();
+            foreach (var input in isfParameters.INPUTS)
             {
-                Byte min, max, defaultValue;
                 if (input.TYPE == "float")
                 {
-                    min = (Byte)(input.MIN / input.MAX * Byte.MaxValue);
-                    max = (Byte)(input.MAX / input.MAX * Byte.MaxValue);
-                    defaultValue = (Byte)(input.DEFAULT / input.MAX * Byte.MaxValue);
+                    var min = input.MIN;
+                    var max = input.MAX;
+                    var defaultValue = (Byte)(input.DEFAULT / input.MAX * Byte.MaxValue);
                     var p = new OpenGlSceneParameter(input.NAME, defaultValue);
+                    var isfSceneParameter = new IsfSceneParameterOfSingle(
+                        sceneParameter: p,
+                        min: min,
+                        max: max);
+                    isfSceneParameters.Add(isfSceneParameter);
                     _parameters[i] = p;
                     ++i;
                 }
@@ -169,6 +185,8 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
                 }
             }
 
+            _isfParameters = isfParameters;
+            _isfScenePrameters = isfSceneParameters.ToArray();
             var gl = _gl;
             if (gl is not null)
             {
@@ -192,17 +210,18 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
                 var time = gl.GetUniformLocationString(_program, "TIME");
                 gl.Uniform1f(time, _timeValue);
 
-                if (Parameters.Any())
+                var isfSceneParameters = _isfScenePrameters;
+                var parameters = _isfParameters;
+                if (isfSceneParameters.Any() && parameters is not null &&
+                    isfSceneParameters.Length == parameters.INPUTS.Length)
                 {
-                    var parameters = ISFShaderParser.GetISFParameters(ISFFragmentShaderSource);
                     for (var i = 0; i < parameters.INPUTS.Length; i++)
                     {
                         var uniform = gl.GetUniformLocationString(_program, parameters.INPUTS[i].NAME);
-                        var value = (Single)Parameters.ToArray()[i].Value / Byte.MaxValue * parameters.INPUTS[i].MAX;
+                        var value = isfSceneParameters[i].CalculateValue();
                         gl.Uniform1f(uniform, value);
                     }
-                }
-                
+                }                
 
                 _timeValue += 0.01f;
 
@@ -372,7 +391,8 @@ void main()
 	gl_FragColor = vec4( col, 1.0 );
 }
             ";
-        public string ISFVertexShaderSource =
+
+        public String ISFVertexShaderSource =
             @"
             attribute vec3 position;
 		    void main() {

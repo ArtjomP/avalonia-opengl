@@ -1,19 +1,29 @@
-﻿namespace Avalonia.PixelColor.Utils.OpenGl
-{
-    public class ISFInput
-    {
-        public string NAME { get; set; }
-        public string TYPE { get; set; }
-        public float DEFAULT { get; set; }
-        public float MIN { get; set; }
-        public float MAX { get; set; }
-    }
+﻿#nullable enable
 
-    public class ISFParameters
-    {
-        public string CREDIT { get; set; }
-        public string DESCRIPTION { get; set; }
-        public string[] CATEGORIES { get; set; }
-        public ISFInput[] INPUTS { get; set; }
-    }
+using System;
+
+namespace Avalonia.PixelColor.Utils.OpenGl;
+
+public class ISFInput
+{
+    public String NAME { get; set; } = String.Empty;
+
+    public String TYPE { get; set; } = String.Empty;
+
+    public Single DEFAULT { get; set; }
+
+    public Single MIN { get; set; }
+
+    public Single MAX { get; set; }
+}
+
+public class ISFParameters
+{
+    public String CREDIT { get; set; } = String.Empty;
+
+    public String DESCRIPTION { get; set; } = String.Empty;
+
+    public String[] CATEGORIES { get; set; } = Array.Empty<String>();
+
+    public ISFInput[] INPUTS { get; set; } = Array.Empty<ISFInput>();
 }

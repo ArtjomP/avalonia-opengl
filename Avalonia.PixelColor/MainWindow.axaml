@@ -109,8 +109,8 @@
 											BorderThickness="1"
 											Foreground="White"
 											BorderBrush="{DynamicResource ThemeEmuButtonBackgoundDefaultDark}"
-											Minimum="{Binding Minimum}"
-											Maximum="{Binding Maximum}"
+											Minimum="0"
+											Maximum="255"
 											Value="{Binding Value, Mode=TwoWay}" />
 									</Grid>
 								</Border>
