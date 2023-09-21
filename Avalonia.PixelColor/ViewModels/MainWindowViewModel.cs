@@ -1,10 +1,12 @@
 ﻿using Avalonia.PixelColor.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
+using Avalonia.Threading;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -26,6 +28,8 @@ public sealed class MainWindowViewModel : ReactiveObject
         MakeScreenShotCommand = ReactiveCommand.Create(MakeScreenShot);
         this.WhenAnyValue(o => o.SelectedSceneDescription)
             .Subscribe(SetSelectedSceneParameters);
+        this.WhenAnyValue(o => o.SelectedScene)
+            .Subscribe(SetShowEditorButtonVisible);
     }
 
     private void SetSelectedSceneParameters(OpenGlSceneDescription? sceneDescription)
@@ -38,6 +42,20 @@ public sealed class MainWindowViewModel : ReactiveObject
                 SelectedSceneParameters.Add(parameter);
             }
         }
+    }
+
+    public void UpdateParameters(IEnumerable<OpenGlSceneParameter> parameters)
+    {
+        SelectedSceneParameters.Clear();
+        foreach (var parameter in parameters)
+        {
+            SelectedSceneParameters.Add(parameter);
+        }
+    }
+
+    private void SetShowEditorButtonVisible(OpenGlScenesEnum scene)
+    {
+        ShowEditorButtonVisible = scene == OpenGlScenesEnum.ISFScene;
     }
 
     public ICommand MakeScreenShotCommand { get; }
@@ -60,6 +78,13 @@ public sealed class MainWindowViewModel : ReactiveObject
         {
             Error = ex.Message;
         }
+    }
+
+    [Reactive]
+    public bool ShowEditorButtonVisible
+    {
+        get;
+        set;
     }
 
     public IEnumerable<OpenGlScenesEnum> Scenes { get; }

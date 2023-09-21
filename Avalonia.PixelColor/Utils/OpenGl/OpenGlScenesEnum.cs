@@ -11,4 +11,5 @@ public enum OpenGlScenesEnum
     Lines4,
     ColorfulVoronoi,
     LinesSilk,
+    ISFScene
 }

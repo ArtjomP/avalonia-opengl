@@ -18,6 +18,19 @@ public static class GlExtensions
         functionDelegate(location, count, value);
     }
 
+    public static unsafe void Uniform2f(this GlInterface glInterface, Int32 location, Single v0, Single v1)
+    {
+        const String EntryPoint = "glUniform2f";
+        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + EntryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, Single, Single, void>)procAddress;
+        functionDelegate(location, v0, v1);
+    }
+
     public static unsafe void Begin(this GlInterface glInterface, Int32 mode)
     {
         const String EntryPoint = "glBegin";

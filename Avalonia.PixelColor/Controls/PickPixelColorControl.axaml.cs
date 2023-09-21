@@ -3,6 +3,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.PixelColor.Utils.OpenGl;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
@@ -63,6 +64,11 @@ public class PickPixelColorControl
     {
         get => _scene;
         private set => SetAndRaise(SceneProperty, ref _scene, value);
+    }
+
+    public IOpenGlScene SelectedScene
+    {
+        get { return _openGlControl.Scene; }
     }
 
     private IDisposable? _updateTrackingDisposable;

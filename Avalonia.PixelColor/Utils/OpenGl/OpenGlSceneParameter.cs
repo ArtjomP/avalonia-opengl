@@ -21,8 +21,6 @@ public sealed class OpenGlSceneParameter : ReactiveObject
         Guard.IsNotNullOrEmpty(name);
         Name = name;
         Value = value;
-        Minimum = Byte.MinValue;
-        Maximum = Byte.MaxValue;
     }
 
     public String Name
@@ -36,8 +34,4 @@ public sealed class OpenGlSceneParameter : ReactiveObject
         get;
         set;
     }
-
-    public Byte Minimum { get; } 
-
-    public Byte Maximum { get; }
 }

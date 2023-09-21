@@ -7,104 +7,149 @@
 	xmlns:vm="clr-namespace:Avalonia.PixelColor.ViewModels;assembly=Avalonia.PixelColor"
     x:Class="Avalonia.PixelColor.MainWindow"
     Title="Avalonia.PixelColor"
-	x:DataType="vm:MainWindowViewModel">
-	<Grid
+	x:DataType="vm:MainWindowViewModel"
+	d:DesignWidth="800"
+	d:DesignHeight="600">
+	<Grid>
+		<Button
+			Content="CODE"
+			IsVisible="{Binding ShowEditorButtonVisible}"
+			ZIndex="1"
+			Width="60"
+			Height="40"
+			VerticalContentAlignment="Center"
+			VerticalAlignment="Top"
+			Margin="5 45 0 0"
+			Click="OnShowEditorClick"/>
+		<Grid
 		RowDefinitions="Auto,*"
 		ColumnDefinitions="*">
-		<Grid	
-			Grid.Row="0"
-			Grid.Column="0"
-			ColumnDefinitions="Auto,*,Auto">
-			<TextBlock
-				Grid.Column="0"
-				Margin="4"
-				VerticalAlignment="Center"
-				Text="Save screenshot path:"/>
-			<TextBox
-				Grid.Column="1"
-				Margin="4"
-				Text="{Binding ScreenShotsFolder, Mode=TwoWay}"/>
-			<Button
-				Grid.Column="2"
-				Margin="4"
-				Click="OnMakeScreenshotClick">
-				Make screenshot
-			</Button>
-		</Grid>
-
-		<Grid
-			Grid.Row="1"
-			Grid.Column="0"
-			ColumnDefinitions="*,Auto">
-			<controls:PickPixelColorControl
-				x:Name="OpenGlControl"
+			<Grid
 				Grid.Row="0"
 				Grid.Column="0"
-				Margin="4"
-				Background="Black"
-				HorizontalAlignment="Stretch"
-				VerticalAlignment="Stretch"
-				Scene="{Binding SelectedScene, Mode=OneWay}"
-				SceneDescription="{Binding SelectedSceneDescription, Mode=OneWayToSource}"/>
-			<StackPanel
-				Grid.Row="0"
-				Grid.Column="1"
-				Width="300"
-				Margin="4"
-				Orientation="Vertical">
+				ColumnDefinitions="Auto,*,Auto">
 				<TextBlock
+					Grid.Column="0"
 					Margin="4"
-					Text="Selected scene:" />
-				<ComboBox
+					VerticalAlignment="Center"
+					Text="Save screenshot path:"/>
+				<TextBox
+					Grid.Column="1"
+					Margin="4"
+					Text="{Binding ScreenShotsFolder, Mode=TwoWay}"/>
+				<Button
+					Grid.Column="2"
+					Margin="4"
+					Click="OnMakeScreenshotClick">
+					Make screenshot
+				</Button>
+			</Grid>
+
+			<Grid
+				Grid.Row="1"
+				Grid.Column="0"
+				ColumnDefinitions="*,Auto">
+				<controls:PickPixelColorControl
+					x:Name="OpenGlControl"
+					Grid.Row="0"
+					Grid.Column="0"
+					Margin="4"
+					Background="Black"
 					HorizontalAlignment="Stretch"
+					VerticalAlignment="Stretch"
+					Scene="{Binding SelectedScene, Mode=OneWay}"
+					SceneDescription="{Binding SelectedSceneDescription, Mode=OneWayToSource}"/>
+				<StackPanel
+					Grid.Row="0"
+					Grid.Column="1"
+					Width="300"
 					Margin="4"
-					Items="{Binding Scenes}"
-					SelectedItem="{Binding SelectedScene, Mode=TwoWay}"/>
-				<ListBox
-                    Grid.Row="4"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="3"
-                    BorderThickness="0"
-                    Items="{Binding SelectedSceneParameters, Mode=OneWay}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border
-                                CornerRadius="4">
-                                <Grid
-                                    RowDefinitions="40,Auto,Auto"
-                                    ColumnDefinitions="Auto,*">
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Grid.Row="0"
-										Margin="4"
-                                        HorizontalAlignment="Left"
-                                        Text="{Binding Name, Mode=OneTime}" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        Grid.Row="0"
-										Margin="4"
-                                        HorizontalAlignment="Left"
-                                        Text="{Binding Value, Mode=OneWay}"/>
-                                    
-                                    <Slider
-                                        Grid.Column="0"
-                                        Grid.ColumnSpan="2"
-                                        Grid.Row="1"
-                                        Margin="4"
-                                        Background="Transparent"
-                                        VerticalAlignment="Center"
-                                        BorderThickness="1"
-                                        Foreground="White"
-                                        BorderBrush="{DynamicResource ThemeEmuButtonBackgoundDefaultDark}"
-                                        Minimum="{Binding Minimum}"
-                                        Maximum="{Binding Maximum}"
-                                        Value="{Binding Value, Mode=TwoWay}" />
-                                </Grid>
-                            </Border>                           
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>            
-                </ListBox>
-			</StackPanel>
-		</Grid>		
+					Orientation="Vertical">
+					<TextBlock
+						Margin="4"
+						Text="Selected scene:" />
+					<ComboBox
+						HorizontalAlignment="Stretch"
+						Margin="4"
+						Items="{Binding Scenes}"
+						SelectedItem="{Binding SelectedScene, Mode=TwoWay}"/>
+					<ListBox
+						Grid.Row="4"
+						Grid.Column="0"
+						Grid.ColumnSpan="3"
+						BorderThickness="0"
+						Items="{Binding SelectedSceneParameters, Mode=OneWay}">
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<Border
+									CornerRadius="4">
+									<Grid
+										RowDefinitions="40,Auto,Auto"
+										ColumnDefinitions="Auto,*">
+										<TextBlock
+											Grid.Column="0"
+											Grid.Row="0"
+											Margin="4"
+											HorizontalAlignment="Left"
+											Text="{Binding Name, Mode=OneTime}" />
+										<TextBlock
+											Grid.Column="1"
+											Grid.Row="0"
+											Margin="4"
+											HorizontalAlignment="Left"
+											Text="{Binding Value, Mode=OneWay}"/>
+
+										<Slider
+											Grid.Column="0"
+											Grid.ColumnSpan="2"
+											Grid.Row="1"
+											Margin="4"
+											Background="Transparent"
+											VerticalAlignment="Center"
+											BorderThickness="1"
+											Foreground="White"
+											BorderBrush="{DynamicResource ThemeEmuButtonBackgoundDefaultDark}"
+											Minimum="0"
+											Maximum="255"
+											Value="{Binding Value, Mode=TwoWay}" />
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</StackPanel>
+			</Grid>
+		</Grid>
+		<Grid x:Name="EditorPanel" Background="Black" IsVisible="False"
+			  ColumnDefinitions="*, Auto"
+			  RowDefinitions="*, 40">
+			<TabControl Grid.Row="0" Grid.Column="0" Margin="10">
+				<TabItem Header="Fragment shader">
+					<TextBox x:Name="txtFS" TextWrapping="WrapWithOverflow" AcceptsReturn="True"/>
+				</TabItem>
+				<TabItem Header="Vertex shader">
+					<TextBox x:Name="txtVS" TextWrapping="WrapWithOverflow" AcceptsReturn="True"/>
+				</TabItem>
+			</TabControl>
+
+			<Grid Grid.Row="1" Grid.Column="0">
+				<Button
+					Content="Hide"
+					Width="150" HorizontalContentAlignment="Center"
+					Background="LightBlue"
+					Foreground="Black"
+					Margin="10 0"
+					Click="OnHideEditorClick"/>
+				<Button
+					Content="Accept" 
+					Width="150" HorizontalContentAlignment="Center"
+					Background="LightGreen"
+					Foreground="Black"
+					HorizontalAlignment="Right"
+					Margin="10 0"
+					Click="OnApplyClick"/>
+			</Grid>
+			
+		</Grid>
 	</Grid>
 </Window>
