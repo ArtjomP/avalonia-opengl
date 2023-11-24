@@ -104,17 +104,17 @@ public class PickPixelColorControl
         _updateTrackingDisposable?.Dispose();
     }
 
-    protected override void OnPropertyChanged<T>(
-        AvaloniaPropertyChangedEventArgs<T> change)
+    protected override void OnPropertyChanged(
+        AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == SceneProperty)
-        {
-            var scene = change
-                .NewValue
-                .GetValueOrDefault<OpenGlScenesEnum>();
-            ChangeScene(scene);
-        }
+        //if (change.Property == SceneProperty)
+        //{
+        //    var scene = change
+        //        .NewValue
+        //        .GetValueOrDefault<OpenGlScenesEnum>();
+        //    ChangeScene(scene);
+        //}
     }
 
     private void ChangeScene(OpenGlScenesEnum scene)
@@ -163,8 +163,8 @@ public class PickPixelColorControl
             var height = openGlControl.Bounds.Height;
             if (position is not null)
             {
-                var x = position.Position.X;
-                var y = position.Position.Y;
+                var x = position.Value.Position.X;
+                var y = position.Value.Position.Y;
                 var relativeX = x / width;
                 var relativeY = y / height;
                 foreach (var trackPoint in TrackPoints)
@@ -202,7 +202,7 @@ public class PickPixelColorControl
         if (openGlControl is not null)
         {
             openGlControl.ScaleFactor = ScaleFactor;
-            openGlControl.InvalidateVisual();
+            openGlControl.RequestNextFrameRendering();
         }
     }
 

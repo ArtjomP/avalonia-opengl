@@ -15,7 +15,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
     {
         private GlInterface? _gl;
 
-        private GlExtrasInterface? _glExtras;
+        //private GlExtrasInterface? _glExtras;
 
         private Int32 _vao;
 
@@ -69,9 +69,9 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
             _gl = gl;
             gl.ClearColor(r: 0f, g: 0f, b: 0f, a: 1);
 
-            _glExtras ??= new GlExtrasInterface(gl);
-            _vao = _glExtras.GenVertexArray();
-            _glExtras.BindVertexArray(_vao);
+            //_glExtras ??= new GlExtrasInterface(gl);
+            //_vao = _glExtras.GenVertexArray();
+            //_glExtras.BindVertexArray(_vao);
 
             _vbo = gl.GenBuffer();
             gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -143,7 +143,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
                 stride: 3 * sizeof(Single),
                 pointer: IntPtr.Zero);
 
-            _glExtras.BindVertexArray(0);
+            //_glExtras.BindVertexArray(0);
             gl.BindBuffer(GL_ARRAY_BUFFER, 0);
             gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
@@ -200,37 +200,32 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
         public void Render(GlInterface gl, int width, int height)
         {
             gl.Viewport(0, 0, width, height);
-            var glExtras = _glExtras;
-            if (glExtras is not null)
+            gl.UseProgram(_program);
+            var renderSize = gl.GetUniformLocationString(_program, "RENDERSIZE");
+            gl.Uniform2f(renderSize, width, height);
+            var time = gl.GetUniformLocationString(_program, "TIME");
+            gl.Uniform1f(time, _timeValue);
+
+            var isfSceneParameters = _isfScenePrameters;
+            var parameters = _isfParameters;
+            if (isfSceneParameters.Any() && parameters is not null &&
+                isfSceneParameters.Length == parameters.INPUTS.Length)
             {
-                glExtras.BindVertexArray(_vao);
-                gl.UseProgram(_program);
-                var renderSize = gl.GetUniformLocationString(_program, "RENDERSIZE");
-                gl.Uniform2f(renderSize, width, height);
-                var time = gl.GetUniformLocationString(_program, "TIME");
-                gl.Uniform1f(time, _timeValue);
-
-                var isfSceneParameters = _isfScenePrameters;
-                var parameters = _isfParameters;
-                if (isfSceneParameters.Any() && parameters is not null &&
-                    isfSceneParameters.Length == parameters.INPUTS.Length)
+                for (var i = 0; i < parameters.INPUTS.Length; i++)
                 {
-                    for (var i = 0; i < parameters.INPUTS.Length; i++)
-                    {
-                        var uniform = gl.GetUniformLocationString(_program, parameters.INPUTS[i].NAME);
-                        var value = isfSceneParameters[i].CalculateValue();
-                        gl.Uniform1f(uniform, value);
-                    }
-                }                
-
-                _timeValue += 0.01f;
-
-                gl.DrawElements(
-                    mode: GL_TRIANGLES,
-                    count: 6,
-                    type: GL_UNSIGNED_INT,
-                    indices: IntPtr.Zero);
+                    var uniform = gl.GetUniformLocationString(_program, parameters.INPUTS[i].NAME);
+                    var value = isfSceneParameters[i].CalculateValue();
+                    gl.Uniform1f(uniform, value);
+                }
             }
+
+            _timeValue += 0.01f;
+
+            gl.DrawElements(
+                mode: GL_TRIANGLES,
+                count: 6,
+                type: GL_UNSIGNED_SHORT, // GL_UNSIGNED_INT,
+                indices: IntPtr.Zero);
         }
 
         public String ISFFragmentShaderSource { get; set; } =

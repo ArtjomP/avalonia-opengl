@@ -97,10 +97,10 @@ public static class OpenGlUtils
         Int32 finalHeight)
     {
         var pixels = new Byte[RgbaSize * finalHeight * finalWidth];
-        var glExt = new GlExtrasInterface(gl);
+        //var glExt = new GlExtrasInterface(gl);
         fixed (void* pPixels = pixels)
         {
-            glExt.ReadPixels(
+            gl.ReadPixels(
                 x: 0,
                 y: 0,
                 width: finalWidth,

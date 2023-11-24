@@ -174,4 +174,25 @@ public static class GlExtensions
         var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, Int32, Int32, Int32, Single, Single, void>)procAddress;
         functionDelegate(x, w, h, y, n, f);
     }
+
+    public static unsafe void ReadPixels(
+        this GlInterface glInterface,
+        Int32 x,
+        Int32 y,
+        Int32 width,
+        Int32 height,
+        Int32 format,
+        Int32 type,
+        void* data)
+    {
+        const String entryPoint = "glReadPixels";
+        var procAddress = glInterface.GetProcAddress(entryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + entryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, Int32, Int32, Int32, Int32, Int32, void*, void>)procAddress;
+        functionDelegate(x, y, width, height, format, type, data);
+    }
 }

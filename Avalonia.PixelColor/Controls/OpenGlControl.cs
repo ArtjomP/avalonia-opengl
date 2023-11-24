@@ -14,7 +14,7 @@ public sealed class OpenGlControl : OpenGlControlBase
 {
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
+    //private GlExtrasInterface? _glExtras;
 
     static OpenGlControl()
     {
@@ -81,8 +81,8 @@ public sealed class OpenGlControl : OpenGlControlBase
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
         var gl = _gl;
-        var glExtras = _glExtras;
-        if (gl is not null && glExtras is not null)
+        //var glExtras = _glExtras;
+        if (gl is not null /*&& glExtras is not null*/)
         {
             foreach (var trackPoint in TrackPoints)
             {
@@ -91,7 +91,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                 var pixels = new Byte[OpenGlConstants.RgbaSize];
                 fixed (void* pPixels = pixels)
                 {
-                    glExtras.ReadPixels(
+                    gl.ReadPixels(
                         x: x,
                         y: y,
                         width: 1,
@@ -118,18 +118,18 @@ public sealed class OpenGlControl : OpenGlControlBase
         Double scaleFactor)
     {
         var gl = _gl;
-        var glExtras = _glExtras;
-        if (gl is not null && glExtras is not null)
+        //var glExtras = _glExtras;
+        if (gl is not null /*&& glExtras is not null*/)
         {
             var pixelSize = OpenGlConstants.RgbaSize;
             var newPixelSize = (Int32)(pixelSize * scaleFactor);
             var pixelsCount = (Int32)newPixelSize * width * height;
             var pixels = new Byte[pixelsCount];
             gl.Finish();
-            glExtras.ReadBuffer(GL_COLOR_ATTACHMENT0);
+            //glExtras.ReadBuffer(GL_COLOR_ATTACHMENT0);
             fixed (void* pPixels = pixels)
             {
-                glExtras.ReadPixels(
+                gl.ReadPixels(
                     x: 0,
                     y: 0,
                     width: width,
@@ -154,28 +154,31 @@ public sealed class OpenGlControl : OpenGlControlBase
     {
         _screenShotFullName = fullName;
     }
-
-    protected override unsafe void OnOpenGlInit(GlInterface gl, Int32 fb)
+    protected override void OnOpenGlInit(GlInterface gl)
     {
-        _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
-        base.OnOpenGlInit(gl, fb);
-        Scene.Initialize(gl);
+        base.OnOpenGlInit(gl);
     }
+    //protected override unsafe void OnOpenGlInit(GlInterface gl, Int32 fb)
+    //{
+    //    _gl = gl;
+    //    //_glExtras ??= new GlExtrasInterface(gl);
+    //    //base.OnOpenGlInit(gl, fb);
+    //    Scene.Initialize(gl);
+    //}
 
-    protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
-    {
-        _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
-        base.OnOpenGlDeinit(gl, fb);
-        Scene.DeInitialize(gl);
-        gl.UseProgram(0);
-    }
+    //protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
+    //{
+    //    _gl = gl;
+    //    //_glExtras ??= new GlExtrasInterface(gl);
+    //    base.OnOpenGlDeinit(gl, fb);
+    //    Scene.DeInitialize(gl);
+    //    gl.UseProgram(0);
+    //}
 
     protected override void OnOpenGlRender(GlInterface gl, Int32 fb)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
+        //_glExtras ??= new GlExtrasInterface(gl);
         SelectScene();
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         var width = (Int32)Bounds.Width;
@@ -186,20 +189,16 @@ public sealed class OpenGlControl : OpenGlControlBase
         gl.Viewport(0, 0, finalWidth, finalHeight);
         Scene.Render(gl, finalWidth, finalHeight);
         gl.Flush();
-        var glExtras = _glExtras;
-        if (glExtras is not null)
+
+        var screenShotFullName = _screenShotFullName;
+        _screenShotFullName = String.Empty;
+        if (!String.IsNullOrEmpty(screenShotFullName))
         {
-        //    GetTrackPointsColors(finalWidth, finalHeight);
-            var screenShotFullName = _screenShotFullName;
-            _screenShotFullName = String.Empty;
-            if (!String.IsNullOrEmpty(screenShotFullName))
-            {
-                DoScreenShot(
-                    fullName: screenShotFullName,
-                    width: finalWidth, 
-                    height: finalHeight, 
-                    scaleFactor: scaleFactor);
-            }
+            DoScreenShot(
+                fullName: screenShotFullName,
+                width: finalWidth,
+                height: finalHeight,
+                scaleFactor: scaleFactor);
         }
     }    
 }

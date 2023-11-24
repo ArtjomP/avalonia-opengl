@@ -12,12 +12,12 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        ViewModel = new MainWindowViewModel();
-        DataContext = ViewModel;
-        PlatformImpl.ScalingChanged += o => OpenGlControl.ScaleFactor = o;
-        var scaleFactor = PlatformImpl.DesktopScaling;
-        OpenGlControl.ScaleFactor = scaleFactor;
-        ViewModel.ScreenShotControl = OpenGlControl;
+        //ViewModel = new MainWindowViewModel();
+        //DataContext = ViewModel;
+        //PlatformImpl.ScalingChanged += o => OpenGlControl.ScaleFactor = o;
+        //var scaleFactor = PlatformImpl.DesktopScaling;
+        //OpenGlControl.ScaleFactor = scaleFactor;
+        //ViewModel.ScreenShotControl = OpenGlControl;
     }
 
     private MainWindowViewModel ViewModel { get; }

@@ -23,7 +23,7 @@ internal sealed class LinesScene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
+    //private GlExtrasInterface? _glExtras;
 
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
         @"
@@ -123,9 +123,9 @@ internal sealed class LinesScene : IOpenGlScene
         _gl = gl;
         gl.ClearColor(r: 0.3922f, g: 0.5843f, b: 0.9294f, a: 1);
 
-        _glExtras ??= new GlExtrasInterface(gl);
-        _vao = _glExtras.GenVertexArray();
-        _glExtras.BindVertexArray(_vao);
+        //_glExtras ??= new GlExtrasInterface(gl);
+        //_vao = _glExtras.GenVertexArray();
+        //_glExtras.BindVertexArray(_vao);
 
         _vbo = gl.GenBuffer();
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -195,7 +195,7 @@ internal sealed class LinesScene : IOpenGlScene
             stride: 3 * sizeof(Single),
             pointer: IntPtr.Zero);
 
-        _glExtras.BindVertexArray(0);
+        //_glExtras.BindVertexArray(0);
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -209,26 +209,21 @@ internal sealed class LinesScene : IOpenGlScene
     public void Render(GlInterface gl, int width, int height)
     {
         gl.Viewport(0, 0, width, height);
-        var glExtras = _glExtras;
-        if (glExtras is not null)
-        {
-            glExtras.BindVertexArray(_vao);
-            gl.UseProgram(_program);
-            var spacing = gl.GetUniformLocationString(_program, "spacing");
-            var lineWidth = gl.GetUniformLocationString(_program, "line_width");
-            var angle = gl.GetUniformLocationString(_program, "angle");
-            var shift = gl.GetUniformLocationString(_program, "shift");
-            var color1 = gl.GetUniformLocationString(_program, "color1");
-            var color2 = gl.GetUniformLocationString(_program, "color2");
-            gl.Uniform1f(spacing, 0.3f);
-            gl.Uniform1f(lineWidth, 0.01f);
-            gl.Uniform1f(angle, 0.24f);
-            gl.Uniform1f(shift, 0.4f);
-            gl.DrawElements(
-                mode: GL_TRIANGLES,
-                count: 6,
-                type: GL_UNSIGNED_INT,
-                indices: IntPtr.Zero);
-        }
+        gl.UseProgram(_program);
+        var spacing = gl.GetUniformLocationString(_program, "spacing");
+        var lineWidth = gl.GetUniformLocationString(_program, "line_width");
+        var angle = gl.GetUniformLocationString(_program, "angle");
+        var shift = gl.GetUniformLocationString(_program, "shift");
+        var color1 = gl.GetUniformLocationString(_program, "color1");
+        var color2 = gl.GetUniformLocationString(_program, "color2");
+        gl.Uniform1f(spacing, 0.3f);
+        gl.Uniform1f(lineWidth, 0.01f);
+        gl.Uniform1f(angle, 0.24f);
+        gl.Uniform1f(shift, 0.4f);
+        gl.DrawElements(
+            mode: GL_TRIANGLES,
+            count: 6,
+            type: GL_UNSIGNED_SHORT,
+            indices: IntPtr.Zero);
     }
 }
