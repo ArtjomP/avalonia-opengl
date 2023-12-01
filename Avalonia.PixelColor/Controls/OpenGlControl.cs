@@ -2,6 +2,7 @@
 using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes.ColorfulVoronoiScene;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 using Common;
 using System;
@@ -18,7 +19,6 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     static OpenGlControl()
     {
-
     }
 
     public OpenGlControl()
@@ -154,26 +154,23 @@ public sealed class OpenGlControl : OpenGlControlBase
     {
         _screenShotFullName = fullName;
     }
-    protected override void OnOpenGlInit(GlInterface gl)
-    {
-        base.OnOpenGlInit(gl);
-    }
-    //protected override unsafe void OnOpenGlInit(GlInterface gl, Int32 fb)
-    //{
-    //    _gl = gl;
-    //    //_glExtras ??= new GlExtrasInterface(gl);
-    //    //base.OnOpenGlInit(gl, fb);
-    //    Scene.Initialize(gl);
-    //}
 
-    //protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
-    //{
-    //    _gl = gl;
-    //    //_glExtras ??= new GlExtrasInterface(gl);
-    //    base.OnOpenGlDeinit(gl, fb);
-    //    Scene.DeInitialize(gl);
-    //    gl.UseProgram(0);
-    //}
+    protected override unsafe void OnOpenGlInit(GlInterface gl)
+    {
+        _gl = gl;
+        //_glExtras ??= new GlExtrasInterface(gl);
+        base.OnOpenGlInit(gl);
+        Scene.Initialize(gl);
+    }
+
+    protected override void OnOpenGlDeinit(GlInterface gl)
+    {
+        _gl = gl;
+        //_glExtras ??= new GlExtrasInterface(gl);
+        base.OnOpenGlDeinit(gl);
+        Scene.DeInitialize(gl);
+        gl.UseProgram(0);
+    }
 
     protected override void OnOpenGlRender(GlInterface gl, Int32 fb)
     {

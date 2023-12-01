@@ -123,9 +123,8 @@ internal sealed class LinesScene : IOpenGlScene
         _gl = gl;
         gl.ClearColor(r: 0.3922f, g: 0.5843f, b: 0.9294f, a: 1);
 
-        //_glExtras ??= new GlExtrasInterface(gl);
-        //_vao = _glExtras.GenVertexArray();
-        //_glExtras.BindVertexArray(_vao);
+        _vao = gl.GenVertexArray();
+        gl.BindVertexArray(_vao);
 
         _vbo = gl.GenBuffer();
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -195,7 +194,7 @@ internal sealed class LinesScene : IOpenGlScene
             stride: 3 * sizeof(Single),
             pointer: IntPtr.Zero);
 
-        //_glExtras.BindVertexArray(0);
+        gl.BindVertexArray(0);
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }

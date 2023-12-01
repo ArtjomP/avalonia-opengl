@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using Avalonia.OpenGL;
-using Common;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;

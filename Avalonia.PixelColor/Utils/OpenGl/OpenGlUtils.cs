@@ -54,7 +54,7 @@ public static class OpenGlUtils
     {
         var openGlShaderVersion = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
             ? 150
-            : 130;
+            : 330;
         var shaderVersionToUse =
             glVersion.Type is GlProfileType.OpenGL
             ? openGlShaderVersion
@@ -83,7 +83,8 @@ public static class OpenGlUtils
         else
         {
             shader = shader
-                .Replace("out vec4 gl_FragColor;", "//out vec4 gl_FragColor;");
+                .Replace("out vec4 gl_FragColor;", "//out vec4 gl_FragColor;")
+                .Replace("#define gl_FragColor isf_FragColor", "//#define gl_FragColor isf_FragColor"); 
         }
 
         data += shader;

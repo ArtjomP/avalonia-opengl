@@ -1,5 +1,6 @@
-﻿using Avalonia;
+﻿using Avalonia.OpenGL;
 using System;
+using System.Collections.Generic;
 
 namespace Avalonia.PixelColor
 {
@@ -18,7 +19,14 @@ namespace Avalonia.PixelColor
                 .UsePlatformDetect()
                 .With(new Win32PlatformOptions
                 {
-                    UseWgl = true
+                    RenderingMode = new List<Win32RenderingMode>
+                    {
+                        Win32RenderingMode.Wgl
+                    },
+                    WglProfiles = new List<GlVersion>
+                    {
+                        new GlVersion(GlProfileType.OpenGL, 4, 0)
+                    },
                 })
                 .LogToTrace();
     }

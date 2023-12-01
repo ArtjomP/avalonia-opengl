@@ -108,13 +108,12 @@ public class PickPixelColorControl
         AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        //if (change.Property == SceneProperty)
-        //{
-        //    var scene = change
-        //        .NewValue
-        //        .GetValueOrDefault<OpenGlScenesEnum>();
-        //    ChangeScene(scene);
-        //}
+        if (change != null && change.Property == SceneProperty)
+        {
+            var scene = change
+                .GetNewValue<OpenGlScenesEnum>();
+            ChangeScene(scene);
+        }
     }
 
     private void ChangeScene(OpenGlScenesEnum scene)

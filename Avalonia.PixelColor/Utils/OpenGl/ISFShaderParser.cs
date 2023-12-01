@@ -21,9 +21,10 @@ namespace Avalonia.PixelColor.Utils.OpenGl
 			ISFInput[] inputs = GetISFParameters(source).INPUTS;
 
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("uniform float TIME;\r\n");
+			//sb.Append("#version 330 core\r\n");
+			sb.Append("uniform float TIME;\r\n");
             sb.Append("uniform vec2 RENDERSIZE;\r\n");
+            sb.Append("#define gl_FragColor isf_FragColor\r\n");
             sb.Append("out vec4 gl_FragColor;\r\n");
 
             foreach (var input in inputs)
