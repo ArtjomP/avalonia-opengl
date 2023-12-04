@@ -104,7 +104,7 @@ public class Shader : IDisposable
         var src = loadShadersFromFile 
             ? File.ReadAllText(shaderSource) 
             : shaderSource;
-        UInt32 handle = _gl.CreateShader(type);
+        var handle = _gl.CreateShader(type);
         _gl.ShaderSource(handle, src);
         _gl.CompileShader(handle);
         var infoLog = _gl.GetShaderInfoLog(handle);

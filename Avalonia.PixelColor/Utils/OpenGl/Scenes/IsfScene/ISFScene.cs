@@ -14,7 +14,7 @@ using System.Numerics;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
 {
-    internal sealed class ISFScene : IOpenGlScene
+    public sealed class ISFScene : IOpenGlScene
     {
         private GlInterface? _glInterface;
         private GL? _gl;
@@ -56,6 +56,22 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
             SetUp(
                 fragmentShaderSource: ISFFragmentShaderSource,
                 vertexShaderSource: ISFVertexShaderSource);
+        }
+
+        public ISFScene(
+	        ISFScene previousScene,
+	        String fragmentShaderSource,
+	        String vertexShaderSource)
+        {
+	        Guard.IsNotNull(previousScene);
+	        Guard.IsNotNullOrWhiteSpace(fragmentShaderSource);
+	        Guard.IsNotNullOrWhiteSpace(vertexShaderSource);
+	        GlVersion = previousScene.GlVersion;
+	        _fragmentShaderSource = fragmentShaderSource ?? String.Empty;
+	        _vertexShaderSource = vertexShaderSource ?? String.Empty;
+	        SetUp(
+		        fragmentShaderSource: ISFFragmentShaderSource,
+		        vertexShaderSource: ISFVertexShaderSource);
         }
 
         public void DeInitialize(GlInterface gl)

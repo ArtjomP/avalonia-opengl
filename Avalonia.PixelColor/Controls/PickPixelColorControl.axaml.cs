@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using CommunityToolkit.Diagnostics;
 
 namespace Avalonia.PixelColor.Controls;
 
@@ -68,7 +69,12 @@ public class PickPixelColorControl
 
     public IOpenGlScene SelectedScene
     {
-        get { return _openGlControl.Scene; }
+        get
+        {
+            var openGlControl = _openGlControl;
+            Guard.IsNotNull(openGlControl);
+            return openGlControl.Scene;
+        }
     }
 
     private IDisposable? _updateTrackingDisposable;
@@ -125,6 +131,22 @@ public class PickPixelColorControl
             var sceneDescription = new OpenGlSceneDescription()
             {
                 Scene = scene,
+                Parameters = sceneParameters
+            };
+            SceneDescription = sceneDescription;
+            RenderOpenGl();
+        }
+    }
+
+    public void ChangeScene(IOpenGlScene scene)
+    {
+        var openGlControl = _openGlControl;
+        if (openGlControl is not null)
+        {
+            var sceneParameters = openGlControl.ChangeScene(scene);
+            var sceneDescription = new OpenGlSceneDescription()
+            {
+                Scene = scene.Scene,
                 Parameters = sceneParameters
             };
             SceneDescription = sceneDescription;

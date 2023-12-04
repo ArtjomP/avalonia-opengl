@@ -55,15 +55,21 @@ public partial class MainWindow : Window
 
     private void OnApplyClick(Object sender, RoutedEventArgs e)
     {
-        if(String.IsNullOrEmpty(txtVS.Text) || 
+        if(String.IsNullOrEmpty(txtVS.Text) &&
            String.IsNullOrEmpty(txtFS.Text))
         {
             return;
         }
 
-        ISFScene scene = (ISFScene)OpenGlControl.SelectedScene;
-        scene.SetUp(txtVS.Text, txtFS.Text);
-        ViewModel.UpdateParameters(scene.Parameters);
+        if (OpenGlControl.SelectedScene is ISFScene scene)
+        {
+            var newScene = new ISFScene(
+                previousScene: scene,
+                fragmentShaderSource: txtFS.Text,
+                vertexShaderSource: txtVS.Text);
+            OpenGlControl.ChangeScene(newScene);
+            ViewModel.UpdateParameters(scene.Parameters);
+        }
 
         EditorPanel.IsVisible = false;
         ViewModel.ShowEditorButtonVisible = true;

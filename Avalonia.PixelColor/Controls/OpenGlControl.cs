@@ -15,8 +15,6 @@ public sealed class OpenGlControl : OpenGlControlBase
 {
     private GlInterface? _gl;
 
-    //private GlExtrasInterface? _glExtras;
-
     static OpenGlControl()
     {
     }
@@ -51,6 +49,13 @@ public sealed class OpenGlControl : OpenGlControlBase
             parameters = nextScene.Parameters;
         }
 
+        return parameters;
+    }
+
+    public IEnumerable<OpenGlSceneParameter> ChangeScene(IOpenGlScene scene)
+    {
+        _nextScene = scene;
+        var parameters = scene.Parameters;
         return parameters;
     }
 
