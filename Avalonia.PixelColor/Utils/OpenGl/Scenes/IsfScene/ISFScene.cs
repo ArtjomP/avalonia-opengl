@@ -70,8 +70,8 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
 	        _fragmentShaderSource = fragmentShaderSource ?? String.Empty;
 	        _vertexShaderSource = vertexShaderSource ?? String.Empty;
 	        SetUp(
-		        fragmentShaderSource: ISFFragmentShaderSource,
-		        vertexShaderSource: ISFVertexShaderSource);
+		        fragmentShaderSource: _fragmentShaderSource,
+		        vertexShaderSource: _vertexShaderSource);
         }
 
         public void DeInitialize(GlInterface gl)
