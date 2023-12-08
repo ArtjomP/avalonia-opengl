@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using Avalonia.OpenGL;
-using Common;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Utils.OpenGl;
@@ -26,7 +25,6 @@ public class Line : IDisposable
 
     private GlInterface _gl;
 
-    private GlExtrasInterface _glExtras;
     private bool disposedValue;
 
     public unsafe Line(
@@ -90,11 +88,8 @@ public class Line : IDisposable
             endPoint.X, endPoint.Y, endPoint.Z
         };
 
-        var glExtras = new GlExtrasInterface(gl);
-        _glExtras = glExtras;
-        _vao = glExtras.GenVertexArray();
+
         _vbo = gl.GenBuffer();
-        glExtras.BindVertexArray(_vao);
 
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
         var vertices = _vertices;
@@ -117,7 +112,6 @@ public class Line : IDisposable
         gl.EnableVertexAttribArray(0);
 
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-        glExtras.BindVertexArray(0);
     }
 
 
@@ -152,8 +146,6 @@ public class Line : IDisposable
             _gl.Uniform3fv(location, 1, lineColorPtr);
         }
         _gl.LineWidth(3);
-        _glExtras.BindVertexArray(_vao);
-        _gl.DrawArrays(GL_LINES, 0, (IntPtr)2);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -164,8 +156,6 @@ public class Line : IDisposable
             {                
             }
 
-            _glExtras.DeleteVertexArrays(1, new Int32[] { _vao });
-            _gl.DeleteBuffers(1, new Int32[] { _vbo });
             _gl.DeleteProgram(_shaderProgram);
             disposedValue = true;
         }

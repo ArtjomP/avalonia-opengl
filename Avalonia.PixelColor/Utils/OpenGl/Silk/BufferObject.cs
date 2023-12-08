@@ -1,7 +1,9 @@
 ﻿#nullable enable
 
+using Avalonia.OpenGL;
 using Silk.NET.OpenGL;
 using System;
+using System.Runtime.InteropServices;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Silk;
 
@@ -24,7 +26,7 @@ public class BufferObject<TDataType> : IDisposable
             _gl.BufferData(
                 bufferType,
                 (UIntPtr)(data.Length * sizeof(TDataType)),
-                d, 
+                d,
                 BufferUsageARB.StaticDraw);
         }
     }

@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
+using CommunityToolkit.Diagnostics;
 
 namespace Avalonia.PixelColor.Controls;
 
@@ -68,7 +69,12 @@ public class PickPixelColorControl
 
     public IOpenGlScene SelectedScene
     {
-        get { return _openGlControl.Scene; }
+        get
+        {
+            var openGlControl = _openGlControl;
+            Guard.IsNotNull(openGlControl);
+            return openGlControl.Scene;
+        }
     }
 
     private IDisposable? _updateTrackingDisposable;
@@ -104,15 +110,14 @@ public class PickPixelColorControl
         _updateTrackingDisposable?.Dispose();
     }
 
-    protected override void OnPropertyChanged<T>(
-        AvaloniaPropertyChangedEventArgs<T> change)
+    protected override void OnPropertyChanged(
+        AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == SceneProperty)
+        if (change != null && change.Property == SceneProperty)
         {
             var scene = change
-                .NewValue
-                .GetValueOrDefault<OpenGlScenesEnum>();
+                .GetNewValue<OpenGlScenesEnum>();
             ChangeScene(scene);
         }
     }
@@ -126,6 +131,22 @@ public class PickPixelColorControl
             var sceneDescription = new OpenGlSceneDescription()
             {
                 Scene = scene,
+                Parameters = sceneParameters
+            };
+            SceneDescription = sceneDescription;
+            RenderOpenGl();
+        }
+    }
+
+    public void ChangeScene(IOpenGlScene scene)
+    {
+        var openGlControl = _openGlControl;
+        if (openGlControl is not null)
+        {
+            var sceneParameters = openGlControl.ChangeScene(scene);
+            var sceneDescription = new OpenGlSceneDescription()
+            {
+                Scene = scene.Scene,
                 Parameters = sceneParameters
             };
             SceneDescription = sceneDescription;
@@ -163,8 +184,8 @@ public class PickPixelColorControl
             var height = openGlControl.Bounds.Height;
             if (position is not null)
             {
-                var x = position.Position.X;
-                var y = position.Position.Y;
+                var x = position.Value.Position.X;
+                var y = position.Value.Position.Y;
                 var relativeX = x / width;
                 var relativeY = y / height;
                 foreach (var trackPoint in TrackPoints)
@@ -202,7 +223,7 @@ public class PickPixelColorControl
         if (openGlControl is not null)
         {
             openGlControl.ScaleFactor = ScaleFactor;
-            openGlControl.InvalidateVisual();
+            openGlControl.RequestNextFrameRendering();
         }
     }
 
