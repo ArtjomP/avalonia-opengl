@@ -23,8 +23,6 @@ internal sealed class LinesScene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    //private GlExtrasInterface? _glExtras;
-
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
         @"
         uniform int PASSINDEX;

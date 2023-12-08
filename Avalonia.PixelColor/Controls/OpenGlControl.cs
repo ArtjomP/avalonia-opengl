@@ -86,8 +86,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
         var gl = _gl;
-        //var glExtras = _glExtras;
-        if (gl is not null /*&& glExtras is not null*/)
+        if (gl is not null)
         {
             foreach (var trackPoint in TrackPoints)
             {
@@ -123,15 +122,13 @@ public sealed class OpenGlControl : OpenGlControlBase
         Double scaleFactor)
     {
         var gl = _gl;
-        //var glExtras = _glExtras;
-        if (gl is not null /*&& glExtras is not null*/)
+        if (gl is not null )
         {
             var pixelSize = OpenGlConstants.RgbaSize;
             var newPixelSize = (Int32)(pixelSize * scaleFactor);
             var pixelsCount = (Int32)newPixelSize * width * height;
             var pixels = new Byte[pixelsCount];
             gl.Finish();
-            //glExtras.ReadBuffer(GL_COLOR_ATTACHMENT0);
             fixed (void* pPixels = pixels)
             {
                 gl.ReadPixels(
@@ -163,7 +160,6 @@ public sealed class OpenGlControl : OpenGlControlBase
     protected override unsafe void OnOpenGlInit(GlInterface gl)
     {
         _gl = gl;
-        //_glExtras ??= new GlExtrasInterface(gl);
         base.OnOpenGlInit(gl);
         Scene.Initialize(gl);
     }
@@ -171,7 +167,6 @@ public sealed class OpenGlControl : OpenGlControlBase
     protected override void OnOpenGlDeinit(GlInterface gl)
     {
         _gl = gl;
-        //_glExtras ??= new GlExtrasInterface(gl);
         base.OnOpenGlDeinit(gl);
         Scene.DeInitialize(gl);
         gl.UseProgram(0);
@@ -180,7 +175,6 @@ public sealed class OpenGlControl : OpenGlControlBase
     protected override void OnOpenGlRender(GlInterface gl, Int32 fb)
     {
         _gl = gl;
-        //_glExtras ??= new GlExtrasInterface(gl);
         SelectScene();
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         var width = (Int32)Bounds.Width;
