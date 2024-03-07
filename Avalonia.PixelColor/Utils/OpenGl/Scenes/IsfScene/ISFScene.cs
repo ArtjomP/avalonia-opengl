@@ -147,10 +147,10 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
 
         private ISFParameters? _isfParameters;
 
-        private IsfSceneParameterOfSingle[] _isfScenePrameters = Array.Empty<IsfSceneParameterOfSingle>();
+        private IsfSceneParameterOfSingle[] _isfSceneParameters = Array.Empty<IsfSceneParameterOfSingle>();
 
         [MemberNotNull(nameof(_parameters))]
-        public unsafe void SetUp(
+        public void SetUp(
             String vertexShaderSource,
             String fragmentShaderSource)
         {
@@ -183,7 +183,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
             }
 
             _isfParameters = isfParameters;
-            _isfScenePrameters = isfSceneParameters.ToArray();
+            _isfSceneParameters = isfSceneParameters.ToArray();
             var gl = _gl;
             if (gl is not null)
             {
@@ -205,7 +205,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
             var time = gl.GetUniformLocationString(_program, "TIME");
             gl.Uniform1f(time, _timeValue);
 
-            var isfSceneParameters = _isfScenePrameters;
+            var isfSceneParameters = _isfSceneParameters;
             var parameters = _isfParameters;
             if (isfSceneParameters.Any() && parameters is not null &&
                 isfSceneParameters.Length == parameters.INPUTS.Length)
