@@ -197,8 +197,6 @@ internal sealed class IsfScene : IOpenGlScene
 
     public void Render(GlInterface gl, int width, int height)
     {
-        gl.Viewport(0, 0, width, height);
-
         gl.BindVertexArray(_vao);
         gl.UseProgram(_program);
         var renderSize = gl.GetUniformLocationString(_program, "RENDERSIZE");
