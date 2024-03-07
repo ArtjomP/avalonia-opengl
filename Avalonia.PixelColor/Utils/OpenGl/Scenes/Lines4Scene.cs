@@ -28,13 +28,10 @@ internal sealed class Lines4Scene : IOpenGlScene
     public OpenGlScenesEnum Scene => OpenGlScenesEnum.Lines4;
 
     private GlInterface? _gl;
-
-    private GlExtrasInterface? _glExtras;
-
+    
     public unsafe void Initialize(GlInterface gl)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
         if (gl is not null)
         {           
         }        
@@ -49,8 +46,10 @@ internal sealed class Lines4Scene : IOpenGlScene
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
-        var glExtras = _glExtras;
-        if (glExtras is not null)
+        const Int32 GL_PROJECTION = 0;
+        const Int32 GL_MODELVIEW = 1;
+        const Int32 GL_LINES = 2;
+        if (gl is not null)
         {
             gl.MatrixMode(GL_PROJECTION);
             gl.LoadIdentity();

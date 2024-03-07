@@ -104,15 +104,13 @@ public class PickPixelColorControl
         _updateTrackingDisposable?.Dispose();
     }
 
-    protected override void OnPropertyChanged<T>(
-        AvaloniaPropertyChangedEventArgs<T> change)
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == SceneProperty)
+        Object? newValue = change.NewValue;
+        if (change.Property == SceneProperty && newValue is not null) 
         {
-            var scene = change
-                .NewValue
-                .GetValueOrDefault<OpenGlScenesEnum>();
+            var scene = (OpenGlScenesEnum)newValue;
             ChangeScene(scene);
         }
     }

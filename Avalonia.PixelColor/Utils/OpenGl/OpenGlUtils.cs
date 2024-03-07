@@ -112,27 +112,6 @@ public static class OpenGlUtils
         }
     }
 
-    private static void FillBitmap(
-        Int32 width,
-        Int32 height,
-        Byte[] rgbaData,
-        System.Drawing.Bitmap pic)
-    {
-        for (var y = 0; y < height; y++)
-        {
-            for (var x = 0; x < width; x++)
-            {
-                var arrayOffset = y * width * RgbaSize + x * RgbaSize;
-                var c = System.Drawing.Color.FromArgb(
-                   rgbaData[arrayOffset + 3],
-                   rgbaData[arrayOffset],
-                   rgbaData[arrayOffset + 1],
-                   rgbaData[arrayOffset + 2]);
-                pic.SetPixel(x, y, c);
-            }
-        }
-    }
-
     public static GradientParameters UpdateGradientWidth(
        GradientParameters gradientParameters,
        OpenGlSceneParameter pulse,

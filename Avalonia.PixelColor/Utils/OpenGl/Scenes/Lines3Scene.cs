@@ -29,14 +29,11 @@ internal sealed class Lines3Scene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
-
     private Line[]? _lines = null;
 
     public unsafe void Initialize(GlInterface gl)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
         if (gl is not null)
         {
             var startPoint = new Vector3(-0.5f, -0.5f, 0);

@@ -148,14 +148,13 @@ public static class GlExtensions
         functionDelegate(hDC);
     }
 
-
     public static unsafe void MatrixMode(this GlInterface glInterface, Int32 mode)
     {
-        const String EntryPoint = "glMatrixMode";
-        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        const String entryPoint = "glMatrixMode";
+        var procAddress = glInterface.GetProcAddress(entryPoint);
         if (procAddress == IntPtr.Zero)
         {
-            throw new ArgumentException("Entry point not found: " + EntryPoint);
+            throw new ArgumentException("Entry point not found: " + entryPoint);
         }
 
         var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, void>)procAddress;
@@ -164,14 +163,35 @@ public static class GlExtensions
 
     public static unsafe void Ortho(this GlInterface glInterface, Int32 x, Int32 w, Int32 h, Int32 y, Single n, Single f)
     {
-        const String EntryPoint = "glOrtho";
-        var procAddress = glInterface.GetProcAddress(EntryPoint);
+        const String entryPoint = "glOrtho";
+        var procAddress = glInterface.GetProcAddress(entryPoint);
         if (procAddress == IntPtr.Zero)
         {
-            throw new ArgumentException("Entry point not found: " + EntryPoint);
+            throw new ArgumentException("Entry point not found: " + entryPoint);
         }
 
         var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, Int32, Int32, Int32, Single, Single, void>)procAddress;
         functionDelegate(x, w, h, y, n, f);
+    }
+
+    public static unsafe void ReadPixels(
+        this GlInterface glInterface,
+        Int32 x,
+        Int32 y,
+        Int32 width,
+        Int32 height,
+        Int32 format,
+        Int32 type,
+        void* data)
+    {
+        const String entryPoint = "glReadPixels";
+        var procAddress = glInterface.GetProcAddress(entryPoint);
+        if (procAddress == IntPtr.Zero)
+        {
+            throw new ArgumentException("Entry point not found: " + entryPoint);
+        }
+
+        var functionDelegate = (delegate* unmanaged[Stdcall]<Int32, Int32, Int32, Int32, Int32, Int32, void*, void>)procAddress;
+        functionDelegate(x, y, width, height, format, type, data);
     }
 }

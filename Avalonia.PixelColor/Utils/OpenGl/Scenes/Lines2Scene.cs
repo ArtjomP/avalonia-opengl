@@ -24,8 +24,6 @@ internal sealed class Lines2Scene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
-
     private Single[] _vertices = new[]
     {
         0.0f, 0.0f,

@@ -15,8 +15,6 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
     {
         private GlInterface? _gl;
 
-        private GlExtrasInterface? _glExtras;
-
         private Int32 _vao;
 
         private Int32 _vbo;

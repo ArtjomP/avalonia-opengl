@@ -55,8 +55,6 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
-
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
         @"     
         precision highp float;

@@ -26,7 +26,6 @@ public class Line : IDisposable
 
     private GlInterface _gl;
 
-    private GlExtrasInterface _glExtras;
     private bool disposedValue;
 
     public unsafe Line(

@@ -14,8 +14,6 @@ public sealed class OpenGlControl : OpenGlControlBase
 {
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
-
     static OpenGlControl()
     {
 
@@ -155,19 +153,17 @@ public sealed class OpenGlControl : OpenGlControlBase
         _screenShotFullName = fullName;
     }
 
-    protected override unsafe void OnOpenGlInit(GlInterface gl, Int32 fb)
+    protected override void OnOpenGlInit(GlInterface gl)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
-        base.OnOpenGlInit(gl, fb);
+        base.OnOpenGlInit(gl);
         Scene.Initialize(gl);
     }
 
-    protected override void OnOpenGlDeinit(GlInterface gl, Int32 fb)
+    protected override void OnOpenGlDeinit(GlInterface gl)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
-        base.OnOpenGlDeinit(gl, fb);
+        base.OnOpenGlDeinit(gl);
         Scene.DeInitialize(gl);
         gl.UseProgram(0);
     }
@@ -175,7 +171,6 @@ public sealed class OpenGlControl : OpenGlControlBase
     protected override void OnOpenGlRender(GlInterface gl, Int32 fb)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
         SelectScene();
         gl.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         var width = (Int32)Bounds.Width;
@@ -189,7 +184,6 @@ public sealed class OpenGlControl : OpenGlControlBase
         var glExtras = _glExtras;
         if (glExtras is not null)
         {
-        //    GetTrackPointsColors(finalWidth, finalHeight);
             var screenShotFullName = _screenShotFullName;
             _screenShotFullName = String.Empty;
             if (!String.IsNullOrEmpty(screenShotFullName))
