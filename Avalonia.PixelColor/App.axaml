@@ -4,6 +4,7 @@
     x:Class="Avalonia.PixelColor.App"
     RequestedThemeVariant="Default">
     <Application.Styles>
-		<StyleInclude Source="avares://Avalonia.PixelColor/Controls/PickPixelColorControl.axaml"/>
+        <SimpleTheme/>
+        <StyleInclude Source="avares://Avalonia.PixelColor/Controls/PickPixelColorControl.axaml"/>
     </Application.Styles>
 </Application>

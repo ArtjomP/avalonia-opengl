@@ -19,4 +19,10 @@ public static class OpenGlConstants
     };
 
     public const Int32 RgbaSize = 4;
+    
+    public const int GL_LINES = 0x0001;
+    
+    public const int GL_UNSIGNED_INT = 0x1405;
+
+    public const int GL_COLOR_ATTACHMENT0 = 0x8CE0;
 }

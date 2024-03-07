@@ -71,14 +71,11 @@
 					<ComboBox
 						HorizontalAlignment="Stretch"
 						Margin="4"
-						Items="{Binding Scenes}"
+						ItemsSource="{Binding Scenes}"
 						SelectedItem="{Binding SelectedScene, Mode=TwoWay}"/>
 					<ListBox
-						Grid.Row="4"
-						Grid.Column="0"
-						Grid.ColumnSpan="3"
 						BorderThickness="0"
-						Items="{Binding SelectedSceneParameters, Mode=OneWay}">
+						ItemsSource="{Binding SelectedSceneParameters, Mode=OneWay}">
 						<ListBox.ItemTemplate>
 							<DataTemplate>
 								<Border

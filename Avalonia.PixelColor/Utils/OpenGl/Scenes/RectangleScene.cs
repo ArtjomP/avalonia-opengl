@@ -15,9 +15,7 @@ internal sealed class RectangleScene : IOpenGlScene
     public OpenGlScenesEnum Scene => OpenGlScenesEnum.Rectangle;
 
     private GlInterface? _gl;
-
-    private GlExtrasInterface? _glExtras;
-
+    
     private Int32 _vao;
 
     private Int32 _vbo;
@@ -31,9 +29,8 @@ internal sealed class RectangleScene : IOpenGlScene
         _gl = gl;
         gl.ClearColor(r: 0.3922f, g: 0.5843f, b: 0.9294f, a: 1);
 
-        _glExtras ??= new GlExtrasInterface(gl);
-        _vao = _glExtras.GenVertexArray();
-        _glExtras.BindVertexArray(_vao);
+        _vao = gl.GenVertexArray();
+        gl.BindVertexArray(_vao);
 
         _vbo = gl.GenBuffer();
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -103,7 +100,7 @@ internal sealed class RectangleScene : IOpenGlScene
             stride: 3 * sizeof(Single),
             pointer: IntPtr.Zero);
 
-        _glExtras.BindVertexArray(0);
+        gl.BindVertexArray(0);
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -113,21 +110,17 @@ internal sealed class RectangleScene : IOpenGlScene
         gl.DeleteProgram(_program);
         gl.UseProgram(0);
     }
-
+    
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
         gl.Viewport(0, 0, width, height);
-
-        var glExtras = _glExtras;
-        if (glExtras is not null)
-        {
-            glExtras.BindVertexArray(_vao);
-            gl.UseProgram(_program);
-            gl.DrawElements(
-                mode: GL_TRIANGLES,
-                count: 6,
-                type: GL_UNSIGNED_INT,
-                indices: IntPtr.Zero);
-        }
+        gl.BindVertexArray(_vao);
+        gl.UseProgram(_program);
+        gl.DrawElements(
+            mode: GL_TRIANGLES,
+            count: 6,
+            type: OpenGlConstants.GL_UNSIGNED_INT,
+            indices: IntPtr.Zero);
+        
     }
 }

@@ -155,26 +155,23 @@ public class PickPixelColorControl
 
     private void TrackPosition(OpenGlControl? openGlControl, PointerPoint? position)
     {
-        if (openGlControl is not null && position is not null)
+        if (openGlControl is not null && position.HasValue)
         {
             var width = openGlControl.Bounds.Width;
             var height = openGlControl.Bounds.Height;
-            if (position is not null)
+            var x = position.Value.Position.X;
+            var y = position.Value.Position.Y;
+            var relativeX = x / width;
+            var relativeY = y / height;
+            foreach (var trackPoint in TrackPoints)
             {
-                var x = position.Position.X;
-                var y = position.Position.Y;
-                var relativeX = x / width;
-                var relativeY = y / height;
-                foreach (var trackPoint in TrackPoints)
-                {
-                    trackPoint.RelativeX = relativeX;
-                    trackPoint.RelativeY = relativeY;
-                    trackPoint.Point.ReleativeX = relativeX;
-                    trackPoint.Point.ReleativeY = relativeY;
-                }
-
-                RenderOpenGlAndGetPositionColorsBack();
+                trackPoint.RelativeX = relativeX;
+                trackPoint.RelativeY = relativeY;
+                trackPoint.Point.ReleativeX = relativeX;
+                trackPoint.Point.ReleativeY = relativeY;
             }
+            
+            RenderOpenGlAndGetPositionColorsBack();
         }
     }
 

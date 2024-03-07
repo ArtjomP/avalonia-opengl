@@ -97,10 +97,9 @@ public static class OpenGlUtils
         Int32 finalHeight)
     {
         var pixels = new Byte[RgbaSize * finalHeight * finalWidth];
-        var glExt = new GlExtrasInterface(gl);
         fixed (void* pPixels = pixels)
         {
-            glExt.ReadPixels(
+            gl.ReadPixels(
                 x: 0,
                 y: 0,
                 width: finalWidth,
@@ -123,8 +122,8 @@ public static class OpenGlUtils
         Guard.IsNotNull(leftWidth);
         Guard.IsNotNull(rightWidth);
         var pulseFrequency = (Single)pulse.Value;
-        var leftGradientWidthBaseValue = (Single)leftWidth.Value / 100f;
-        var rightGradientWidthBaseValue = (Single)rightWidth.Value / 100f;
+        var leftGradientWidthBaseValue = leftWidth.Value / 100f;
+        var rightGradientWidthBaseValue = rightWidth.Value / 100f;
         var resultLeftWidth = gradientParameters.leftGradientWidth;
         var resultRightWidth = gradientParameters.rightGradientWidth;
         var direction = gradientParameters.direction;

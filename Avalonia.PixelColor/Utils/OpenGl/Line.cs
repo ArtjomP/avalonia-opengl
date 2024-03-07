@@ -89,11 +89,9 @@ public class Line : IDisposable
             endPoint.X, endPoint.Y, endPoint.Z
         };
 
-        var glExtras = new GlExtrasInterface(gl);
-        _glExtras = glExtras;
-        _vao = glExtras.GenVertexArray();
+        _vao = gl.GenVertexArray();
         _vbo = gl.GenBuffer();
-        glExtras.BindVertexArray(_vao);
+        gl.BindVertexArray(_vao);
 
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
         var vertices = _vertices;
@@ -116,7 +114,7 @@ public class Line : IDisposable
         gl.EnableVertexAttribArray(0);
 
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-        glExtras.BindVertexArray(0);
+        gl.BindVertexArray(0);
     }
 
 
@@ -151,11 +149,11 @@ public class Line : IDisposable
             _gl.Uniform3fv(location, 1, lineColorPtr);
         }
         _gl.LineWidth(3);
-        _glExtras.BindVertexArray(_vao);
-        _gl.DrawArrays(GL_LINES, 0, (IntPtr)2);
+        _gl.BindVertexArray(_vao);
+        _gl.DrawArrays(OpenGlConstants.GL_LINES, 0, (IntPtr)2);
     }
 
-    protected virtual void Dispose(bool disposing)
+    protected virtual unsafe void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
@@ -163,8 +161,18 @@ public class Line : IDisposable
             {                
             }
 
-            _glExtras.DeleteVertexArrays(1, new Int32[] { _vao });
-            _gl.DeleteBuffers(1, new Int32[] { _vbo });
+            var array = new[] { _vao };
+            fixed (Int32* p = array)
+            {
+                _gl.DeleteVertexArrays(1, p);
+            }
+
+            array = new[] { _vbo };
+            fixed (Int32* p = array)
+            {
+                _gl.DeleteBuffers(1, p);
+            }
+
             _gl.DeleteProgram(_shaderProgram);
             disposedValue = true;
         }

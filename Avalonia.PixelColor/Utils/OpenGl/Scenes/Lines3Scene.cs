@@ -76,16 +76,12 @@ internal sealed class Lines3Scene : IOpenGlScene
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
         gl.ClearColor(r: 0f, g: 0f, b: 0f, a: 1);
-        var glExtras = _glExtras;
-        if (glExtras is not null)
+        var lines = _lines;
+        if (lines is not null)
         {
-            var lines = _lines;
-            if (lines is not null)
+            foreach (var line in lines)
             {
-                foreach (var line in lines)
-                {
-                    line.Draw();
-                }
+                line.Draw();
             }
         }
     }

@@ -38,7 +38,6 @@
 		<PackageReference Include="pt.CommandExecutor.ReactiveUI" Version="1.0.4984" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
 		<PackageReference Include="Silk.NET.OpenGL" Version="2.20.0" />
-		<PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -25,7 +25,7 @@
 						Orientation="Vertical">
 						<TextBlock
 							Text="Color under mouse cursor:" />
-						<ListBox Items="{TemplateBinding TrackPoints}">
+						<ListBox ItemsSource="{TemplateBinding TrackPoints}">
 							<ListBox.ItemTemplate>
 								<DataTemplate>
 									<Grid

@@ -46,9 +46,9 @@ internal sealed class Lines4Scene : IOpenGlScene
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
     {
-        const Int32 GL_PROJECTION = 0;
-        const Int32 GL_MODELVIEW = 1;
-        const Int32 GL_LINES = 2;
+        const Int32 GL_PROJECTION = 0x1701;
+        const Int32 GL_MODELVIEW = 0x1700;
+        const Int32 GL_LINES = 0x0001;
         if (gl is not null)
         {
             gl.MatrixMode(GL_PROJECTION);

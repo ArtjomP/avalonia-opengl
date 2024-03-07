@@ -144,9 +144,8 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
         _gl = gl;
         gl.ClearColor(r: 0f, g: 0f, b: 0f, a: 1);
 
-        _glExtras ??= new GlExtrasInterface(gl);
-        _vao = _glExtras.GenVertexArray();
-        _glExtras.BindVertexArray(_vao);
+        _vao = _gl.GenVertexArray();
+        _gl.BindVertexArray(_vao);
 
         _vbo = gl.GenBuffer();
         gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -214,7 +213,7 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
             stride: 3 * sizeof(Single),
             pointer: IntPtr.Zero);
 
-        _glExtras.BindVertexArray(0);
+        _gl.BindVertexArray(0);
         gl.BindBuffer(GL_ARRAY_BUFFER, 0);
         gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -228,44 +227,40 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
     private Random _random = new Random();
 
     public void Render(GlInterface gl, Int32 width, Int32 height)
-    {        
-        var glExtras = _glExtras;
-        if (glExtras is not null)
-        {
-            glExtras.BindVertexArray(_vao);
-            gl.UseProgram(_program);
+    {
+        gl.BindVertexArray(_vao);
+        gl.UseProgram(_program);
 
-            var w = gl.GetUniformLocationString(_program, "resolution_x");
-            gl.Uniform1f(w, width);
-            var h = gl.GetUniformLocationString(_program, "resolution_y");
-            gl.Uniform1f(h, height);
+        var w = gl.GetUniformLocationString(_program, "resolution_x");
+        gl.Uniform1f(w, width);
+        var h = gl.GetUniformLocationString(_program, "resolution_y");
+        gl.Uniform1f(h, height);
 
-            var lineWidth = gl.GetUniformLocationString(_program, "line_width");
-            gl.Uniform1f(lineWidth, _lineWidth.Value / 100f);
+        var lineWidth = gl.GetUniformLocationString(_program, "line_width");
+        gl.Uniform1f(lineWidth, _lineWidth.Value / 100f);
 
-            UpdateGradientWidth();
-            var innerGradientWidth = gl.GetUniformLocationString(_program, "inner_gradient_width");
-            var innerGradientWidthValue = _gradientParameters.leftGradientWidth;
-            gl.Uniform1f(innerGradientWidth, innerGradientWidthValue);
-            var outerGradientWidth = gl.GetUniformLocationString(_program, "outer_gradient_width");
-            var outerGradientWidthValue = _gradientParameters.rightGradientWidth;
-            gl.Uniform1f(outerGradientWidth, outerGradientWidthValue);
+        UpdateGradientWidth();
+        var innerGradientWidth = gl.GetUniformLocationString(_program, "inner_gradient_width");
+        var innerGradientWidthValue = _gradientParameters.leftGradientWidth;
+        gl.Uniform1f(innerGradientWidth, innerGradientWidthValue);
+        var outerGradientWidth = gl.GetUniformLocationString(_program, "outer_gradient_width");
+        var outerGradientWidthValue = _gradientParameters.rightGradientWidth;
+        gl.Uniform1f(outerGradientWidth, outerGradientWidthValue);
 
-            var time = gl.GetUniformLocationString(_program, "time");
-            gl.Uniform1f(time, _timeValue);
+        var time = gl.GetUniformLocationString(_program, "time");
+        gl.Uniform1f(time, _timeValue);
 
-            var speed = _speed.Value / 1000f;
-            var offset = _timePulseRange.Value == 0
-                ? 0
-                : _random.Next(-_timePulseRange.Value, _timePulseRange.Value + 1) / 100f;
-            _timeValue += speed + offset;
+        var speed = _speed.Value / 1000f;
+        var offset = _timePulseRange.Value == 0
+            ? 0
+            : _random.Next(-_timePulseRange.Value, _timePulseRange.Value + 1) / 100f;
+        _timeValue += speed + offset;
 
-            gl.DrawElements(
-                mode: GL_TRIANGLES,
-                count: 6,
-                type: GL_UNSIGNED_INT,
-                indices: IntPtr.Zero);
-        }
+        gl.DrawElements(
+            mode: GL_TRIANGLES,
+            count: 6,
+            type: OpenGlConstants.GL_UNSIGNED_INT,
+            indices: IntPtr.Zero);
     }
 
     private void UpdateGradientWidth()

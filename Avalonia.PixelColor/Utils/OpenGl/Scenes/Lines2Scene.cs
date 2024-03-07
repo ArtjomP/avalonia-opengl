@@ -138,11 +138,6 @@ internal sealed class Lines2Scene : IOpenGlScene
     public unsafe void Initialize(GlInterface gl)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
-        if (gl is not null)
-        {
-
-        }        
     }
 
     public void DeInitialize(GlInterface gl)
@@ -157,9 +152,5 @@ internal sealed class Lines2Scene : IOpenGlScene
     public void Render(GlInterface gl, int width, int height)
     {
         gl.Viewport(0, 0, width, height);
-        var glExtras = _glExtras;
-        if (glExtras is not null)
-        {
-        }
     }
 }
