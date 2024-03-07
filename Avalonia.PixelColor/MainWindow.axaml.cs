@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using pt.CommandExecutor.Common;
 using System;
-using Avalonia.PixelColor.Utils.OpenGl.Scenes;
+using Avalonia.PixelColor.Utils.OpenGl.IsfScene;
 
 namespace Avalonia.PixelColor;
 
@@ -53,15 +53,15 @@ public partial class MainWindow : Window
     {
         EditorPanel.IsVisible = true;
         ViewModel.ShowEditorButtonVisible = false;
-        var scene = (ISFScene)OpenGlControl.SelectedScene;
+        var scene = (IsfScene)OpenGlControl.SelectedScene;
 
-        txtFS.Text = scene.ISFFragmentShaderSource;
-        txtVS.Text = scene.ISFVertexShaderSource;
+        txtFS.Text = scene.IsfFragmentShaderSource;
+        txtVS.Text = scene.IsfVertexShaderSource;
     }
 
     private void OnApplyClick(Object sender, RoutedEventArgs e)
     {
-        ISFScene scene = (ISFScene)OpenGlControl.SelectedScene;
+        var scene = (IsfScene)OpenGlControl.SelectedScene;
         scene.SetUp(txtVS.Text, txtFS.Text);
         ViewModel.UpdateParameters(scene.Parameters);
 

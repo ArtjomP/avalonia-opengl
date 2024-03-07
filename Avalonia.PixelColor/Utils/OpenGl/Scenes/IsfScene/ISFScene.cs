@@ -1,234 +1,235 @@
 ﻿#nullable enable
 
 using Avalonia.OpenGL;
-using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
-using Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
+using Common;
 using static Avalonia.OpenGL.GlConsts;
 
-namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
+namespace Avalonia.PixelColor.Utils.OpenGl.IsfScene;
+
+internal sealed class IsfScene : IOpenGlScene
 {
-    internal sealed class ISFScene : IOpenGlScene
+    private GlInterface? _gl;
+
+    private Int32 _vao;
+
+    private Int32 _vbo;
+
+    private Int32 _ebo;
+
+    private Int32 _program;
+
+    private static readonly Single[] _vertices =
     {
-        private GlInterface? _gl;
+        //X    Y      Z
+        1.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f
+    };
 
-        private Int32 _vao;
+    private GlVersion GlVersion { get; }
 
-        private Int32 _vbo;
+    private OpenGlSceneParameter[] _parameters;
 
-        private Int32 _ebo;
+    public IEnumerable<OpenGlSceneParameter> Parameters => _parameters;
 
-        private Int32 _program;
+    public OpenGlScenesEnum Scene => OpenGlScenesEnum.IsfScene;
 
-        private static readonly Single[] _vertices =
+    private Single _timeValue = 0f;
+
+    private String _fragmentShaderSource;
+
+    private String _vertexShaderSource;
+
+    public IsfScene(GlVersion glVersion)
+    {
+        GlVersion = glVersion;
+        _fragmentShaderSource = String.Empty;
+        _vertexShaderSource = String.Empty;
+        SetUp(
+            fragmentShaderSource: IsfFragmentShaderSource,
+            vertexShaderSource: IsfVertexShaderSource);
+    }
+
+    public void DeInitialize(GlInterface gl)
+    {
+        gl.DeleteProgram(_program);
+        gl.UseProgram(0);
+    }
+
+    public unsafe void Initialize(GlInterface gl)
+    {
+        _gl = gl;
+        gl.ClearColor(r: 0f, g: 0f, b: 0f, a: 1);
+
+        _vao = _gl.GenVertexArray();
+        _gl.BindVertexArray(_vao);
+
+        _vbo = gl.GenBuffer();
+        gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
+
+        var vertices = _vertices;
+        fixed (Single* buf = vertices)
         {
-            //X    Y      Z 
-            1.0f,  1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f,
-            -1.0f,  1.0f, 0.0f
-        };
-
-        private GlVersion GlVersion { get; }
-
-        private OpenGlSceneParameter[] _parameters;
-
-        public IEnumerable<OpenGlSceneParameter> Parameters => _parameters;
-
-        public OpenGlScenesEnum Scene => OpenGlScenesEnum.ISFScene;
-
-        private Single _timeValue = 0f;
-
-        private String _fragmentShaderSource;
-
-        private String _vertexShaderSource;
-
-        public ISFScene(GlVersion glVersion)
-        {
-            GlVersion = glVersion;
-            _fragmentShaderSource = String.Empty;
-            _vertexShaderSource = String.Empty;
-            SetUp(
-                fragmentShaderSource: ISFFragmentShaderSource,
-                vertexShaderSource: ISFVertexShaderSource);
+            gl.BufferData(
+                target: GL_ARRAY_BUFFER,
+                size: (IntPtr)(vertices.Length * sizeof(Single)),
+                data: (IntPtr)buf,
+                usage: GL_STATIC_DRAW);
         }
 
-        public void DeInitialize(GlInterface gl)
+        var indices = OpenGlConstants.Indices;
+        _ebo = gl.GenBuffer();
+        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+
+        fixed (UInt32* buf = indices)
         {
-            gl.DeleteProgram(_program);
-            gl.UseProgram(0);
+            gl.BufferData(
+                target: GL_ELEMENT_ARRAY_BUFFER,
+                size: (IntPtr)(indices.Length * sizeof(uint)),
+                data: (IntPtr)buf,
+                usage: GL_STATIC_DRAW);
         }
 
-        public unsafe void Initialize(GlInterface gl)
+        var code = IsfShaderParser.GetShaderCode(IsfFragmentShaderSource);
+        _fragmentShaderSource = OpenGlUtils.GetShader(GlVersion, true, code);
+        _vertexShaderSource = OpenGlUtils.GetShader(GlVersion, false, IsfVertexShaderSource);
+
+        var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
+        var error = gl.CompileShaderAndGetError(
+            vertexShader,
+            _vertexShaderSource);
+        if (!String.IsNullOrEmpty(error))
         {
-            _gl = gl;
-            gl.ClearColor(r: 0f, g: 0f, b: 0f, a: 1);
+            throw new Exception(error);
+        }
 
-            _vao = _gl.GenVertexArray();
-            _gl.BindVertexArray(_vao);
+        var fragmentShader = gl.CreateShader(GL_FRAGMENT_SHADER);
+        error = gl.CompileShaderAndGetError(
+            fragmentShader,
+            _fragmentShaderSource);
+        if (!String.IsNullOrEmpty(error))
+        {
+            throw new Exception(error);
+        }
 
-            _vbo = gl.GenBuffer();
-            gl.BindBuffer(GL_ARRAY_BUFFER, _vbo);
+        _program = gl.CreateProgram();
+        gl.AttachShader(_program, vertexShader);
+        gl.AttachShader(_program, fragmentShader);
+        error = gl.LinkProgramAndGetError(_program);
+        if (!String.IsNullOrEmpty(error))
+        {
+            throw new Exception(error);
+        }
 
-            var vertices = _vertices;
-            fixed (Single* buf = vertices)
+        gl.DeleteShader(vertexShader);
+        gl.DeleteShader(fragmentShader);
+
+        const Int32 positionLoc = 0;
+        gl.EnableVertexAttribArray(positionLoc);
+        gl.VertexAttribPointer(
+            index: positionLoc,
+            size: 3,
+            type: GL_FLOAT,
+            normalized: 1,
+            stride: 3 * sizeof(Single),
+            pointer: IntPtr.Zero);
+
+        _gl.BindVertexArray(0);
+        gl.BindBuffer(GL_ARRAY_BUFFER, 0);
+        gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+
+    private IsfParameters? _isfParameters;
+
+    private IsfSceneParameterOfSingle[] _isfSceneParameters = Array.Empty<IsfSceneParameterOfSingle>();
+
+    [MemberNotNull(nameof(_parameters))]
+    public void SetUp(
+        String vertexShaderSource,
+        String fragmentShaderSource)
+    {
+        IsfFragmentShaderSource = fragmentShaderSource;
+        IsfVertexShaderSource = vertexShaderSource;
+        var isfParameters = IsfShaderParser.GetIsfParameters(IsfFragmentShaderSource);
+        _parameters = new OpenGlSceneParameter[isfParameters.INPUTS.Length];
+        var i = 0;
+        var isfSceneParameters = new List<IsfSceneParameterOfSingle>();
+        foreach (var input in isfParameters.INPUTS)
+        {
+            if (input.TYPE == "float")
             {
-                gl.BufferData(
-                    target: GL_ARRAY_BUFFER,
-                    size: (IntPtr)(vertices.Length * sizeof(Single)),
-                    data: (IntPtr)buf,
-                    usage: GL_STATIC_DRAW);
+                var min = input.MIN;
+                var max = input.MAX;
+                var defaultValue = (Byte)(input.DEFAULT / input.MAX * Byte.MaxValue);
+                var p = new OpenGlSceneParameter(input.NAME, defaultValue);
+                var isfSceneParameter = new IsfSceneParameterOfSingle(
+                    sceneParameter: p,
+                    min: min,
+                    max: max);
+                isfSceneParameters.Add(isfSceneParameter);
+                _parameters[i] = p;
+                ++i;
             }
-
-            var indices = Constants.Indices;
-            _ebo = gl.GenBuffer();
-            gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
-
-            fixed (UInt32* buf = indices)
+            else
             {
-                gl.BufferData(
-                    target: GL_ELEMENT_ARRAY_BUFFER,
-                    size: (IntPtr)(indices.Length * sizeof(uint)),
-                    data: (IntPtr)buf,
-                    usage: GL_STATIC_DRAW);
+                throw new NotSupportedException($"Data type {input.TYPE} not supported");
             }
+        }
 
-            var code = ISFShaderParser.GetShaderCode(ISFFragmentShaderSource);
+        _isfParameters = isfParameters;
+        _isfSceneParameters = isfSceneParameters.ToArray();
+        var gl = _gl;
+        if (gl is not null)
+        {
+            var code = IsfShaderParser.GetShaderCode(fragmentShaderSource);
             _fragmentShaderSource = OpenGlUtils.GetShader(GlVersion, true, code);
-            _vertexShaderSource = OpenGlUtils.GetShader(GlVersion, false, ISFVertexShaderSource);
-
-            var vertexShader = gl.CreateShader(GL_VERTEX_SHADER);
-            var error = gl.CompileShaderAndGetError(
-                vertexShader,
-                _vertexShaderSource);
-            if (!String.IsNullOrEmpty(error))
-            {
-                throw new Exception(error);
-            }
-
-            var fragmentShader = gl.CreateShader(GL_FRAGMENT_SHADER);
-            error = gl.CompileShaderAndGetError(
-                fragmentShader,
-                _fragmentShaderSource);
-            if (!String.IsNullOrEmpty(error))
-            {
-                throw new Exception(error);
-            }
-
-            _program = gl.CreateProgram();
-            gl.AttachShader(_program, vertexShader);
-            gl.AttachShader(_program, fragmentShader);
-            error = gl.LinkProgramAndGetError(_program);
-            if (!String.IsNullOrEmpty(error))
-            {
-                throw new Exception(error);
-            }
-
-            gl.DeleteShader(vertexShader);
-            gl.DeleteShader(fragmentShader);
-
-            const Int32 positionLoc = 0;
-            gl.EnableVertexAttribArray(positionLoc);
-            gl.VertexAttribPointer(
-                index: positionLoc,
-                size: 3,
-                type: GL_FLOAT,
-                normalized: 1,
-                stride: 3 * sizeof(Single),
-                pointer: IntPtr.Zero);
-
-            _gl.BindVertexArray(0);
-            gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-            gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            _vertexShaderSource = OpenGlUtils.GetShader(GlVersion, false, IsfVertexShaderSource);
+            Initialize(gl);
         }
+    }
 
-        private ISFParameters? _isfParameters;
+    public void Render(GlInterface gl, int width, int height)
+    {
+        gl.Viewport(0, 0, width, height);
 
-        private IsfSceneParameterOfSingle[] _isfSceneParameters = Array.Empty<IsfSceneParameterOfSingle>();
+        gl.BindVertexArray(_vao);
+        gl.UseProgram(_program);
+        var renderSize = gl.GetUniformLocationString(_program, "RENDERSIZE");
+        gl.Uniform2f(renderSize, width, height);
+        var time = gl.GetUniformLocationString(_program, "TIME");
+        gl.Uniform1f(time, _timeValue);
 
-        [MemberNotNull(nameof(_parameters))]
-        public void SetUp(
-            String vertexShaderSource,
-            String fragmentShaderSource)
+        var isfSceneParameters = _isfSceneParameters;
+        var parameters = _isfParameters;
+        if (isfSceneParameters.Any() && parameters is not null &&
+            isfSceneParameters.Length == parameters.INPUTS.Length)
         {
-            ISFFragmentShaderSource = fragmentShaderSource;
-            ISFVertexShaderSource = vertexShaderSource;
-            var isfParameters = ISFShaderParser.GetISFParameters(ISFFragmentShaderSource);
-            _parameters = new OpenGlSceneParameter[isfParameters.INPUTS.Length];
-            var i = 0;
-            var isfSceneParameters = new List<IsfSceneParameterOfSingle>();
-            foreach (var input in isfParameters.INPUTS)
+            for (var i = 0; i < parameters.INPUTS.Length; i++)
             {
-                if (input.TYPE == "float")
-                {
-                    var min = input.MIN;
-                    var max = input.MAX;
-                    var defaultValue = (Byte)(input.DEFAULT / input.MAX * Byte.MaxValue);
-                    var p = new OpenGlSceneParameter(input.NAME, defaultValue);
-                    var isfSceneParameter = new IsfSceneParameterOfSingle(
-                        sceneParameter: p,
-                        min: min,
-                        max: max);
-                    isfSceneParameters.Add(isfSceneParameter);
-                    _parameters[i] = p;
-                    ++i;
-                }
-                else
-                {
-                    throw new NotSupportedException($"Data type {input.TYPE} not supported");
-                }
-            }
-
-            _isfParameters = isfParameters;
-            _isfSceneParameters = isfSceneParameters.ToArray();
-            var gl = _gl;
-            if (gl is not null)
-            {
-                var code = ISFShaderParser.GetShaderCode(fragmentShaderSource);
-                _fragmentShaderSource = OpenGlUtils.GetShader(GlVersion, true, code);
-                _vertexShaderSource = OpenGlUtils.GetShader(GlVersion, false, ISFVertexShaderSource);
-                Initialize(gl);
+                var uniform = gl.GetUniformLocationString(_program, parameters.INPUTS[i].NAME);
+                var value = isfSceneParameters[i].CalculateValue();
+                gl.Uniform1f(uniform, value);
             }
         }
 
-        public void Render(GlInterface gl, int width, int height)
-        {
-            gl.Viewport(0, 0, width, height);
-            
-            gl.BindVertexArray(_vao);
-            gl.UseProgram(_program);
-            var renderSize = gl.GetUniformLocationString(_program, "RENDERSIZE");
-            gl.Uniform2f(renderSize, width, height);
-            var time = gl.GetUniformLocationString(_program, "TIME");
-            gl.Uniform1f(time, _timeValue);
+        _timeValue += 0.01f;
 
-            var isfSceneParameters = _isfSceneParameters;
-            var parameters = _isfParameters;
-            if (isfSceneParameters.Any() && parameters is not null &&
-                isfSceneParameters.Length == parameters.INPUTS.Length)
-            {
-                for (var i = 0; i < parameters.INPUTS.Length; i++)
-                {
-                    var uniform = gl.GetUniformLocationString(_program, parameters.INPUTS[i].NAME);
-                    var value = isfSceneParameters[i].CalculateValue();
-                    gl.Uniform1f(uniform, value);
-                }
-            }                
+        gl.DrawElements(
+            mode: GL_TRIANGLES,
+            count: 6,
+            type: OpenGlConstants.GL_UNSIGNED_INT,
+            indices: IntPtr.Zero);
+    }
 
-            _timeValue += 0.01f;
-
-            gl.DrawElements(
-                mode: GL_TRIANGLES,
-                count: 6,
-                type: OpenGlConstants.GL_UNSIGNED_INT,
-                indices: IntPtr.Zero);
-        }
-
-        public String ISFFragmentShaderSource { get; set; } =
-    @"
+    public String IsfFragmentShaderSource { get; set; } =
+        @"
 /*{
 	""CREDIT"": ""by mojovideotech"",
 	""CATEGORIES"" : [ ""generator""
@@ -247,7 +248,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes
       	""TYPE"" :		""float"",
       	""DEFAULT"" :		649,
       	""MIN"" : 		    89,
-      	""MAX"" :			987	
+      	""MAX"" :			987
 	},
 	{
 		""NAME"" : 		""scale"",
@@ -321,7 +322,7 @@ float N11(float p) {
 	float fl = floor(p);
 	float fc = fract(p);
 	return mix(N1(fl), N1(fl + 1.0), fc);
-} 
+}
 
 float N21(vec2 p) { return fract(sin(p.x * floor(seed1) + p.y * floor(seed2)) * floor(seed2+seed1)); }
 
@@ -369,7 +370,7 @@ float G(vec2 uv) {
 	return m;
 }
 
-void main() 
+void main()
 {
 	vec2 uv = (2.25 - scale) * ( gl_FragCoord.xy - 0.5 * RENDERSIZE.xy) / RENDERSIZE.y;
 	float m = 0.0;
@@ -381,17 +382,15 @@ void main()
 		m += G(uv * s + (N11(i)*100.0) * i) * f;
 	}
 	col = 0.5 + sin(vec3(1.0, 0.5, 0.75)*TIME*cycle) * 0.5;
-	col *= m; 
+	col *= m;
 	gl_FragColor = vec4( col, 1.0 );
 }
             ";
 
-        public String ISFVertexShaderSource =
-            @"
+    public String IsfVertexShaderSource =
+        @"
             attribute vec3 position;
 		    void main() {
 			    gl_Position = vec4(position, 1.0 );
 		    }";
-
-    }
 }

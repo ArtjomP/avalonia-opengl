@@ -2,9 +2,9 @@
 
 using System;
 
-namespace Avalonia.PixelColor.Utils.OpenGl;
+namespace Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 
-public class ISFInput
+public class IsfInput
 {
     public String NAME { get; set; } = String.Empty;
 
@@ -17,7 +17,7 @@ public class ISFInput
     public Single MAX { get; set; }
 }
 
-public class ISFParameters
+public class IsfParameters
 {
     public String CREDIT { get; set; } = String.Empty;
 
@@ -25,5 +25,5 @@ public class ISFParameters
 
     public String[] CATEGORIES { get; set; } = Array.Empty<String>();
 
-    public ISFInput[] INPUTS { get; set; } = Array.Empty<ISFInput>();
+    public IsfInput[] INPUTS { get; set; } = Array.Empty<IsfInput>();
 }

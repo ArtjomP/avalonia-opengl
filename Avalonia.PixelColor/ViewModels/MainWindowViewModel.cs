@@ -55,7 +55,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 
     private void SetShowEditorButtonVisible(OpenGlScenesEnum scene)
     {
-        ShowEditorButtonVisible = scene == OpenGlScenesEnum.ISFScene;
+        ShowEditorButtonVisible = scene == OpenGlScenesEnum.IsfScene;
     }
 
     public ICommand MakeScreenShotCommand { get; }

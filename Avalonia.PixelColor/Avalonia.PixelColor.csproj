@@ -43,7 +43,4 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Common\Common.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Utils\OpenGl\Scenes\IsfScene\" />
-	</ItemGroup>
 </Project>
