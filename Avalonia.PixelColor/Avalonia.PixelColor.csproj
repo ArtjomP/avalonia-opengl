@@ -38,7 +38,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="pt.CommandExecutor.ReactiveUI" Version="1.0.4984" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
-		<PackageReference Include="Silk.NET.OpenGL" Version="2.19.0" />
+		<PackageReference Include="Silk.NET.OpenGL" Version="2.21.0" />
 	</ItemGroup>
 
 	<ItemGroup>
