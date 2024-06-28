@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using CommunityToolkit.Diagnostics;
+using Avalonia.OpenGL;
 
 namespace Avalonia.PixelColor.Controls;
 
@@ -137,6 +138,8 @@ public class PickPixelColorControl
             RenderOpenGl();
         }
     }
+
+    public GlVersion GlVersion => _openGlControl.OpenGlVersion;
 
     public void ChangeScene(IOpenGlScene scene)
     {

@@ -3,6 +3,7 @@ using Avalonia.OpenGL.Controls;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.ColorfulVoronoiScene;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 using Common;
 using System;
@@ -24,6 +25,8 @@ public sealed class OpenGlControl : OpenGlControlBase
         Scene = new Lines4Scene(GlVersion);
     }
 
+    public GlVersion OpenGlVersion => GlVersion;
+
     public IOpenGlScene Scene { get; private set; }
 
     private IOpenGlScene? _nextScene;
@@ -42,7 +45,7 @@ public sealed class OpenGlControl : OpenGlControlBase
                 OpenGlScenesEnum.Lines4 => new Lines4Scene(GlVersion),
                 OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoiScene(GlVersion),
                 OpenGlScenesEnum.LinesSilk => new LinesSilkScene(),
-                OpenGlScenesEnum.ISFScene => new ISFScene(GlVersion),
+                OpenGlScenesEnum.IsfScene => new IsfScene(GlVersion),
                 _ => new RectangleScene(),
             };
             _nextScene = nextScene;
@@ -96,8 +99,8 @@ public sealed class OpenGlControl : OpenGlControlBase
                 fixed (void* pPixels = pixels)
                 {
                     gl.ReadPixels(
-                        x: x,
-                        y: y,
+                        x: 0,
+                        y: 0,
                         width: 1,
                         height: 1,
                         format: GL_RGBA,
