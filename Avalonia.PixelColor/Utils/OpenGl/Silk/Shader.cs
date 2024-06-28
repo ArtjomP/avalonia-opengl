@@ -12,12 +12,12 @@ public class Shader : IDisposable
     private uint _handle;
     private GL _gl;
 
-    public Shader(GL gl, String vertexPath, String fragmentPath)
+    public Shader(GL gl, String vertexPath, String fragmentPath, Boolean loadShadersFromFile = true)
     {
         _gl = gl;
 
-        UInt32 vertex = LoadShader(ShaderType.VertexShader, vertexPath);
-        UInt32 fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
+        UInt32 vertex = LoadShader(ShaderType.VertexShader, vertexPath, loadShadersFromFile);
+        UInt32 fragment = LoadShader(ShaderType.FragmentShader, fragmentPath, loadShadersFromFile);
         _handle = _gl.CreateProgram();
         _gl.AttachShader(_handle, vertex);
         _gl.AttachShader(_handle, fragment);
@@ -99,10 +99,12 @@ public class Shader : IDisposable
         _gl.DeleteProgram(_handle);
     }
 
-    private UInt32 LoadShader(ShaderType type, String path)
+    private UInt32 LoadShader(ShaderType type, String shaderSource, Boolean loadShadersFromFile)
     {
-        var src = File.ReadAllText(path);
-        UInt32 handle = _gl.CreateShader(type);
+        var src = loadShadersFromFile 
+            ? File.ReadAllText(shaderSource) 
+            : shaderSource;
+        var handle = _gl.CreateShader(type);
         _gl.ShaderSource(handle, src);
         _gl.CompileShader(handle);
         var infoLog = _gl.GetShaderInfoLog(handle);

@@ -24,8 +24,6 @@ internal sealed class Lines2Scene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private GlExtrasInterface? _glExtras;
-
     private Single[] _vertices = new[]
     {
         0.0f, 0.0f,
@@ -140,7 +138,6 @@ internal sealed class Lines2Scene : IOpenGlScene
     public unsafe void Initialize(GlInterface gl)
     {
         _gl = gl;
-        _glExtras ??= new GlExtrasInterface(gl);
         if (gl is not null)
         {
 
@@ -159,9 +156,5 @@ internal sealed class Lines2Scene : IOpenGlScene
     public void Render(GlInterface gl, int width, int height)
     {
         gl.Viewport(0, 0, width, height);
-        var glExtras = _glExtras;
-        if (glExtras is not null)
-        {
-        }
     }
 }
