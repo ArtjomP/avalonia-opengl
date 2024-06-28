@@ -72,4 +72,9 @@ public partial class MainWindow : Window
         EditorPanel.IsVisible = false;
         ViewModel.ShowEditorButtonVisible = true;
     }
+
+    private void Button_Click(
+        Object? sender, RoutedEventArgs e)
+    {
+    }
 }

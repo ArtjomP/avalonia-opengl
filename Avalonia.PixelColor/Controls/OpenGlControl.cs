@@ -1,5 +1,6 @@
 ﻿using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
+using Avalonia.PixelColor.Models;
 using Avalonia.PixelColor.Utils.OpenGl;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.ColorfulVoronoiScene;
@@ -31,26 +32,28 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     private IOpenGlScene? _nextScene;
 
-    public IEnumerable<OpenGlSceneParameter> ChangeScene(OpenGlScenesEnum scene)
+    public IEnumerable<OpenGlSceneParameter> ChangeScene(ISceneDescription scene)
     {
         var parameters = Scene.Parameters;
-        if (scene != Scene.Scene)
+
+        IOpenGlScene nextScene = scene switch
         {
-            IOpenGlScene nextScene = scene switch
-            {
-                OpenGlScenesEnum.Rectangle => new RectangleScene(),
-                OpenGlScenesEnum.Lines => new LinesScene(GlVersion),
-                OpenGlScenesEnum.Lines2 => new Lines2Scene(GlVersion),
-                OpenGlScenesEnum.Lines3 => new Lines3Scene(GlVersion),
-                OpenGlScenesEnum.Lines4 => new Lines4Scene(GlVersion),
-                OpenGlScenesEnum.ColorfulVoronoi => new ColorfulVoronoiScene(GlVersion),
-                OpenGlScenesEnum.LinesSilk => new LinesSilkScene(),
-                OpenGlScenesEnum.IsfScene => new IsfScene(GlVersion),
-                _ => new RectangleScene(),
-            };
-            _nextScene = nextScene;
-            parameters = nextScene.Parameters;
-        }
+            { GlScenesEnum: OpenGlScenesEnum.ColorfulVoronoi } => new ColorfulVoronoiScene(GlVersion),
+            { GlScenesEnum: OpenGlScenesEnum.Lines } => new LinesScene(GlVersion),
+            { GlScenesEnum: OpenGlScenesEnum.Lines2 } => new Lines2Scene(GlVersion),
+            { GlScenesEnum: OpenGlScenesEnum.Lines3 } => new Lines3Scene(GlVersion),
+            { GlScenesEnum: OpenGlScenesEnum.Lines4 } => new Lines4Scene(GlVersion),
+            { GlScenesEnum: OpenGlScenesEnum.LinesSilk } => new LinesSilkScene(),
+            { GlScenesEnum: OpenGlScenesEnum.IsfScene } => new IsfScene(GlVersion),
+            SceneWithFragmentShaderDescription sceneWithFragmentShaderDescription when
+                sceneWithFragmentShaderDescription.GlScenesEnum is OpenGlScenesEnum.ShaderToy =>
+                    new ShaderToyScene(
+                        glVersion: GlVersion,
+                        fragmentShaderSource: sceneWithFragmentShaderDescription.FragmentShader),
+            _ => new LinesScene(GlVersion),
+        };
+        _nextScene = nextScene;
+        parameters = nextScene.Parameters;
 
         return parameters;
     }
@@ -84,7 +87,7 @@ public sealed class OpenGlControl : OpenGlControlBase
     public List<TrackPoint> TrackPoints
     {
         get;
-    } = new List<TrackPoint>();    
+    } = new List<TrackPoint>();
 
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
@@ -125,7 +128,7 @@ public sealed class OpenGlControl : OpenGlControlBase
         Double scaleFactor)
     {
         var gl = _gl;
-        if (gl is not null )
+        if (gl is not null)
         {
             var pixelSize = OpenGlConstants.RgbaSize;
             var newPixelSize = (Int32)(pixelSize * scaleFactor);
@@ -145,7 +148,7 @@ public sealed class OpenGlControl : OpenGlControlBase
             }
 
             Common.Utils.SaveScreenshot(
-                rgbaData: pixels, 
+                rgbaData: pixels,
                 width: width,
                 height: height,
                 pixelSize: pixelSize,
@@ -199,5 +202,5 @@ public sealed class OpenGlControl : OpenGlControlBase
                 height: finalHeight,
                 scaleFactor: scaleFactor);
         }
-    }    
+    }
 }

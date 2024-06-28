@@ -16,6 +16,7 @@ internal sealed class Lines2Scene : IOpenGlScene
             new OpenGlSceneParameter("Test", 12),
         };
     }
+
     private GlVersion GlVersion { get; }
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; }
