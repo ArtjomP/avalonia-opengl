@@ -103,9 +103,9 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
-    private void SetShowEditorButtonVisible(ISceneDescription scene)
+    private void SetShowEditorButtonVisible(ISceneDescription? scene)
     {
-        ShowEditorButtonVisible = scene.GlScenesEnum is OpenGlScenesEnum.IsfScene;
+        ShowEditorButtonVisible = scene is { GlScenesEnum: OpenGlScenesEnum.IsfScene };
     }
 
     public ICommand MakeScreenShotCommand { get; }
