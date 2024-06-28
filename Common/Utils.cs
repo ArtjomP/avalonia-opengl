@@ -12,12 +12,12 @@ public static class Utils
         Int32 pixelSize,
         String filename)
     {
-        using var image = new Image<Rgba32>(width, height);
-        for (var y = 0; y < height; y++)
+        using Image<Rgba32> image = new (width, height);
+        for (Int32 y = 0; y < height; y++)
         {
-            for (var x = 0; x < width; x++)
+            for (Int32 x = 0; x < width; x++)
             {
-                var index = y * width * pixelSize + x * pixelSize;
+                Int32 index = y * width * pixelSize + x * pixelSize;
                 Rgba32 pixel = image[x, y];
                 pixel.R = rgbaData[index];
                 pixel.G = rgbaData[index + 1];
