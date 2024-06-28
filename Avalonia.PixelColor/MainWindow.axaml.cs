@@ -6,6 +6,9 @@ using System;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 using Avalonia.OpenGL;
+using Avalonia.Platform.Storage;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Avalonia.PixelColor;
 
@@ -73,8 +76,28 @@ public partial class MainWindow : Window
         ViewModel.ShowEditorButtonVisible = true;
     }
 
-    private void Button_Click(
+    private async void Button_Click(
         Object? sender, RoutedEventArgs e)
     {
+        TopLevel? topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is not null)
+        {
+            // Start async operation to open the dialog.
+            IReadOnlyList<IStorageFile> files = await topLevel
+                .StorageProvider
+                .OpenFilePickerAsync(
+                    new FilePickerOpenOptions
+                    {
+                        Title = "Open ShaderToy File",
+                        AllowMultiple = false,
+                    })
+                .ConfigureAwait(true);
+            foreach (IStorageFile file in files)
+            {
+                await ViewModel
+                    .AddShaderToySceneAsync(file, CancellationToken.None)
+                    .ConfigureAwait(true);
+            }
+        }
     }
 }

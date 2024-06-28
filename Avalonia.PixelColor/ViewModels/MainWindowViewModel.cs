@@ -21,7 +21,7 @@ public sealed class MainWindowViewModel : ReactiveObject
 {
     public MainWindowViewModel()
     {
-        AddShaderToySceneCommand = ReactiveCommand.Create(AddShaderToyScene);
+        AddShaderToySceneCommand = ReactiveCommand.CreateFromTask(AddShaderToySceneAsync);
         Scenes = Enum
             .GetValues<OpenGlScenesEnum>()
             .Select(a => new DefaultSceneDescription(a));
@@ -39,11 +39,6 @@ public sealed class MainWindowViewModel : ReactiveObject
     }
 
     public ICommand AddShaderToySceneCommand { get; }
-
-    private void AddShaderToyScene()
-    {
-        //AddShaderToySceneAsync(CancellationToken.None);
-    }
 
     private async Task AddShaderToySceneAsync(CancellationToken cancellationToken)
     {
@@ -68,18 +63,23 @@ public sealed class MainWindowViewModel : ReactiveObject
                     .ConfigureAwait(true);
                 foreach (IStorageFile file in files)
                 {
-                    String fragmentShader = await File
-                        .ReadAllTextAsync(file.Path.ToString(), cancellationToken)
-                        .ConfigureAwait(true);
-                    SceneWithFragmentShaderDescription newScene = new(
-                        glScenesEnum: OpenGlScenesEnum.ShaderToy,
-                        name: file.Name,
-                        fragmentShader: fragmentShader);
-                    Scenes = Scenes.Append(newScene);
-                    SelectedScene = newScene;
+                    await AddShaderToySceneAsync(file, cancellationToken);
                 }
             }
         }
+    }
+
+    public async Task AddShaderToySceneAsync(IStorageFile file, CancellationToken cancellationToken)
+    {
+        String fragmentShader = await File
+            .ReadAllTextAsync(file.Path.LocalPath, cancellationToken)
+            .ConfigureAwait(true);
+        SceneWithFragmentShaderDescription newScene = new(
+            glScenesEnum: OpenGlScenesEnum.ShaderToy,
+            name: Path.GetFileNameWithoutExtension(file.Name),
+            fragmentShader: fragmentShader);
+        Scenes = Scenes.Append(newScene);
+        SelectedScene = newScene;
     }
 
     private void SetSelectedSceneParameters(OpenGlSceneDescription? sceneDescription)
@@ -137,6 +137,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         set;
     }
 
+    [Reactive]
     public IEnumerable<ISceneDescription> Scenes
     {
         get;
