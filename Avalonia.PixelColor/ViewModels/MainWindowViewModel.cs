@@ -1,15 +1,18 @@
-﻿using Avalonia.PixelColor.Controls;
+﻿using Avalonia.Controls;
+using Avalonia.PixelColor.Controls;
+using Avalonia.PixelColor.Models;
 using Avalonia.PixelColor.Utils.OpenGl;
-using Avalonia.Threading;
+using Avalonia.Platform.Storage;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Avalonia.PixelColor.ViewModels;
@@ -18,8 +21,11 @@ public sealed class MainWindowViewModel : ReactiveObject
 {
     public MainWindowViewModel()
     {
-        Scenes = (OpenGlScenesEnum[])Enum.GetValues(typeof(OpenGlScenesEnum));
-        SelectedScene = OpenGlScenesEnum.Lines;
+        AddShaderToySceneCommand = ReactiveCommand.CreateFromTask(AddShaderToySceneAsync);
+        Scenes = Enum
+            .GetValues<OpenGlScenesEnum>()
+            .Select(a => new DefaultSceneDescription(a));
+        SelectedScene = Scenes.First(o => o.GlScenesEnum is OpenGlScenesEnum.ColorfulVoronoi);
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,
@@ -30,6 +36,50 @@ public sealed class MainWindowViewModel : ReactiveObject
             .Subscribe(SetSelectedSceneParameters);
         this.WhenAnyValue(o => o.SelectedScene)
             .Subscribe(SetShowEditorButtonVisible);
+    }
+
+    public ICommand AddShaderToySceneCommand { get; }
+
+    private async Task AddShaderToySceneAsync(CancellationToken cancellationToken)
+    {
+        if (!cancellationToken.IsCancellationRequested)
+        {
+            TopLevel? topLevel = TopLevel.GetTopLevel(null);
+            if (topLevel is not null)
+            {
+                // Start async operation to open the dialog.
+                IReadOnlyList<IStorageFile> files = await topLevel
+                    .StorageProvider
+                    .OpenFilePickerAsync(
+                        new FilePickerOpenOptions
+                        {
+                            Title = "Open ShaderToy File",
+                            AllowMultiple = false,
+                            FileTypeFilter =
+                            [
+                                new FilePickerFileType("*.frag")
+                            ]
+                        })
+                    .ConfigureAwait(true);
+                foreach (IStorageFile file in files)
+                {
+                    await AddShaderToySceneAsync(file, cancellationToken);
+                }
+            }
+        }
+    }
+
+    public async Task AddShaderToySceneAsync(IStorageFile file, CancellationToken cancellationToken)
+    {
+        String fragmentShader = await File
+            .ReadAllTextAsync(file.Path.LocalPath, cancellationToken)
+            .ConfigureAwait(true);
+        SceneWithFragmentShaderDescription newScene = new(
+            glScenesEnum: OpenGlScenesEnum.ShaderToy,
+            name: Path.GetFileNameWithoutExtension(file.Name),
+            fragmentShader: fragmentShader);
+        Scenes = Scenes.Append(newScene);
+        SelectedScene = newScene;
     }
 
     private void SetSelectedSceneParameters(OpenGlSceneDescription? sceneDescription)
@@ -53,9 +103,9 @@ public sealed class MainWindowViewModel : ReactiveObject
         }
     }
 
-    private void SetShowEditorButtonVisible(OpenGlScenesEnum scene)
+    private void SetShowEditorButtonVisible(ISceneDescription? scene)
     {
-        ShowEditorButtonVisible = scene == OpenGlScenesEnum.IsfScene;
+        ShowEditorButtonVisible = scene is { GlScenesEnum: OpenGlScenesEnum.IsfScene };
     }
 
     public ICommand MakeScreenShotCommand { get; }
@@ -87,10 +137,15 @@ public sealed class MainWindowViewModel : ReactiveObject
         set;
     }
 
-    public IEnumerable<OpenGlScenesEnum> Scenes { get; }
+    [Reactive]
+    public IEnumerable<ISceneDescription> Scenes
+    {
+        get;
+        private set;
+    }
 
     [Reactive]
-    public OpenGlScenesEnum SelectedScene
+    public ISceneDescription SelectedScene
     {
         get;
         set;
@@ -108,7 +163,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     {     
         get;
         set;
-    } = new ObservableCollection<OpenGlSceneParameter>();
+    } = [];
 
     [Reactive]
     public IScreenShotControl? ScreenShotControl { get; set; }

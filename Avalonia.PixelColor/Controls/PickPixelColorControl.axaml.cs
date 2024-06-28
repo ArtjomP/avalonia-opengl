@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using CommunityToolkit.Diagnostics;
 using Avalonia.OpenGL;
+using Avalonia.PixelColor.Models;
 
 namespace Avalonia.PixelColor.Controls;
 
@@ -53,16 +54,16 @@ public class PickPixelColorControl
         private set => SetAndRaise(SceneDescriptionProperty, ref _sceneDescription, value);
     }
 
-    public static readonly DirectProperty<PickPixelColorControl, OpenGlScenesEnum> SceneProperty =
-        AvaloniaProperty.RegisterDirect<PickPixelColorControl, OpenGlScenesEnum>(
+    public static readonly DirectProperty<PickPixelColorControl, ISceneDescription?> SceneProperty =
+        AvaloniaProperty.RegisterDirect<PickPixelColorControl, ISceneDescription?>(
             nameof(Scene),
             o => o.Scene,
             (o, v) => o.Scene = v,
-            unsetValue: OpenGlScenesEnum.LinesSilk);
+            unsetValue: null);
 
-    private OpenGlScenesEnum _scene = OpenGlScenesEnum.LinesSilk;
+    private ISceneDescription? _scene = null;
 
-    public OpenGlScenesEnum Scene
+    public ISceneDescription? Scene
     {
         get => _scene;
         private set => SetAndRaise(SceneProperty, ref _scene, value);
@@ -118,20 +119,20 @@ public class PickPixelColorControl
         if (change != null && change.Property == SceneProperty)
         {
             var scene = change
-                .GetNewValue<OpenGlScenesEnum>();
+                .GetNewValue<ISceneDescription>();
             ChangeScene(scene);
         }
     }
 
-    private void ChangeScene(OpenGlScenesEnum scene)
+    private void ChangeScene(ISceneDescription? scene)
     {
         var openGlControl = _openGlControl;
-        if (openGlControl is not null)
+        if (scene is not null && openGlControl is not null)
         {
             var sceneParameters = openGlControl.ChangeScene(scene);
             var sceneDescription = new OpenGlSceneDescription()
             {
-                Scene = scene,
+                Scene = scene.GlScenesEnum,
                 Parameters = sceneParameters
             };
             SceneDescription = sceneDescription;
