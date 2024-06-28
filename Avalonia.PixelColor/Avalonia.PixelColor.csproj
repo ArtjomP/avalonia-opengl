@@ -45,9 +45,6 @@
 		<ProjectReference Include="..\Common\Common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Utils\OpenGl\Scenes\IsfScene\" />
-	</ItemGroup>
-	<ItemGroup>
 	  <None Update="Utils\OpenGl\Scenes\ColorfulVoronoiScene\voronoi.frag">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>

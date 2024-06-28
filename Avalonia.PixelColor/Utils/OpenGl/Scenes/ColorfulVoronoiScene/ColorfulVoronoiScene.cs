@@ -53,7 +53,7 @@ internal sealed class ColorfulVoronoiScene : IOpenGlScene
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; }
 
-    public OpenGlScenesEnum Scene => OpenGlScenesEnum.Rectangle;
+    public OpenGlScenesEnum Scene => OpenGlScenesEnum.ColorfulVoronoi;
 
     private GL? _gl;
 
