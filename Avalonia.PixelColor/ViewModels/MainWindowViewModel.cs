@@ -25,7 +25,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         Scenes = Enum
             .GetValues<OpenGlScenesEnum>()
             .Select(a => new DefaultSceneDescription(a));
-        SelectedScene = Scenes.First(o => o.GlScenesEnum is OpenGlScenesEnum.ColorfulVoronoi);
+        SelectedScene = Scenes.First(o => o.GlScenesEnum is OpenGlScenesEnum.ShaderToy);
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,

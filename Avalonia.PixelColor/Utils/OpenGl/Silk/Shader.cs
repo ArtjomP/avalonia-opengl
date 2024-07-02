@@ -9,7 +9,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Silk;
 
 public class Shader : IDisposable
 {
-    private uint _handle;
+    public uint Handle { get; }
     private GL _gl;
 
     public Shader(GL gl, String vertexPath, String fragmentPath, Boolean loadShadersFromFile = true)
@@ -18,30 +18,30 @@ public class Shader : IDisposable
 
         UInt32 vertex = LoadShader(ShaderType.VertexShader, vertexPath, loadShadersFromFile);
         UInt32 fragment = LoadShader(ShaderType.FragmentShader, fragmentPath, loadShadersFromFile);
-        _handle = _gl.CreateProgram();
-        _gl.AttachShader(_handle, vertex);
-        _gl.AttachShader(_handle, fragment);
-        _gl.LinkProgram(_handle);
-        _gl.GetProgram(_handle, GLEnum.LinkStatus, out var status);
+        Handle = _gl.CreateProgram();
+        _gl.AttachShader(Handle, vertex);
+        _gl.AttachShader(Handle, fragment);
+        _gl.LinkProgram(Handle);
+        _gl.GetProgram(Handle, GLEnum.LinkStatus, out var status);
         if (status == 0)
         {
-            throw new Exception($"Program failed to link with error: {_gl.GetProgramInfoLog(_handle)}");
+            throw new Exception($"Program failed to link with error: {_gl.GetProgramInfoLog(Handle)}");
         }
 
-        _gl.DetachShader(_handle, vertex);
-        _gl.DetachShader(_handle, fragment);
+        _gl.DetachShader(Handle, vertex);
+        _gl.DetachShader(Handle, fragment);
         _gl.DeleteShader(vertex);
         _gl.DeleteShader(fragment);
     }
 
     public void Use()
     {
-        _gl.UseProgram(_handle);
+        _gl.UseProgram(Handle);
     }
 
     public void SetUniform(string name, int value)
     {
-        int location = _gl.GetUniformLocation(_handle, name);
+        int location = _gl.GetUniformLocation(Handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
@@ -52,7 +52,7 @@ public class Shader : IDisposable
 
     public void SetUniform(string name, float value)
     {
-        var location = _gl.GetUniformLocation(_handle, name);
+        var location = _gl.GetUniformLocation(Handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
@@ -63,7 +63,7 @@ public class Shader : IDisposable
 
     public void SetUniform(String name, Vector4 value)
     {
-        var location = _gl.GetUniformLocation(_handle, name);
+        var location = _gl.GetUniformLocation(Handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
@@ -74,7 +74,7 @@ public class Shader : IDisposable
 
     public void SetUniform(String name, Vector3 value)
     {
-        var location = _gl.GetUniformLocation(_handle, name);
+        var location = _gl.GetUniformLocation(Handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
@@ -85,7 +85,7 @@ public class Shader : IDisposable
 
     public void SetUniform(String name, Vector2 value)
     {
-        var location = _gl.GetUniformLocation(_handle, name);
+        var location = _gl.GetUniformLocation(Handle, name);
         if (location == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
@@ -96,7 +96,7 @@ public class Shader : IDisposable
 
     public void Dispose()
     {
-        _gl.DeleteProgram(_handle);
+        _gl.DeleteProgram(Handle);
     }
 
     private UInt32 LoadShader(ShaderType type, String shaderSource, Boolean loadShadersFromFile)

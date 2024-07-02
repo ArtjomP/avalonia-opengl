@@ -26,7 +26,7 @@ namespace Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene
 			return result;
 		}
 
-		OpenGlSceneParameter OpenGlSceneParameter { get; }
+		public OpenGlSceneParameter OpenGlSceneParameter { get; }
 	}
 }
 

@@ -20,15 +20,15 @@ namespace Avalonia.PixelColor
                 {
                     RenderingMode =
                     [
-#if !DEBUG
+// #if !DEBUG
                         Win32RenderingMode.Wgl,
-#endif
+// #endif
                         Win32RenderingMode.Software,
                         Win32RenderingMode.AngleEgl,
                     ],
                     WglProfiles =
                     [
-                        new GlVersion(GlProfileType.OpenGL, 4, 0)
+                        new GlVersion(GlProfileType.OpenGL, 3, 3)
                     ],
                 })
                 .LogToTrace();

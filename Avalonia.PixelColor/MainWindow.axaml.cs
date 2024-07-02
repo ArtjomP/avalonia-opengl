@@ -3,30 +3,29 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using pt.CommandExecutor.Common;
 using System;
-using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
-using Avalonia.OpenGL;
 using Avalonia.Platform.Storage;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace Avalonia.PixelColor;
 
-public partial class MainWindow : Window
-{ 
+public partial class MainWindow : Window {
     public MainWindow()
     {
-        InitializeComponent(true, true);
+        InitializeComponent();
         ViewModel = new MainWindowViewModel();
         DataContext = ViewModel;
         ViewModel.ScreenShotControl = OpenGlControl;
+        OpenGlControl.SceneParametersChanged +=
+            () => ViewModel.UpdateParameters(OpenGlControl.SelectedScene.Parameters);
         ScalingChanged += MainWindow_ScalingChanged;
+        SetScaleFactor(RenderScaling);
     }
 
     private void MainWindow_ScalingChanged(Object? sender, EventArgs e)
     {
-        var scaling = this.RenderScaling;
-        SetScaleFactor(scaling);
+        SetScaleFactor(RenderScaling);
     }
 
     private void SetScaleFactor(Double scaleFactor)
