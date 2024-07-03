@@ -53,7 +53,6 @@ public class ShaderToyUniforms
     public Int32 nbItems2 = 1;
     public Int32 colorMode = 1;
 
-
     public IEnumerable<IsfSceneParameterOfSingle> FindParameters(
         UInt32 shaderProgram, 
         GL gl)
@@ -65,26 +64,30 @@ public class ShaderToyUniforms
                 !Char.IsLower(fieldInfo.Name[1]) &&
                 fieldInfo.FieldType == typeof(Int32))
             {
-                Int32 loc = gl.GetUniformLocation(shaderProgram, fieldInfo.Name);
-                fieldInfo.SetValue(obj: this, value: loc);
-                if (loc >= 0)
+                Int32 location = gl.GetUniformLocation(shaderProgram, fieldInfo.Name);
+                if (location >= 0)
                 {
-                    String reflectName = fieldInfo.Name[1..].ToLower();
-                    var foundField = GetType()
+                    fieldInfo.SetValue(obj: this, value: location);
+                    String reflectName = GetParameterName(
+                        name: fieldInfo.Name);
+                    FieldInfo? foundField = GetType()
                         .GetFields()
                         .ToArray()
-                        .SingleOrDefault(e => e.Name.Equals(reflectName, StringComparison.CurrentCultureIgnoreCase));
+                        .SingleOrDefault(e => e.Name.Equals(
+                            value: reflectName, 
+                            comparisonType: StringComparison.InvariantCultureIgnoreCase));
                     if (foundField is not null)
                     {
-                        var isInt32 = foundField.FieldType == typeof(Int32);
+                        Boolean isInt32 = foundField.FieldType == typeof(Int32);
                         OpenGlSceneParameter openGlSceneParameter = new(name: fieldInfo.Name)
                         {
                             Value = 128
                         };
+                        Single max = isInt32 ? 20 : 10;
                         IsfSceneParameterOfSingle parameter = new(
                             sceneParameter: openGlSceneParameter,
                             min: 0,
-                            max: isInt32 ? 20 : 10);
+                            max: max);
                         parameters.Add(parameter);
                     }
                 }
@@ -94,26 +97,33 @@ public class ShaderToyUniforms
         return [..parameters];
     }
 
+    private String GetParameterName(String name)
+    {
+        String result = name[1..].ToLower();
+        return result;
+    }
+
     public void SetUniforms(
         IEnumerable<IsfSceneParameterOfSingle> parameters)
     {
         FieldInfo[] fields = GetType().GetFields();
-        foreach (IsfSceneParameterOfSingle e in parameters)
+        foreach (IsfSceneParameterOfSingle parameter in parameters)
         {
-            String reflectName = e.OpenGlSceneParameter.Name[1..].ToLower();
+            String reflectName = GetParameterName(
+                name: parameter.OpenGlSceneParameter.Name);
             foreach (FieldInfo fieldInfo in fields)
             {
                 if (fieldInfo.Name.Equals(
                         value: reflectName, 
-                        comparisonType: StringComparison.CurrentCultureIgnoreCase))
+                        comparisonType: StringComparison.InvariantCultureIgnoreCase))
                 {
                     if (fieldInfo.FieldType == typeof(Int32))
                     {
-                        fieldInfo.SetValue(this, (Int32)e.CalculateValue());
+                        fieldInfo.SetValue(this, (Int32)parameter.CalculateValue());
                     }
                     else if (fieldInfo.FieldType == typeof(Single))
                     {
-                        fieldInfo.SetValue(this, e.CalculateValue());
+                        fieldInfo.SetValue(this, parameter.CalculateValue());
                     }
                 }
             }

@@ -48,10 +48,9 @@ public sealed class OpenGlControl : OpenGlControlBase {
             SceneWithFragmentShaderDescription sceneWithFragmentShaderDescription when
                 sceneWithFragmentShaderDescription.GlScenesEnum is OpenGlScenesEnum.ShaderToy =>
                 new ShaderToyScene(
-                    glVersion: GlVersion,
                     fragmentShaderSource: sceneWithFragmentShaderDescription.FragmentShader),
-            { GlScenesEnum: OpenGlScenesEnum.ShaderToy } => new ShaderToyScene(GlVersion,
-                "out vec4 outColor;void main(){outColor=vec4(1.,0.,0.,1.);}"),
+            { GlScenesEnum: OpenGlScenesEnum.ShaderToy } => new ShaderToyScene(
+                fragmentShaderSource: OpenGlConstants.DefaultShaderToyFragmentShader),
             _ => new LinesScene(GlVersion),
         };
         _nextScene = nextScene;

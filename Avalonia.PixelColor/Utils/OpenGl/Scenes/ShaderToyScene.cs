@@ -12,9 +12,16 @@ using DynamicData;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
-public sealed class ShaderToyScene : IOpenGlScene {
-    private readonly String _vertexShaderSource =
-        "#version 150\nprecision highp float;\nvoid main(){gl_Position=vec4(float((gl_VertexID&1)<<2)-1.0,float((gl_VertexID&2)<<1)-1.0,0,1);}";
+public sealed class ShaderToyScene : IOpenGlScene 
+{
+    private const String VertexShaderSource =
+        @"
+#version 150
+precision highp float;
+void main()
+{
+    gl_Position = vec4(float((gl_VertexID&1)<<2)-1.0, float((gl_VertexID&2)<<1)-1.0, 0, 1);
+}";
 
     private readonly String _fragmentShaderSource;
 
@@ -25,7 +32,6 @@ public sealed class ShaderToyScene : IOpenGlScene {
     private IEnumerable<IsfSceneParameterOfSingle> _isfParameters;
 
     public ShaderToyScene(
-        GlVersion glVersion,
         String fragmentShaderSource)
     {
         Guard.IsNotNullOrEmpty(fragmentShaderSource);
@@ -62,7 +68,7 @@ public sealed class ShaderToyScene : IOpenGlScene {
 
         _shader = new Silk.Shader(
             gl: _gl,
-            vertexPath: _vertexShaderSource,
+            vertexPath: VertexShaderSource,
             fragmentPath: _fragmentShaderSource,
             loadShadersFromFile: false);
 
@@ -132,59 +138,56 @@ public sealed class ShaderToyScene : IOpenGlScene {
         gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         gl.Enable(EnableCap.DepthTest);
         var shader = _shader;
-        if (shader is null)
-            return;
+        if (shader is not null)
+        {
+            shader.Use();
+            _uniforms.SetUniforms(_isfParameters);
+            var now = DateTime.Now;
+            Int64 currentMillisecond = now.Ticks / TimeSpan.TicksPerMillisecond;
+            Single timeDelta = (currentMillisecond - _uniforms.lastMs) / 1e3f;
+            
+            if (_uniforms.iTime >= 0) gl.Uniform1(_uniforms.iTime, (currentMillisecond - _uniforms.startMs) / 1e3f);
+            if (_uniforms.iResolution >= 0) gl.Uniform3(_uniforms.iResolution, width, height, 1.0f);
+            if (_uniforms.iTimeDelta >= 0) gl.Uniform1(_uniforms.iTimeDelta, timeDelta);
+            if (_uniforms.iFrameRate >= 0) gl.Uniform1(_uniforms.iTimeDelta, 1.0f / timeDelta);
+            if (_uniforms.iFrame >= 0) gl.Uniform1(_uniforms.iFrame, _uniforms.frame);
+            if (_uniforms.iChannelTime >= 0) gl.Uniform1(_uniforms.iChannelTime, new ReadOnlySpan<float>([0, 0, 0, 0]));
+            if (_uniforms.iChannelResolution >= 0)
+                gl.Uniform3(_uniforms.iChannelResolution,
+                    new ReadOnlySpan<float>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
+            if (_uniforms.iMouse >= 0) gl.Uniform4(_uniforms.iMouse, 0f, 0f, 0f, 0f);
+            if (_uniforms.iDate >= 0)
+                gl.Uniform4(_uniforms.iDate, now.Year, now.Month, now.Day,
+                    now.Hour * 3600f + now.Minute * 60f + now.Second);
 
-        shader.Use();
+            // кастомные параметры
+            if (_uniforms.iAudioLow >= 0) gl.Uniform1(_uniforms.iAudioLow, _uniforms.audioLow);
+            if (_uniforms.iForce >= 0) gl.Uniform1(_uniforms.iForce, _uniforms.force);
+            if (_uniforms.iForce2 >= 0) gl.Uniform1(_uniforms.iForce2, _uniforms.force2);
+            if (_uniforms.iForce3 >= 0) gl.Uniform1(_uniforms.iForce3, _uniforms.force3);
+            if (_uniforms.iComplexity >= 0) gl.Uniform1(_uniforms.iComplexity, _uniforms.complexity);
+            if (_uniforms.iNbItems >= 0) gl.Uniform1(_uniforms.iNbItems, _uniforms.nbItems);
+            if (_uniforms.iNbItems2 >= 0) gl.Uniform1(_uniforms.iNbItems2, _uniforms.nbItems2);
+            if (_uniforms.mColorMode >= 0) gl.Uniform1(_uniforms.mColorMode, _uniforms.colorMode);
 
-        _uniforms.SetUniforms(_isfParameters);
+            // текстуры
+            gl.ActiveTexture(GLEnum.Texture0);
+            gl.BindTexture(GLEnum.Texture2D, _noiseTexture);
+            if (_uniforms.iChannel0 >= 0) gl.Uniform1(_uniforms.iChannel0, 0);
+            if (_uniforms.iChannel1 >= 0) gl.Uniform1(_uniforms.iChannel1, 0);
+            if (_uniforms.iChannel2 >= 0) gl.Uniform1(_uniforms.iChannel2, 0);
+            if (_uniforms.iChannel3 >= 0) gl.Uniform1(_uniforms.iChannel3, 0);
+            if (_uniforms.iAudioFFT >= 0) gl.Uniform1(_uniforms.iAudioFFT, 0);
+            if (_uniforms.iAudioSamples >= 0) gl.Uniform1(_uniforms.iAudioSamples, 0);
 
-        var now = DateTime.Now;
-        var currMs = now.Ticks / TimeSpan.TicksPerMillisecond;
-        var timeDelta = (currMs - _uniforms.lastMs) / 1e3f;
+            _uniforms.lastMs = currentMillisecond;
+            _uniforms.frame++;
 
-        // параметры из шейдертоя
-        if (_uniforms.iTime >= 0) gl.Uniform1(_uniforms.iTime, (currMs - _uniforms.startMs) / 1e3f);
-        if (_uniforms.iResolution >= 0) gl.Uniform3(_uniforms.iResolution, width, height, 1.0f);
-        if (_uniforms.iTimeDelta >= 0) gl.Uniform1(_uniforms.iTimeDelta, timeDelta);
-        if (_uniforms.iFrameRate >= 0) gl.Uniform1(_uniforms.iTimeDelta, 1.0f / timeDelta);
-        if (_uniforms.iFrame >= 0) gl.Uniform1(_uniforms.iFrame, _uniforms.frame);
-        if (_uniforms.iChannelTime >= 0) gl.Uniform1(_uniforms.iChannelTime, new ReadOnlySpan<float>([0, 0, 0, 0]));
-        if (_uniforms.iChannelResolution >= 0)
-            gl.Uniform3(_uniforms.iChannelResolution,
-                new ReadOnlySpan<float>([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
-        if (_uniforms.iMouse >= 0) gl.Uniform4(_uniforms.iMouse, 0f, 0f, 0f, 0f);
-        if (_uniforms.iDate >= 0)
-            gl.Uniform4(_uniforms.iDate, now.Year, now.Month, now.Day,
-                now.Hour * 3600f + now.Minute * 60f + now.Second);
-
-        // кастомные параметры
-        if (_uniforms.iAudioLow >= 0) gl.Uniform1(_uniforms.iAudioLow, _uniforms.audioLow);
-        if (_uniforms.iForce >= 0) gl.Uniform1(_uniforms.iForce, _uniforms.force);
-        if (_uniforms.iForce2 >= 0) gl.Uniform1(_uniforms.iForce2, _uniforms.force2);
-        if (_uniforms.iForce3 >= 0) gl.Uniform1(_uniforms.iForce3, _uniforms.force3);
-        if (_uniforms.iComplexity >= 0) gl.Uniform1(_uniforms.iComplexity, _uniforms.complexity);
-        if (_uniforms.iNbItems >= 0) gl.Uniform1(_uniforms.iNbItems, _uniforms.nbItems);
-        if (_uniforms.iNbItems2 >= 0) gl.Uniform1(_uniforms.iNbItems2, _uniforms.nbItems2);
-        if (_uniforms.mColorMode >= 0) gl.Uniform1(_uniforms.mColorMode, _uniforms.colorMode);
-
-        // текстуры
-        gl.ActiveTexture(GLEnum.Texture0);
-        gl.BindTexture(GLEnum.Texture2D, _noiseTexture);
-        if (_uniforms.iChannel0 >= 0) gl.Uniform1(_uniforms.iChannel0, 0);
-        if (_uniforms.iChannel1 >= 0) gl.Uniform1(_uniforms.iChannel1, 0);
-        if (_uniforms.iChannel2 >= 0) gl.Uniform1(_uniforms.iChannel2, 0);
-        if (_uniforms.iChannel3 >= 0) gl.Uniform1(_uniforms.iChannel3, 0);
-        if (_uniforms.iAudioFFT >= 0) gl.Uniform1(_uniforms.iAudioFFT, 0);
-        if (_uniforms.iAudioSamples >= 0) gl.Uniform1(_uniforms.iAudioSamples, 0);
-
-        _uniforms.lastMs = currMs;
-        _uniforms.frame++;
-
-        gl.Disable(GLEnum.CullFace);
-        gl.Disable(GLEnum.DepthTest);
-        gl.BindVertexArray(_vao);
-        gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
-        gl.UseProgram(0);
+            gl.Disable(GLEnum.CullFace);
+            gl.Disable(GLEnum.DepthTest);
+            gl.BindVertexArray(_vao);
+            gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
+            gl.UseProgram(0);
+        }
     }
 }
