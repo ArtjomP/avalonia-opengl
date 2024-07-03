@@ -41,4 +41,12 @@ public static class OpenGlConstants
 
         public const String Color = "color";
     }
+
+    public const String DefaultShaderToyFragmentShader = @"
+out vec4 outColor;
+void main()
+{
+    outColor = vec4(1.,0.,0.,.5);
+}
+";
 }

@@ -14,14 +14,14 @@ using Avalonia.PixelColor.Models;
 
 namespace Avalonia.PixelColor.Controls;
 
-
 public class PickPixelColorControl
     : TemplatedControl
-    , IScreenShotControl
-{
+        , IScreenShotControl {
     public Double ScaleFactor { get; set; } = 1;
 
     private OpenGlControl? _openGlControl;
+
+    public event Action? SceneParametersChanged;
 
     public static readonly DirectProperty<PickPixelColorControl, IEnumerable<TrackPointViewModel>> TrackPointsProperty =
         AvaloniaProperty.RegisterDirect<PickPixelColorControl, IEnumerable<TrackPointViewModel>>(
@@ -32,7 +32,7 @@ public class PickPixelColorControl
     private IEnumerable<TrackPointViewModel> _trackPoints = new List<TrackPointViewModel>()
     {
         new TrackPointViewModel(),
-    };    
+    };
 
     public IEnumerable<TrackPointViewModel> TrackPoints
     {
@@ -41,10 +41,10 @@ public class PickPixelColorControl
     }
 
     public static readonly DirectProperty<PickPixelColorControl, OpenGlSceneDescription?> SceneDescriptionProperty =
-       AvaloniaProperty.RegisterDirect<PickPixelColorControl, OpenGlSceneDescription?>(
-           nameof(SceneDescription),
-           o => o.SceneDescription,
-           (o, v) => o.SceneDescription = v);
+        AvaloniaProperty.RegisterDirect<PickPixelColorControl, OpenGlSceneDescription?>(
+            nameof(SceneDescription),
+            o => o.SceneDescription,
+            (o, v) => o.SceneDescription = v);
 
     private OpenGlSceneDescription? _sceneDescription = null;
 
@@ -86,12 +86,15 @@ public class PickPixelColorControl
         base.OnApplyTemplate(e);
         var openGlControl = e.NameScope.Find<OpenGlControl>("PART_OpenGl");
         _openGlControl = openGlControl;
+
         if (openGlControl is not null)
         {
             foreach (var trackPoint in TrackPoints)
             {
                 openGlControl.TrackPoints.Add(trackPoint.Point);
             }
+
+            openGlControl.ParametersChanged += () => SceneParametersChanged?.Invoke();
 
             ChangeScene(Scene);
         }
@@ -161,8 +164,8 @@ public class PickPixelColorControl
     private PointerPoint? _lastPointerPosition;
 
     private void TrackMoved(
-       Object? sender,
-       PointerEventArgs args)
+        Object? sender,
+        PointerEventArgs args)
     {
         var openGlControl = _openGlControl;
         if (openGlControl is not null)
@@ -177,7 +180,7 @@ public class PickPixelColorControl
     {
         var position = _lastPointerPosition;
         var openGlControl = _openGlControl;
-        TrackPosition(openGlControl, position);       
+        TrackPosition(openGlControl, position);
     }
 
     private void TrackPosition(OpenGlControl? openGlControl, PointerPoint? position)
@@ -224,11 +227,11 @@ public class PickPixelColorControl
     private void RenderOpenGl()
     {
         var openGlControl = _openGlControl;
-        if (openGlControl is not null)
-        {
-            openGlControl.ScaleFactor = ScaleFactor;
-            openGlControl.RequestNextFrameRendering();
-        }
+        if (openGlControl is null)
+            return;
+
+        openGlControl.ScaleFactor = ScaleFactor;
+        openGlControl.RequestNextFrameRendering();
     }
 
     public override void Render(DrawingContext context)

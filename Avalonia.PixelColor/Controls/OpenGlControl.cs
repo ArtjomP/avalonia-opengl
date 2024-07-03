@@ -9,12 +9,12 @@ using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 using Common;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Controls;
 
-public sealed class OpenGlControl : OpenGlControlBase
-{
+public sealed class OpenGlControl : OpenGlControlBase {
     private GlInterface? _gl;
 
     static OpenGlControl()
@@ -32,10 +32,10 @@ public sealed class OpenGlControl : OpenGlControlBase
 
     private IOpenGlScene? _nextScene;
 
+    public event Action? ParametersChanged;
+
     public IEnumerable<OpenGlSceneParameter> ChangeScene(ISceneDescription scene)
     {
-        var parameters = Scene.Parameters;
-
         IOpenGlScene nextScene = scene switch
         {
             { GlScenesEnum: OpenGlScenesEnum.ColorfulVoronoi } => new ColorfulVoronoiScene(GlVersion),
@@ -47,15 +47,15 @@ public sealed class OpenGlControl : OpenGlControlBase
             { GlScenesEnum: OpenGlScenesEnum.IsfScene } => new IsfScene(GlVersion),
             SceneWithFragmentShaderDescription sceneWithFragmentShaderDescription when
                 sceneWithFragmentShaderDescription.GlScenesEnum is OpenGlScenesEnum.ShaderToy =>
-                    new ShaderToyScene(
-                        glVersion: GlVersion,
-                        fragmentShaderSource: sceneWithFragmentShaderDescription.FragmentShader),
+                new ShaderToyScene(
+                    fragmentShaderSource: sceneWithFragmentShaderDescription.FragmentShader),
+            { GlScenesEnum: OpenGlScenesEnum.ShaderToy } => new ShaderToyScene(
+                fragmentShaderSource: OpenGlConstants.DefaultShaderToyFragmentShader),
             _ => new LinesScene(GlVersion),
         };
         _nextScene = nextScene;
-        parameters = nextScene.Parameters;
 
-        return parameters;
+        return nextScene.Parameters;
     }
 
     public IEnumerable<OpenGlSceneParameter> ChangeScene(IOpenGlScene scene)
@@ -68,26 +68,25 @@ public sealed class OpenGlControl : OpenGlControlBase
     private void SelectScene()
     {
         var nextScene = _nextScene;
+        _nextScene = null;
         if (nextScene is not null)
         {
             var gl = _gl;
             if (gl is not null)
             {
                 var previousScene = Scene;
-                previousScene?.DeInitialize(gl);
+                previousScene.DeInitialize(gl);
 
                 nextScene.Initialize(gl);
                 Scene = nextScene;
+                ParametersChanged?.Invoke();
             }
         }
     }
 
     public Double ScaleFactor { get; set; } = 1;
 
-    public List<TrackPoint> TrackPoints
-    {
-        get;
-    } = new List<TrackPoint>();
+    public List<TrackPoint> TrackPoints { get; } = new List<TrackPoint>();
 
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
