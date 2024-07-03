@@ -2,12 +2,10 @@
 using Silk.NET.OpenGL;
 using System.Collections.Generic;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 using CommunityToolkit.Diagnostics;
 using Avalonia.PixelColor.Utils.OpenGl.ShaderToy;
-using DynamicData;
 
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Scenes;
@@ -144,7 +142,7 @@ void main()
             _uniforms.SetUniforms(_isfParameters);
             var now = DateTime.Now;
             Int64 currentMillisecond = now.Ticks / TimeSpan.TicksPerMillisecond;
-            Single timeDelta = (currentMillisecond - _uniforms.lastMs) / 1e3f;
+            Single timeDelta = (currentMillisecond - _uniforms.lastMs) / 1000f;
             
             if (_uniforms.iTime >= 0) gl.Uniform1(_uniforms.iTime, (currentMillisecond - _uniforms.startMs) / 1e3f);
             if (_uniforms.iResolution >= 0) gl.Uniform3(_uniforms.iResolution, width, height, 1.0f);
@@ -159,8 +157,7 @@ void main()
             if (_uniforms.iDate >= 0)
                 gl.Uniform4(_uniforms.iDate, now.Year, now.Month, now.Day,
                     now.Hour * 3600f + now.Minute * 60f + now.Second);
-
-            // кастомные параметры
+            
             if (_uniforms.iAudioLow >= 0) gl.Uniform1(_uniforms.iAudioLow, _uniforms.audioLow);
             if (_uniforms.iForce >= 0) gl.Uniform1(_uniforms.iForce, _uniforms.force);
             if (_uniforms.iForce2 >= 0) gl.Uniform1(_uniforms.iForce2, _uniforms.force2);
@@ -169,8 +166,7 @@ void main()
             if (_uniforms.iNbItems >= 0) gl.Uniform1(_uniforms.iNbItems, _uniforms.nbItems);
             if (_uniforms.iNbItems2 >= 0) gl.Uniform1(_uniforms.iNbItems2, _uniforms.nbItems2);
             if (_uniforms.mColorMode >= 0) gl.Uniform1(_uniforms.mColorMode, _uniforms.colorMode);
-
-            // текстуры
+            
             gl.ActiveTexture(GLEnum.Texture0);
             gl.BindTexture(GLEnum.Texture2D, _noiseTexture);
             if (_uniforms.iChannel0 >= 0) gl.Uniform1(_uniforms.iChannel0, 0);
