@@ -70,19 +70,19 @@ public sealed class OpenGlControl : OpenGlControlBase {
     {
         var nextScene = _nextScene;
         _nextScene = null;
-        if (nextScene is null)
-            return;
+        if (nextScene is not null)
+        {
+            var gl = _gl;
+            if (gl is not null)
+            {
+                var previousScene = Scene;
+                previousScene.DeInitialize(gl);
 
-        var gl = _gl;
-        if (gl is null)
-            return;
-
-        var previousScene = Scene;
-        previousScene?.DeInitialize(gl);
-
-        nextScene.Initialize(gl);
-        Scene = nextScene;
-        ParametersChanged?.Invoke();
+                nextScene.Initialize(gl);
+                Scene = nextScene;
+                ParametersChanged?.Invoke();
+            }
+        }
     }
 
     public Double ScaleFactor { get; set; } = 1;

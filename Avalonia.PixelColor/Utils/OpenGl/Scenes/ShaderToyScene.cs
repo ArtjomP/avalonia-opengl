@@ -18,8 +18,8 @@ public sealed class ShaderToyScene : IOpenGlScene {
 
     private readonly String _fragmentShaderSource;
 
-    private ShaderToyUniforms _uniforms;
-    private uint _noiseTexture;
+    private readonly ShaderToyUniforms _uniforms;
+    private UInt32 _noiseTexture;
     private IEnumerable<IsfSceneParameterOfSingle> _isfParameters;
 
     public ShaderToyScene(
@@ -35,7 +35,7 @@ public sealed class ShaderToyScene : IOpenGlScene {
     }
 
     private GL? _gl;
-    private uint _vao;
+    private UInt32 _vao;
     private Silk.Shader? _shader;
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; private set; }
