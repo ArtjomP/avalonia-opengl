@@ -1,22 +1,25 @@
+using System;
 using System.Linq;
 using System.Text;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.ShaderToy;
 
-public class ShaderToyConverter {
-    public static string Convert(string source)
+public class ShaderToyConverter 
+{
+    public static String Convert(String source)
     {
         var sb = new StringBuilder();
         
         // фильтр всего, что не ASCII
-        foreach (var c in source.Where(c => c <= 128))
+        foreach (Char c in source.Where(c => c <= 128))
+        {
             sb.Append(c);
+        }
 
         var s = sb.ToString();
         
-        // если шейдер с шейдертоя
-        if (s.Contains(" mainImage")) {
-            // здесь можно добавить свои параметры
+        if (s.Contains(" mainImage")) 
+        {
             s = @"uniform vec3 iResolution;
 uniform float iTime;
 uniform float iTimeDelta;
@@ -44,11 +47,25 @@ uniform int iNbItems;
 uniform int iNbItems2;
 uniform int mColorMode;
 out vec4 _SYSTEM_outColor;
-" + s + "\nvoid main(){vec4 o=vec4(0.,0.,0.,1.);mainImage(o,gl_FragCoord.xy);o.w=1.;_SYSTEM_outColor=o;}";
+" + s + @"
+void main()
+{
+  vec4 o = vec4(0.,0.,0.,1.);
+  mainImage(o,gl_FragCoord.xy);
+  o.w = 1.;
+  _SYSTEM_outColor = o;
+}";
         }
-        
+
         if (!s.StartsWith("#version"))
-            s = "#version 150\nprecision highp float;\nprecision highp int;\n" + s;
+        {
+            s = @"
+#version 150
+precision highp float;
+precision highp int;
+" + s;
+        }
+
         return s;
     }
 }

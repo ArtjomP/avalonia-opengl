@@ -19,7 +19,9 @@ public sealed class ShaderToyScene : IOpenGlScene {
     private readonly String _fragmentShaderSource;
 
     private readonly ShaderToyUniforms _uniforms;
+    
     private UInt32 _noiseTexture;
+    
     private IEnumerable<IsfSceneParameterOfSingle> _isfParameters;
 
     public ShaderToyScene(
@@ -35,7 +37,9 @@ public sealed class ShaderToyScene : IOpenGlScene {
     }
 
     private GL? _gl;
+    
     private UInt32 _vao;
+    
     private Silk.Shader? _shader;
 
     public IEnumerable<OpenGlSceneParameter> Parameters { get; private set; }
@@ -54,7 +58,7 @@ public sealed class ShaderToyScene : IOpenGlScene {
         Guard.IsNotNull(gl);
 
         _gl = GL.GetApi(gl.GetProcAddress);
-        _vao = _gl.CreateVertexArray();
+        _vao = _gl.GenVertexArray();
 
         _shader = new Silk.Shader(
             gl: _gl,
@@ -62,29 +66,57 @@ public sealed class ShaderToyScene : IOpenGlScene {
             fragmentPath: _fragmentShaderSource,
             loadShadersFromFile: false);
 
-        _noiseTexture = _gl.CreateTexture(GLEnum.Texture2D);
+        _noiseTexture = _gl.GenTexture();
         _gl.BindTexture(GLEnum.Texture2D, _noiseTexture);
 
-        var rnd = new Random(3);
-        var noise = new byte[256 * 256 * 4];
-        for (var i = 0; i < noise.Length; i++)
-            noise[i] = (byte)(rnd.Next() & 0xff);
+        var random = new Random(3);
+        var noise = new Byte[256 * 256 * 4];
+        for (Int32 i = 0; i < noise.Length; i++)
+        {
+            noise[i] = (Byte)(random.Next() & 0xff);
+        }
 
         unsafe
         {
-            fixed (byte* ptr = noise)
-                _gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, 256, 256, 0, PixelFormat.Rgba,
-                    PixelType.UnsignedByte, ptr);
+            fixed (Byte* pNoise = noise)
+            {
+                _gl.TexImage2D(
+                    target: TextureTarget.Texture2D,
+                    level: 0,
+                    internalformat: InternalFormat.Rgba8,
+                    width: 256,
+                    height: 256,
+                    border: 0,
+                    format: PixelFormat.Rgba,
+                    type: PixelType.UnsignedByte,
+                    pixels: pNoise);
+            }
         }
 
         // linear, wrap
-        _gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, 0x2601);
-        _gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, 0x2601);
-        _gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapS, 0x2901);
-        _gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureWrapT, 0x2901);
-        _gl.BindTexture(GLEnum.Texture2D, 0);
+        _gl.TexParameter(
+            target: GLEnum.Texture2D,
+            pname: GLEnum.TextureMinFilter, 
+            param: (Int32)TextureMinFilter.Linear);
+        _gl.TexParameter(
+            target: GLEnum.Texture2D,
+            pname: GLEnum.TextureMagFilter, 
+            param: (Int32)TextureMinFilter.Linear);
+        _gl.TexParameter(
+            target: GLEnum.Texture2D,
+            pname: GLEnum.TextureWrapS,
+            param: (Int32)TextureWrapMode.Repeat);
+        _gl.TexParameter(
+            target: GLEnum.Texture2D,
+            pname: GLEnum.TextureWrapT, 
+            param: (Int32)TextureWrapMode.Repeat);
+        _gl.BindTexture(
+            target: GLEnum.Texture2D, 
+            texture: 0);
 
-        _isfParameters = _uniforms.FindParameters(_shader.Handle, _gl);
+        _isfParameters = _uniforms.FindParameters(
+            shaderProgram: _shader.Handle,
+            gl: _gl);
 
         Parameters = _isfParameters.Select(e => e.OpenGlSceneParameter).ToList();
         
