@@ -9,6 +9,7 @@ using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 using Common;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Controls;
