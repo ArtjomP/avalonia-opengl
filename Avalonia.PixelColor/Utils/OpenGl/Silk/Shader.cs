@@ -7,9 +7,10 @@ using System.Numerics;
 
 namespace Avalonia.PixelColor.Utils.OpenGl.Silk;
 
-public class Shader : IDisposable
+public sealed class Shader : IDisposable
 {
-    public uint Handle { get; }
+    public UInt32 Handle { get; }
+
     private GL _gl;
 
     public Shader(GL gl, String vertexPath, String fragmentPath, Boolean loadShadersFromFile = true)
@@ -101,8 +102,8 @@ public class Shader : IDisposable
 
     private UInt32 LoadShader(ShaderType type, String shaderSource, Boolean loadShadersFromFile)
     {
-        var src = loadShadersFromFile 
-            ? File.ReadAllText(shaderSource) 
+        var src = loadShadersFromFile
+            ? File.ReadAllText(shaderSource)
             : shaderSource;
         var handle = _gl.CreateShader(type);
         _gl.ShaderSource(handle, src);
