@@ -7,6 +7,7 @@ using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 using Avalonia.Platform.Storage;
 using System.Collections.Generic;
 using System.Threading;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes;
 
 namespace Avalonia.PixelColor;
 
@@ -56,8 +57,8 @@ public partial class MainWindow : Window {
 
     private void OnApplyClick(Object sender, RoutedEventArgs e)
     {
-        if(String.IsNullOrEmpty(txtVS.Text) &&
-           String.IsNullOrEmpty(txtFS.Text))
+        if (String.IsNullOrEmpty(txtVS.Text) &&
+            String.IsNullOrEmpty(txtFS.Text))
         {
             return;
         }
@@ -97,6 +98,46 @@ public partial class MainWindow : Window {
                     .AddShaderToySceneAsync(file, CancellationToken.None)
                     .ConfigureAwait(true);
             }
+        }
+    }
+
+    private async void OpenAudioFile_Click(Object? sender, RoutedEventArgs e)
+    {
+        TopLevel? topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is not null)
+        {
+            IReadOnlyList<IStorageFile> files = await topLevel
+                .StorageProvider
+                .OpenFilePickerAsync(
+                    new FilePickerOpenOptions
+                    {
+                        Title = "Open Audio File",
+                        AllowMultiple = false,
+                    })
+                .ConfigureAwait(true);
+
+            var file = files.Count > 0 ? files[0] : null;
+
+            if (file != null && OpenGlControl.SelectedScene is ShaderToyScene)
+            {
+                ((ShaderToyScene)OpenGlControl.SelectedScene).UseAudioFile(file.Path.AbsolutePath);
+            }
+        }
+    }
+
+    private async void UseSpeakerCapture_Click(Object? sender, RoutedEventArgs e)
+    {
+        if (OpenGlControl.SelectedScene is ShaderToyScene)
+        {
+            ((ShaderToyScene)OpenGlControl.SelectedScene).UseSpeakerCapture();
+        }
+    }
+
+    private async void UseMicrophoneCapture_Click(Object? sender, RoutedEventArgs e)
+    {
+        if (OpenGlControl.SelectedScene is ShaderToyScene)
+        {
+            ((ShaderToyScene)OpenGlControl.SelectedScene).UseMicrophoneCapture();
         }
     }
 }
