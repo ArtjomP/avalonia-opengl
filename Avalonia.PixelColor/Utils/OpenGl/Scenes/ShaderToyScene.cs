@@ -315,28 +315,33 @@ void main()
 
     private void UpdateAudioTexture(GL gl)
     {
-        if (_spectrumProvider.GetFftData(_fftBuffer, this))
+        BasicSpectrumProvider? spectrumProvider = _spectrumProvider;
+        if (spectrumProvider is not null)
         {
+            if (spectrumProvider.GetFftData(_fftBuffer, this))
+            {
+                for (int i = 0; i < 512; i++)
+                {
+                    Byte val = (Byte)Math.Clamp(_fftBuffer[i] * 10000.0f, 0, 255);
+                    _currFftBuffer[i] = val;
+                }
+            }
+
             for (int i = 0; i < 512; i++)
             {
-                byte val = (byte)Math.Clamp(_fftBuffer[i] * 10000.0f, 0, 255);
-                _currFftBuffer[i] = val;
+                _audioTextureData[i] = (byte)(Math.Clamp(_audioTextureData[i] * 0.8 + _currFftBuffer[i] * 0.2, 0, 255));
+                _audioTextureData[i + 512] = _audioTextureData[i];
             }
-        }
 
-        for (int i = 0; i < 512; i++)
-        {
-            _audioTextureData[i] = (byte)(Math.Clamp(_audioTextureData[i] * 0.8 + _currFftBuffer[i] * 0.2, 0, 255));
-            _audioTextureData[i + 512] = _audioTextureData[i];
-        }
-
-        gl.ActiveTexture(GLEnum.Texture1);
-        gl.BindTexture(GLEnum.Texture2D, _audioTexture);
-        unsafe
-        {
-            fixed (Byte* pData = _audioTextureData)
+            gl.ActiveTexture(GLEnum.Texture1);
+            gl.BindTexture(GLEnum.Texture2D, _audioTexture);
+            unsafe
             {
-                gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 512, 2, PixelFormat.Red, PixelType.UnsignedByte, pData);
+                fixed (Byte* pData = _audioTextureData)
+                {
+                    gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, 512, 2, PixelFormat.Red, PixelType.UnsignedByte,
+                        pData);
+                }
             }
         }
     }
