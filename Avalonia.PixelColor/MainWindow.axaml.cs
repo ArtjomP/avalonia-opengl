@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         if (OpenGlControl.SelectedScene is ShaderToyScene scene)
         {
-            scene.UpdateAudioTexture(spectrum);
+            scene.UpdateFftBuffer(spectrum);
         }
     }
 

@@ -312,7 +312,7 @@ void main()
         }
     }
 
-    public void UpdateAudioTexture(Single[] fftBuffer)
+    public void UpdateFftBuffer(Single[] fftBuffer)
     {
         GL? gl = _gl;
         if (gl is not null)
