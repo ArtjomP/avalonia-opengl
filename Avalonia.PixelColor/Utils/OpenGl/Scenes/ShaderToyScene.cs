@@ -340,7 +340,7 @@ void main()
             //    }
           //  }
 
-            for (int i = 0; i < 2048; i++)
+            for (Int32 i = 0; i < 2048; i++)
             {
                 _audioTextureData[i] = (byte)(Math.Clamp(_audioTextureData[i] * 0.8 + _currFftBuffer[i] * 0.2, 0, 255));
                 _audioTextureData[i + 2048] = _audioTextureData[i];
