@@ -88,10 +88,14 @@
                     <Button HorizontalAlignment="Stretch" Click="OpenAudioFile_Click" Content="Open audio input"/>
                     <Button HorizontalAlignment="Stretch" Click="UseSpeakerCapture_Click" Content="Use speaker capture"/>
                     <Button HorizontalAlignment="Stretch" Click="UseMicrophoneCapture_Click" Content="Use microphone capture"/>
+                    <TextBlock
+                        Margin="4"
+                        Text="Selected audio input:"/>
+                    <ComboBox
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding AudioInputs, Mode=OneTime}"
+                        SelectedItem="{Binding SelectedAudioInput, Mode=TwoWay}"/>
                     <ListBox
-                        Grid.Row="4"
-                        Grid.Column="0"
-                        Grid.ColumnSpan="3"
                         BorderThickness="0"
                         ItemsSource="{Binding SelectedSceneParameters, Mode=OneWay}">
                         <ListBox.ItemTemplate>

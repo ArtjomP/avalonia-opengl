@@ -17,11 +17,11 @@
 		<None Remove="Utils\OpenGl\Scenes\IsfScene\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Content Include="Utils\OpenGl\Scenes\LinesSilkScene\lines.frag">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Content Include="..\libs\libsoundio.dll">
+	    <Link>libsoundio.dll</Link>
 	  </Content>
-	  <Content Include="Utils\OpenGl\Scenes\LinesSilkScene\lines.vert">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Content Include="..\libs\libsoundio.dylib">
+	    <Link>libsoundio.dylib</Link>
 	  </Content>
 	</ItemGroup>
 
