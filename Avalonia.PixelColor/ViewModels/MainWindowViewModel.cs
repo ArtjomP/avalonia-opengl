@@ -78,7 +78,8 @@ public sealed class MainWindowViewModel : ReactiveObject
             SoundIODevice device = soundIo.GetInputDevice(
                 index: inputDeviceOffset);
             String name = device.Name;
-            _inputDeviceOffsets.Add(
+            // fixme: при Add возникала ошибка дублирования
+            _inputDeviceOffsets.TryAdd(
                 key: name,
                 value: inputDeviceOffset);
             _audioInputs.Add(name);
