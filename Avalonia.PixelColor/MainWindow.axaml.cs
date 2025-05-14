@@ -6,11 +6,15 @@ using System;
 using Avalonia.PixelColor.Utils.OpenGl.Scenes.IsfScene;
 using Avalonia.Platform.Storage;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Threading;
+using Avalonia.PixelColor.Utils.OpenGl.Scenes;
+using ReactiveUI;
 
 namespace Avalonia.PixelColor;
 
-public partial class MainWindow : Window {
+public partial class MainWindow : Window 
+{
     public MainWindow()
     {
         InitializeComponent();
@@ -21,6 +25,18 @@ public partial class MainWindow : Window {
             () => ViewModel.UpdateParameters(OpenGlControl.SelectedScene.Parameters);
         ScalingChanged += MainWindow_ScalingChanged;
         SetScaleFactor(RenderScaling);
+        ViewModel
+            .WhenAnyValue(a => a.SignalSpectrum)
+            .Skip(10)
+            .Subscribe(SignalSpectrumChanged);
+    }
+
+    private void SignalSpectrumChanged(Single[] spectrum)
+    {
+        if (OpenGlControl.SelectedScene is ShaderToyScene scene)
+        {
+            scene.UpdateFftBuffer(spectrum);
+        }
     }
 
     private void MainWindow_ScalingChanged(Object? sender, EventArgs e)
@@ -56,8 +72,8 @@ public partial class MainWindow : Window {
 
     private void OnApplyClick(Object sender, RoutedEventArgs e)
     {
-        if(String.IsNullOrEmpty(txtVS.Text) &&
-           String.IsNullOrEmpty(txtFS.Text))
+        if (String.IsNullOrEmpty(txtVS.Text) &&
+            String.IsNullOrEmpty(txtFS.Text))
         {
             return;
         }
@@ -78,7 +94,7 @@ public partial class MainWindow : Window {
     private async void Button_Click(
         Object? sender, RoutedEventArgs e)
     {
-        TopLevel? topLevel = TopLevel.GetTopLevel(this);
+        TopLevel? topLevel = GetTopLevel(this);
         if (topLevel is not null)
         {
             // Start async operation to open the dialog.
@@ -97,6 +113,46 @@ public partial class MainWindow : Window {
                     .AddShaderToySceneAsync(file, CancellationToken.None)
                     .ConfigureAwait(true);
             }
+        }
+    }
+
+    private async void OpenAudioFile_Click(Object? sender, RoutedEventArgs e)
+    {
+        TopLevel? topLevel = GetTopLevel(this);
+        if (topLevel is not null)
+        {
+            IReadOnlyList<IStorageFile> files = await topLevel
+                .StorageProvider
+                .OpenFilePickerAsync(
+                    new FilePickerOpenOptions
+                    {
+                        Title = "Open Audio File",
+                        AllowMultiple = false,
+                    })
+                .ConfigureAwait(true);
+
+            var file = files.Count > 0 ? files[0] : null;
+
+            if (file != null && OpenGlControl.SelectedScene is ShaderToyScene scene)
+            {
+                scene.UseAudioFile(file.Path.AbsolutePath);
+            }
+        }
+    }
+
+    private void UseSpeakerCapture_Click(Object? sender, RoutedEventArgs e)
+    {
+        if (OpenGlControl.SelectedScene is ShaderToyScene scene)
+        {
+            scene.UseSpeakerCapture();
+        }
+    }
+
+    private void UseMicrophoneCapture_Click(Object? sender, RoutedEventArgs e)
+    {
+        if (OpenGlControl.SelectedScene is ShaderToyScene scene)
+        {
+            scene.UseMicrophoneCapture();
         }
     }
 }

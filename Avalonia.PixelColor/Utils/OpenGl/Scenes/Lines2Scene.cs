@@ -11,10 +11,10 @@ internal sealed class Lines2Scene : IOpenGlScene
     public Lines2Scene(GlVersion glVersion)
     {
         GlVersion = glVersion;
-        Parameters = new OpenGlSceneParameter[]
-        {
+        Parameters =
+        [
             new OpenGlSceneParameter("Test", 12),
-        };
+        ];
     }
 
     private GlVersion GlVersion { get; }
@@ -25,8 +25,8 @@ internal sealed class Lines2Scene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private Single[] _vertices = new[]
-    {
+    private readonly Single[] _vertices =
+    [
         0.0f, 0.0f,
         0.5f, 0.0f,
         0.5f, 0.5f,
@@ -42,7 +42,7 @@ internal sealed class Lines2Scene : IOpenGlScene
         0.0f, 0.0f,
         0.0f, -0.5f,
         0.5f, -0.5f,
-    };
+    ];
 
     private String FragmentShaderSource => OpenGlUtils.GetShader(GlVersion, true,
         @"#version 330 core 
@@ -132,9 +132,9 @@ internal sealed class Lines2Scene : IOpenGlScene
         vec2 isf_fragCoord = floor(isf_FragNormCoord * RENDERSIZE); 
         }");
 
-    private Int32 _vbo;
+    private readonly Int32 _vbo;
 
-    private Int32 _program;
+    private readonly Int32 _program;
 
     public unsafe void Initialize(GlInterface gl)
     {
@@ -142,7 +142,7 @@ internal sealed class Lines2Scene : IOpenGlScene
         if (gl is not null)
         {
 
-        }        
+        }
     }
 
     public void DeInitialize(GlInterface gl)
@@ -151,7 +151,7 @@ internal sealed class Lines2Scene : IOpenGlScene
         {
             gl.DeleteProgram(_program);
             gl.UseProgram(0);
-        }       
+        }
     }
 
     public void Render(GlInterface gl, int width, int height)

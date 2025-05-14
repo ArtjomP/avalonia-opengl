@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="clr-namespace:Avalonia.PixelColor.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Avalonia.PixelColor.ViewModels;assembly=Avalonia.PixelColor"
     Title="Avalonia.PixelColor"
     d:DesignHeight="600"
@@ -51,16 +50,30 @@
                 Grid.Row="1"
                 Grid.Column="0"
                 ColumnDefinitions="*,Auto">
-                <controls:PickPixelColorControl
-                    Name="OpenGlControl"
-                    Grid.Row="0"
+                <TabControl
                     Grid.Column="0"
-                    Margin="4"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    Background="Black"
-                    Scene="{Binding SelectedScene, Mode=OneWay}"
-                    SceneDescription="{Binding SelectedSceneDescription, Mode=OneWayToSource}" />
+                    Grid.Row="0">
+                    <TabItem Header="OpenGL">
+                        <controls:PickPixelColorControl
+                            Name="OpenGlControl"
+                            Margin="4"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Background="Black"
+                            Scene="{Binding SelectedScene, Mode=OneWay}"
+                            SceneDescription="{Binding SelectedSceneDescription, Mode=OneWayToSource}" />
+                    </TabItem>
+                    <TabItem Header="Stub">
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            TextWrapping="Wrap"
+                            TextAlignment="Center"
+                            Margin="16">
+                            Enter the valid "Save screenshot path:", click the screenshot button to make a screenshot. It should have the rendered scene but its empty because OpenGL rendering does not work when in background. When you switch back to the OpenGL the screenshot button works as expected.
+                        </TextBlock>
+                    </TabItem>
+                </TabControl>
                 <StackPanel
                     Grid.Row="0"
                     Grid.Column="1"
@@ -85,10 +98,17 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
+                    <Button HorizontalAlignment="Stretch" Click="OpenAudioFile_Click" Content="Open audio input"/>
+                    <Button HorizontalAlignment="Stretch" Click="UseSpeakerCapture_Click" Content="Use speaker capture"/>
+                    <Button HorizontalAlignment="Stretch" Click="UseMicrophoneCapture_Click" Content="Use microphone capture"/>
+                    <TextBlock
+                        Margin="4"
+                        Text="Selected audio input:"/>
+                    <ComboBox
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding AudioInputs, Mode=OneTime}"
+                        SelectedItem="{Binding SelectedAudioInput, Mode=TwoWay}"/>
                     <ListBox
-                        Grid.Row="4"
-                        Grid.Column="0"
-                        Grid.ColumnSpan="3"
                         BorderThickness="0"
                         ItemsSource="{Binding SelectedSceneParameters, Mode=OneWay}">
                         <ListBox.ItemTemplate>
