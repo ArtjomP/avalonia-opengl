@@ -32,7 +32,7 @@ public sealed class MainWindowViewModel : ReactiveObject
             .Select(a => new DefaultSceneDescription(a));
         SelectedScene = Scenes
             .First(o => o.GlScenesEnum is OpenGlScenesEnum.ColorfulVoronoi);
-        AudioInputs = new (_audioInputs);
+        AudioInputs = new(_audioInputs);
         _circularSub = new CircularBuffer.CircularBuffer<Double>(CircularBufferSize);
         _circularLow = new CircularBuffer.CircularBuffer<Double>(CircularBufferSize);
         _circularMid = new CircularBuffer.CircularBuffer<Double>(CircularBufferSize);
@@ -40,10 +40,7 @@ public sealed class MainWindowViewModel : ReactiveObject
         _fft = new RealFft(FftSize);
         _signalBuffer = new Single[FftSize];
         _signalSpectrum = new Single[FftSize / 2 + 1];
-        _soundIo = new SoundIO();
-        _soundIo.OnDevicesChange += UpdateAudioInputs;
-        _soundIo.Connect();
-        _soundIo.FlushEvents();
+        LoadSoundIo();
         var canExecute = this
             .WhenAnyValue(
                 o => o.ScreenShotsFolder,
@@ -57,12 +54,27 @@ public sealed class MainWindowViewModel : ReactiveObject
         this.WhenAnyValue(a => a.SelectedAudioInput)
             .Subscribe(SelectedAudioInputChanged);
     }
-    
+
+    private void LoadSoundIo()
+    {
+        try
+        {
+            _soundIo = new SoundIO();
+            _soundIo.OnDevicesChange += UpdateAudioInputs;
+            _soundIo.Connect();
+            _soundIo.FlushEvents();
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+        }
+    }
+
     private const Int32 CircularBufferSize = 4;
     
     private const Int32 FftSize = 2048;
     
-    private readonly SoundIO _soundIo;
+    private SoundIO? _soundIo;
 
     private readonly IDictionary<String, Int32> _inputDeviceOffsets = new Dictionary<String, Int32>();
 
@@ -71,18 +83,20 @@ public sealed class MainWindowViewModel : ReactiveObject
         _audioInputs.Clear();
         _audioInputs.Add(String.Empty);
         _inputDeviceOffsets.Clear();
-        SoundIO soundIo = _soundIo;
-        Int32 inputDeviceCount = soundIo.InputDeviceCount;
-        for (Int32 inputDeviceOffset = 0; inputDeviceOffset < inputDeviceCount; ++inputDeviceOffset)
+        SoundIO? soundIo = _soundIo;
+        if (soundIo is not null)
         {
-            SoundIODevice device = soundIo.GetInputDevice(
-                index: inputDeviceOffset);
-            String name = device.Name;
-            // fixme: при Add возникала ошибка дублирования
-            _inputDeviceOffsets.TryAdd(
-                key: name,
-                value: inputDeviceOffset);
-            _audioInputs.Add(name);
+            Int32 inputDeviceCount = soundIo.InputDeviceCount;
+            for (Int32 inputDeviceOffset = 0; inputDeviceOffset < inputDeviceCount; ++inputDeviceOffset)
+            {
+                SoundIODevice device = soundIo.GetInputDevice(
+                    index: inputDeviceOffset);
+                String name = device.Name;
+                _inputDeviceOffsets.TryAdd(
+                    key: name,
+                    value: inputDeviceOffset);
+                _audioInputs.Add(name);
+            }
         }
     }
 
