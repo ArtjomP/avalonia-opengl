@@ -25,7 +25,7 @@ internal sealed class Lines2Scene : IOpenGlScene
 
     private GlInterface? _gl;
 
-    private Single[] _vertices = new[]
+    private readonly Single[] _vertices = new[]
     {
         0.0f, 0.0f,
         0.5f, 0.0f,
@@ -132,9 +132,9 @@ internal sealed class Lines2Scene : IOpenGlScene
         vec2 isf_fragCoord = floor(isf_FragNormCoord * RENDERSIZE); 
         }");
 
-    private Int32 _vbo;
+    private readonly Int32 _vbo;
 
-    private Int32 _program;
+    private readonly Int32 _program;
 
     public unsafe void Initialize(GlInterface gl)
     {

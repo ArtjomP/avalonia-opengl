@@ -236,7 +236,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     [Reactive]
     public String Error { get; set; } = String.Empty;
 
-    private ObservableCollection<String> _audioInputs = new ();
+    private readonly ObservableCollection<String> _audioInputs = new ();
 
     public ReadOnlyObservableCollection<String> AudioInputs
     {
@@ -256,10 +256,11 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         try
         {
-            if (!String.IsNullOrEmpty(inputName) && _audioInputs.Contains(inputName))
+            SoundIO? soundIo = _soundIo;
+            if (soundIo is not null && !String.IsNullOrEmpty(inputName) && _audioInputs.Contains(inputName))
             {
                 Int32 deviceOffset = _inputDeviceOffsets[inputName];
-                SoundIODevice input = _soundIo.GetInputDevice(index: deviceOffset);
+                SoundIODevice input = soundIo.GetInputDevice(index: deviceOffset);
                 
                 _listening = false;
                 Thread.Sleep(millisecondsTimeout: 100);
@@ -299,7 +300,7 @@ public sealed class MainWindowViewModel : ReactiveObject
                 Thread.Sleep(millisecondsTimeout: 500);
                 Int32 capacity = (Int32)(MICROPHONE_LATENCY * 2 * _inStream.SampleRate * _inStream.BytesPerFrame);
                 Debug.WriteLine($"RingBuffer capacity: {capacity}");
-                _ringBuffer = _soundIo.CreateRingBuffer(capacity);
+                _ringBuffer = soundIo.CreateRingBuffer(capacity);
 
                 _inStream.Start();
                 _listening = true;
@@ -332,30 +333,30 @@ public sealed class MainWindowViewModel : ReactiveObject
     private SoundIOInStream? _inStream = null;
     private Boolean _listening = true;
     
-    private Single _gainFloat = 1.0f;
+    private readonly Single _gainFloat = 1.0f;
 
     /// Gain adds +-0.5 to _gainFloat, 50% == 1.0f
-    private Single _gainSubFloat = 1.0f;
+    private readonly Single _gainSubFloat = 1.0f;
 
-    private Single _gainLowFloat = 1.0f;
-    private Single _gainMidFloat = 1.0f;
-    private Single _gainHiFloat = 1.0f;
+    private readonly Single _gainLowFloat = 1.0f;
+    private readonly Single _gainMidFloat = 1.0f;
+    private readonly Single _gainHiFloat = 1.0f;
     
     private readonly RealFft _fft;
-    private readonly Single[] _signalBuffer;
-    private readonly Single[] _signalSpectrum;
+    private readonly Single[] _signalBuffer = [];
+    private readonly Single[] _signalSpectrum = [];
 
     [Reactive]
     public Single[] SignalSpectrum
     {
         get;
         private set;
-    }
+    } = [];
     
-    private Int32 _binSubFrom, _binSubTo, _binLowFrom, _binLowTo, _binMidFrom, _binMidTo, _binHiFrom, _binHiTo;
+    private readonly Int32 _binSubFrom, _binSubTo, _binLowFrom, _binLowTo, _binMidFrom, _binMidTo, _binHiFrom, _binHiTo;
 
     /// Use short history of values to smooth band values
-    private CircularBuffer.CircularBuffer<Double> _circularSub, _circularLow, _circularMid, _circularHi;
+    private readonly CircularBuffer.CircularBuffer<Double> _circularSub, _circularLow, _circularMid, _circularHi;
 
     [Reactive]
     public Boolean IsLogarithmic
@@ -370,158 +371,162 @@ public sealed class MainWindowViewModel : ReactiveObject
     {
         try
         {
-            IntPtr write_ptr = _ringBuffer.WritePointer;
-            Int32 free_bytes = _ringBuffer.FreeCount;
-            Int32 chCount = instream.Layout.ChannelCount;
-            Single value = 0, sumValue = 0;
-            Int32 free_count = free_bytes / instream.BytesPerFrame;
-
-            if (frame_count_min > free_count)
+            SoundIORingBuffer? ringBuffer = _ringBuffer;
+            if (ringBuffer is not null)
             {
-                Debug.WriteLine("ring buffer overflow");
-            }
+                IntPtr write_ptr = ringBuffer.WritePointer;
+                Int32 free_bytes = ringBuffer.FreeCount;
+                Int32 chCount = instream.Layout.ChannelCount;
+                Single value = 0, sumValue = 0;
+                Int32 free_count = free_bytes / instream.BytesPerFrame;
 
-            Int32 frames_left = Math.Min(free_count, frame_count_max);
-
-            Single vuPPML = 0;
-            Single vuPPMR = 0;
-
-            while (_listening)
-            {
-                Int32 frame_count = frames_left;
-                SoundIOChannelAreas areas = instream.BeginRead(ref frame_count);
-                if (frame_count == 0)
-                    break;
-
-                if (areas.IsEmpty)
+                if (frame_count_min > free_count)
                 {
-                    Debug.WriteLine($"Dropped {frame_count} frames due to internal overflow");
+                    Debug.WriteLine("ring buffer overflow");
                 }
-                else
+
+                Int32 frames_left = Math.Min(free_count, frame_count_max);
+
+                Single vuPPML = 0;
+                Single vuPPMR = 0;
+
+                while (_listening)
                 {
-                    for (Int32 frame = 0; frame < frame_count && _listening; ++frame)
+                    Int32 frame_count = frames_left;
+                    SoundIOChannelAreas areas = instream.BeginRead(ref frame_count);
+                    if (frame_count == 0)
+                        break;
+
+                    if (areas.IsEmpty)
                     {
-                        sumValue = 0;
-                        for (Int32 ch = 0; ch < chCount; ++ch)
+                        Debug.WriteLine($"Dropped {frame_count} frames due to internal overflow");
+                    }
+                    else
+                    {
+                        for (Int32 frame = 0; frame < frame_count && _listening; ++frame)
                         {
-                            SoundIOChannelArea area = areas.GetArea(ch);
-                            unsafe
+                            sumValue = 0;
+                            for (Int32 ch = 0; ch < chCount; ++ch)
                             {
-                                Buffer.MemoryCopy(
-                                    source: (void*)area.Pointer,
-                                    destination: (void*)write_ptr,
-                                    destinationSizeInBytes: instream.BytesPerSample,
-                                    sourceBytesToCopy: instream.BytesPerSample);
-                                area.Pointer += area.Step;
-                                value = *(Single*)write_ptr;
+                                SoundIOChannelArea area = areas.GetArea(ch);
+                                unsafe
+                                {
+                                    Buffer.MemoryCopy(
+                                        source: (void*)area.Pointer,
+                                        destination: (void*)write_ptr,
+                                        destinationSizeInBytes: instream.BytesPerSample,
+                                        sourceBytesToCopy: instream.BytesPerSample);
+                                    area.Pointer += area.Step;
+                                    value = *(Single*)write_ptr;
+                                }
+                                value *= _gainFloat;
+                                sumValue += value;
+                                if (ch == 0)
+                                {
+                                    vuPPML = value > vuPPML ? value : vuPPML;
+                                }
+                                else
+                                {
+                                    vuPPMR = value > vuPPMR ? value : vuPPMR;
+                                }
                             }
-                            value *= _gainFloat;
-                            sumValue += value;
-                            if (ch == 0)
-                            {
-                                vuPPML = value > vuPPML ? value : vuPPML;
-                            }
-                            else
-                            {
-                                vuPPMR = value > vuPPMR ? value : vuPPMR;
-                            }
+
+                            /// Take the highest value from all channels presented
+                            _signalBuffer[frame] = sumValue;
                         }
-
-                        /// Take the highest value from all channels presented
-                        _signalBuffer[frame] = sumValue;
                     }
+
+                    instream.EndRead();
+                    _fft.PowerSpectrum(
+                        samples: _signalBuffer,
+                        spectrum: _signalSpectrum,
+                        normalize: !IsLogarithmic);
+                    SignalSpectrum = _signalSpectrum.ToArray();
+
+                    Single Sub = 0;
+                    for (Int32 i = _binSubFrom; i < _binSubTo; ++i)
+                    {
+                        if (_signalSpectrum.Length > i)
+                        {
+                            Sub = Sub < _signalSpectrum[i]
+                                ? _signalSpectrum[i]
+                                : Sub;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[Audio] Sub: {i}");
+                        }
+                    }
+
+                    Double subValue = IsLogarithmic
+                        ? Scale.ToDecibelPower(_gainSubFloat * Sub, 1) / 60
+                        : _gainSubFloat * Sub;
+                    _circularSub.PushBack(subValue);
+
+                    Single low = 0;
+                    for (Int32 i = _binLowFrom; i < _binLowTo; ++i)
+                    {
+                        if (_signalSpectrum.Length > i)
+                        {
+                            low = low < _signalSpectrum[i]
+                                ? _signalSpectrum[i]
+                                : low;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[Audio] Low: {i}");
+                        }
+                    }
+
+                    Double lowDecibel = IsLogarithmic
+                        ? Scale.ToDecibelPower(_gainLowFloat * low, 1) / 60
+                        : _gainLowFloat * low;
+                    _circularLow.PushBack(lowDecibel);
+
+                    Single Mid = 0;
+                    for (Int32 i = _binMidFrom; i < _binMidTo; ++i)
+                    {
+                        if (_signalSpectrum.Length > i)
+                        {
+                            Mid = Mid < _signalSpectrum[i]
+                                ? _signalSpectrum[i]
+                                : Mid;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[Audio] Mid: {i}");
+                        }
+                    }
+
+                    Double midDecibel = IsLogarithmic
+                        ? Scale.ToDecibelPower(_gainMidFloat * Mid, 1) / 60
+                        : _gainMidFloat * Mid;
+                    _circularMid.PushBack(midDecibel);
+
+                    Single hi = 0;
+                    for (Int32 i = _binHiFrom; i < _binHiTo; ++i)
+                    {
+                        if (_signalSpectrum.Length > i)
+                        {
+                            hi = hi < _signalSpectrum[i]
+                                ? _signalSpectrum[i]
+                                : hi;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"[Audio] Hi: {i}");
+                        }
+                    }
+
+                    Double hiDecibel = IsLogarithmic
+                        ? Scale.ToDecibelPower(_gainHiFloat * hi, 1) / 60
+                        : _gainHiFloat * hi;
+                    _circularHi.PushBack(hiDecibel);
+
+                    frames_left -= frame_count;
+                    if (frames_left <= 0)
+                        break;
                 }
-
-                instream.EndRead();
-                _fft.PowerSpectrum(
-                    samples: _signalBuffer,
-                    spectrum: _signalSpectrum,
-                    normalize: !IsLogarithmic);
-                SignalSpectrum = _signalSpectrum.ToArray();
-
-                Single Sub = 0;
-                for (Int32 i = _binSubFrom; i < _binSubTo; ++i)
-                {
-                    if (_signalSpectrum.Length > i)
-                    {
-                        Sub = Sub < _signalSpectrum[i]
-                            ? _signalSpectrum[i]
-                            : Sub;
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"[Audio] Sub: {i}");
-                    }
-                }
-
-                Double subValue = IsLogarithmic
-                    ? Scale.ToDecibelPower(_gainSubFloat * Sub, 1) / 60
-                    : _gainSubFloat * Sub;
-                _circularSub.PushBack(subValue);
-
-                Single low = 0;
-                for (Int32 i = _binLowFrom; i < _binLowTo; ++i)
-                {
-                    if (_signalSpectrum.Length > i)
-                    {
-                        low = low < _signalSpectrum[i]
-                            ? _signalSpectrum[i]
-                            : low;
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"[Audio] Low: {i}");
-                    }
-                }
-
-                Double lowDecibel = IsLogarithmic
-                    ? Scale.ToDecibelPower(_gainLowFloat * low, 1) / 60
-                    : _gainLowFloat * low;
-                _circularLow.PushBack(lowDecibel);
-
-                Single Mid = 0;
-                for (Int32 i = _binMidFrom; i < _binMidTo; ++i)
-                {
-                    if (_signalSpectrum.Length > i)
-                    {
-                        Mid = Mid < _signalSpectrum[i]
-                            ? _signalSpectrum[i]
-                            : Mid;
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"[Audio] Mid: {i}");
-                    }
-                }
-
-                Double midDecibel = IsLogarithmic
-                    ? Scale.ToDecibelPower(_gainMidFloat * Mid, 1) / 60
-                    : _gainMidFloat * Mid;
-                _circularMid.PushBack(midDecibel);
-
-                Single hi = 0;
-                for (Int32 i = _binHiFrom; i < _binHiTo; ++i)
-                {
-                    if (_signalSpectrum.Length > i)
-                    {
-                        hi = hi < _signalSpectrum[i]
-                            ? _signalSpectrum[i]
-                            : hi;
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"[Audio] Hi: {i}");
-                    }
-                }
-
-                Double hiDecibel = IsLogarithmic
-                    ? Scale.ToDecibelPower(_gainHiFloat * hi, 1) / 60
-                    : _gainHiFloat * hi;
-                _circularHi.PushBack(hiDecibel);
-                
-                frames_left -= frame_count;
-                if (frames_left <= 0)
-                    break;
             }
         }
         catch (Exception ex)
