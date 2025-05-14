@@ -236,7 +236,7 @@ public sealed class MainWindowViewModel : ReactiveObject
     [Reactive]
     public String Error { get; set; } = String.Empty;
 
-    private readonly ObservableCollection<String> _audioInputs = new ();
+    private readonly ObservableCollection<String> _audioInputs = [];
 
     public ReadOnlyObservableCollection<String> AudioInputs
     {
@@ -441,7 +441,7 @@ public sealed class MainWindowViewModel : ReactiveObject
                         samples: _signalBuffer,
                         spectrum: _signalSpectrum,
                         normalize: !IsLogarithmic);
-                    SignalSpectrum = _signalSpectrum.ToArray();
+                    SignalSpectrum = [.. _signalSpectrum];
 
                     Single Sub = 0;
                     for (Int32 i = _binSubFrom; i < _binSubTo; ++i)

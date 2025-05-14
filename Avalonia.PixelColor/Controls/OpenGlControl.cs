@@ -86,7 +86,7 @@ public sealed class OpenGlControl : OpenGlControlBase {
 
     public Double ScaleFactor { get; set; } = 1;
 
-    public List<TrackPoint> TrackPoints { get; } = new List<TrackPoint>();
+    public List<TrackPoint> TrackPoints { get; } = [];
 
     private unsafe void GetTrackPointsColors(Int32 width, Int32 height)
     {
