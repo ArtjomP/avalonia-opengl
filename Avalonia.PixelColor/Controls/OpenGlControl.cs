@@ -9,7 +9,8 @@ using Avalonia.PixelColor.Utils.OpenGl.Scenes.LinesSilkScene;
 using Common;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Threading;
+using Avalonia.Input;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace Avalonia.PixelColor.Controls;
@@ -127,11 +128,12 @@ public sealed class OpenGlControl : OpenGlControlBase {
         Double scaleFactor)
     {
         var gl = _gl;
+        Thread.Sleep(3000);
         if (gl is not null)
         {
             var pixelSize = OpenGlConstants.RgbaSize;
             var newPixelSize = (Int32)(pixelSize * scaleFactor);
-            var pixelsCount = (Int32)newPixelSize * width * height;
+            var pixelsCount = newPixelSize * width * height;
             var pixels = new Byte[pixelsCount];
             gl.Finish();
             fixed (void* pPixels = pixels)
@@ -162,7 +164,7 @@ public sealed class OpenGlControl : OpenGlControlBase {
         _screenShotFullName = fullName;
     }
 
-    protected override unsafe void OnOpenGlInit(GlInterface gl)
+    protected override void OnOpenGlInit(GlInterface gl)
     {
         _gl = gl;
         base.OnOpenGlInit(gl);
@@ -191,6 +193,7 @@ public sealed class OpenGlControl : OpenGlControlBase {
         Scene.Render(gl, finalWidth, finalHeight);
         gl.Flush();
 
+        GetTrackPointsColors(width, height);
         var screenShotFullName = _screenShotFullName;
         _screenShotFullName = String.Empty;
         if (!String.IsNullOrEmpty(screenShotFullName))
@@ -200,6 +203,21 @@ public sealed class OpenGlControl : OpenGlControlBase {
                 width: finalWidth,
                 height: finalHeight,
                 scaleFactor: scaleFactor);
+        }
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        var position = e.GetCurrentPoint(this);
+        var x = position.Position.X;
+        var y = position.Position.Y;
+        var relativeX = x / Width;
+        var relativeY = y / Height;
+        foreach (var trackPoint in TrackPoints)
+        {
+            trackPoint.ReleativeX = relativeX;
+            trackPoint.ReleativeY = relativeY;
         }
     }
 }

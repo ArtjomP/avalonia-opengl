@@ -118,25 +118,31 @@ public partial class MainWindow : Window
 
     private async void OpenAudioFile_Click(Object? sender, RoutedEventArgs e)
     {
-        TopLevel? topLevel = GetTopLevel(this);
-        if (topLevel is not null)
+        try
         {
-            IReadOnlyList<IStorageFile> files = await topLevel
-                .StorageProvider
-                .OpenFilePickerAsync(
-                    new FilePickerOpenOptions
-                    {
-                        Title = "Open Audio File",
-                        AllowMultiple = false,
-                    })
-                .ConfigureAwait(true);
-
-            var file = files.Count > 0 ? files[0] : null;
-
-            if (file != null && OpenGlControl.SelectedScene is ShaderToyScene scene)
+            TopLevel? topLevel = GetTopLevel(this);
+            if (topLevel is not null)
             {
-                scene.UseAudioFile(file.Path.AbsolutePath);
+                IReadOnlyList<IStorageFile> files = await topLevel
+                    .StorageProvider
+                    .OpenFilePickerAsync(
+                        new FilePickerOpenOptions
+                        {
+                            Title = "Open Audio File",
+                            AllowMultiple = false,
+                        })
+                    .ConfigureAwait(true);
+
+                var file = files.Count > 0 ? files[0] : null;
+
+                if (file != null && OpenGlControl.SelectedScene is ShaderToyScene scene)
+                {
+                    scene.UseAudioFile(file.Path.AbsolutePath);
+                }
             }
+        }
+        catch (Exception)
+        {
         }
     }
 
