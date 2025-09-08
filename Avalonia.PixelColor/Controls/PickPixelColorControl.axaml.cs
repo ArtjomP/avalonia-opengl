@@ -97,16 +97,15 @@ public class PickPixelColorControl
             openGlControl.ParametersChanged += () => SceneParametersChanged?.Invoke();
 
             ChangeScene(Scene);
+            openGlControl.PointerMoved += TrackMoved;
         }
-
-        PointerMovedEvent.AddClassHandler<PickPixelColorControl>(TrackMoved);
-
+        
         _updateTrackingDisposable =
             Observable
                 .Interval(TimeSpan.FromMilliseconds(17))
                 .Subscribe(_ => Dispatcher.UIThread.Post(
                     RenderOpenGlAndGetPositionColorsBack,
-                    DispatcherPriority.Background));
+                    DispatcherPriority.Render));
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)

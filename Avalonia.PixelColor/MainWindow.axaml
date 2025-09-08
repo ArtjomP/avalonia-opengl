@@ -137,7 +137,6 @@
                                             Margin="4"
                                             VerticalAlignment="Center"
                                             Background="Transparent"
-                                            BorderBrush="{DynamicResource ThemeEmuButtonBackgoundDefaultDark}"
                                             BorderThickness="1"
                                             Foreground="White"
                                             Maximum="255"
